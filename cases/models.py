@@ -101,7 +101,7 @@ class IncidentInvolvedParty(models.Model):
                                      related_name="incident_party_address")
     # THis is a todo field. I haven't arrived at a good solution for storing these safely yet.
     social_security_number = None
-    # entire physical description- height, weight, build, tattoos, scars, hairstyle, eye color so that these may be a searchable field
+
     date_of_birth = models.DateField(null=True)
     MALE = "M"
     FEMALE = "F"
