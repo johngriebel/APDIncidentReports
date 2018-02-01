@@ -2,6 +2,7 @@
 
 ## Road Map
 **Initial Target Completion Date:** March 5, 2018
+
 This is very much a living document. Completed roadmap items will be ~~struck through~~.
 
 ### Software Agreement
