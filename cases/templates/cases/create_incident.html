@@ -4,7 +4,7 @@
     Welcome to the create incident page.
     <form action="{% url 'create' %}" method="post">
         {% csrf_token %}
-        {{ form.as_table }}<br>
+        {{ form.as_p }}<br>
         <input type="submit" value="Create"/>
     </form>
 {% endblock %}

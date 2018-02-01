@@ -4,4 +4,5 @@ from .models import Incident
 
 class IncidentForm(ModelForm):
     class Meta:
-        pass
+        model = Incident
+        exclude = ["id"]

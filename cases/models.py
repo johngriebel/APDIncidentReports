@@ -32,6 +32,7 @@ class Officer(models.Model):
 
 
 class Incident(models.Model):
+    # Should incident number be auto-generated?
     incident_number = models.CharField(max_length=35, unique=True)
     report_datetime = models.DateTimeField()
     reporting_officer = models.ForeignKey(Officer,
@@ -65,6 +66,10 @@ class Incident(models.Model):
     # TODO Fields
     # associated_offense_number
     # disposition
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse("cases.views.incident_detail", args=[str(self.id)])
 
     class Meta:
         db_table = "incident"
