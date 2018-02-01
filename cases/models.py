@@ -22,7 +22,10 @@ class Address(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     officer_number = models.IntegerField(unique=True)
-    supervisor = models.ForeignKey("Officer", null=True, on_delete=models.CASCADE)
+    supervisor = models.ForeignKey("Officer", null=True, on_delete=models.CASCADE, blank=True)
+
+    def __str__(self):
+        return f"{self.user.last_name} - {self.officer_number}"
 
     class Meta:
         db_table = "officer"
@@ -68,12 +71,16 @@ class Incident(models.Model):
 
 
 class Offense(models.Model):
-    gcic_code = models.IntegerField()
-    ucr_code = models.IntegerField()
+    ucr_name_classification = models.CharField(max_length=100, default="")
+    ucr_subclass_description = models.CharField(max_length=255, default="")
+    gcic_code = models.CharField(max_length=8, null=True)
+    ucr_code = models.CharField(max_length=8, null=True)
     ucr_rank = models.IntegerField(null=True)
     code_group = models.CharField(max_length=4, null=True)
     ucr_alpha = models.CharField(max_length=10)
-    description = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.ucr_name_classification}:{self.ucr_subclass_description} - {self.ucr_code}"
 
     class Meta:
         db_table = "offense"
