@@ -9,6 +9,7 @@
 
 ### Features
 All of these are to be documented as they are completed
+
 * Authentication
     * Sign up or invite?
     * Use a third party authentication service such as Auth0?
