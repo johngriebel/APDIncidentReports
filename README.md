@@ -6,7 +6,7 @@
 This is very much a living document. Don't hesitate to ask questions.
 
 ### Software Agreement
-- [ ] Send consultation agreement to APD for approval and signing
+- [x] Send consultation agreement to APD for approval and signing
     - Don't worry, it will be a very simple one
 
 ### Features
@@ -17,9 +17,13 @@ All of these are to be documented as they are completed
 - [ ] Define Database Schema
     - Approximately 80% complete. Just need a few details
 - [ ] Create reports
-    - Define a ModelForm for incidents
-    - Enter all Offense types into database with UCR and NGIC codes, create fixture file
-    - File upload
+    - [ ] Define a ModelForm for relevant models
+    - [ ] Datetime widget
+    - [ ] Basic, manual version with separate page for each entity
+    - [ ] Single page, in-line creation of all entities
+    - [ ] Smart address lookup
+    - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
+    - [ ] File upload
 - [ ] Update Reports
     - Get this more or less for free once report creation is finished
 - [ ] Approve reports

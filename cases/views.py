@@ -14,7 +14,8 @@ def create_incident(request, *args, **kwargs):
         form = IncidentForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(form)
+            print(vars(form))
+            return redirect("/cases/index/")
     else:
         form = IncidentForm()
 

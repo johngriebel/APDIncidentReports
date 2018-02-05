@@ -15,6 +15,9 @@ class Address(models.Model):
     state = models.CharField(max_length=2, choices=STATE_CHOICES)
     zip_code = models.CharField(max_length=5)
 
+    def __str__(self):
+        return f"{self.street} {self.street_two or ''} {self.city}, {self.state} {self.zip_code}"
+
     class Meta:
         db_table = "address"
 
