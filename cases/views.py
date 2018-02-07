@@ -1,7 +1,8 @@
-from copy import deepcopy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
-from .forms import IncidentForm, IncidentInvolvedPartyForm, populate_initial_incident_update_form_data
+from .forms import (IncidentForm,
+                    IncidentInvolvedPartyForm,
+                    populate_initial_incident_update_form_data)
 from .models import Incident, IncidentInvolvedParty
 from .constants import VICTIM, SUSPECT
 from .utils import parse_and_compile_incident_input_data
@@ -9,12 +10,11 @@ from .utils import parse_and_compile_incident_input_data
 
 # Create your views here.
 def index(request, *args, **kwargs):
-    context = {}
+    incidents = Incident.objects.all()
+    display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
+    context = {'incidents': incidents,
+               'display_fields': display_fields}
     return render(request, "cases/index.html", context=context)
-
-
-def create_address(request, *args, **kwargs):
-    pass
 
 
 def create_incident(request, *args, **kwargs):

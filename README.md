@@ -24,7 +24,7 @@ All of these are to be documented as they are completed
     - [ ] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
     - [ ] File upload
-- [ ] Update Reports
+- [x] Update Reports
     - Get this more or less for free once report creation is finished
 - [ ] Approve reports
     - Will need more information surrounding this
@@ -57,8 +57,11 @@ All of these are to be documented as they are completed
     - Record all print requests -> Who printed it and when
 - [ ] Email/Share reports?
     - Probably privacy concerns
-- [ ] View the list of all reports
+- [x] View the list of all reports
     - Trivial
+- [ ] Cosmetics
+    - Nice Nav Bar
+    - Correct Color Scheme
 
 ### Deployment
 - [ ] Talk to APD, determine their hosting practices (Do they use AWS, 
