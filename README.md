@@ -16,11 +16,11 @@ All of these are to be documented as they are completed
     - Use a third party authentication service such as Auth0?
 - [ ] Define Database Schema
     - Approximately 80% complete. Just need a few details
-- [ ] Create reports
-    - [ ] Define a ModelForm for relevant models
+- [x] Create reports
+    - [x] Define a ModelForm for relevant models
     - [ ] Datetime widget
-    - [ ] Basic, manual version with separate page for each entity
-    - [ ] Single page, in-line creation of all entities
+    - [x] Basic, manual version with separate page for each entity
+    - [x] Single page, in-line creation of all entities
     - [ ] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
     - [ ] File upload
