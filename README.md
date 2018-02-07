@@ -14,8 +14,7 @@ All of these are to be documented as they are completed
 - [ ] Authentication
     - Sign up or invite?
     - Use a third party authentication service such as Auth0?
-- [ ] Define Database Schema
-    - Approximately 80% complete. Just need a few details
+- [x] Define Database Schema
 - [x] Create reports
     - [x] Define a ModelForm for relevant models
     - [ ] Datetime widget
