@@ -36,8 +36,10 @@ def create_incident(request, *args, **kwargs):
         incident_data['offenses'] = request.POST.getlist("offenses")
         print(("INCIDENT DATA", incident_data))
         incident_form = IncidentForm(incident_data)
-        victim_formset = VictimFormset(victim_data, prefix="victims")
-        suspect_formset = SuspectFormset(suspect_data, prefix="suspects")
+        victim_formset = VictimFormset(victim_data, prefix="victims",
+                                       queryset=IncidentInvolvedParty.objects.none())
+        suspect_formset = SuspectFormset(suspect_data, prefix="suspects",
+                                         queryset=IncidentInvolvedParty.objects.none())
 
         if incident_form.is_valid() and victim_formset.is_valid and suspect_formset.is_valid():
             incident = incident_form.save(victims_data=victim_data,
@@ -47,8 +49,10 @@ def create_incident(request, *args, **kwargs):
             print(incident_form.errors)
     else:
         incident_form = IncidentForm()
-        victim_formset = VictimFormset(prefix="victims")
-        suspect_formset = SuspectFormset(prefix="suspects")
+        victim_formset = VictimFormset(prefix="victims",
+                                       queryset=IncidentInvolvedParty.objects.none())
+        suspect_formset = SuspectFormset(prefix="suspects",
+                                         queryset=IncidentInvolvedParty.objects.none())
 
     context = {'form': incident_form,
                'victim_formset': victim_formset,

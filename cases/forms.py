@@ -4,8 +4,8 @@ from django import forms
 from django.forms import ModelForm
 from .models import (Address, IncidentInvolvedParty,
                      Officer, Offense, Incident)
-from .utils import convert_slash_date_to_iso
-from .constants import STATE_CHOICES, SHIFT_CHOICES, VICTIM
+from .utils import cleanse_incident_party_data
+from .constants import STATE_CHOICES, SHIFT_CHOICES
 
 
 class AddressForm(ModelForm):
@@ -46,7 +46,8 @@ class IncidentForm(forms.Form):
         incident = None
         try:
             data = deepcopy(self.cleaned_data)
-            print(data)
+            print(("data", data))
+
             offense_ids = data.pop("offenses")
             files = data.pop("files")
 
@@ -68,88 +69,19 @@ class IncidentForm(forms.Form):
                 if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
                         or'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
                     victim_groups.append(list(g))
-            print(victim_groups)
-            victims_to_create = []
-            for group in victim_groups:
-                if len(group) > 1:
-                    indiv_victim_data = {key[10:]: victims_data[key] for key in group}
-                    print(f"Indiv victim data: {indiv_victim_data}")
-                    officer_id = indiv_victim_data['officer_signed']
-
-                    converted_date = convert_slash_date_to_iso(indiv_victim_data['date_of_birth'])
-
-                    indiv_victim_data['date_of_birth'] = converted_date
-
-                    if officer_id in officers_cache:
-                        indiv_victim_data['officer_signed'] = officers_cache[officer_id]
-                    else:
-                        officer = Officer.objects.get(id=officer_id)
-                        indiv_victim_data['officer_signed'] = officers_cache[officer_id] = officer
-
-                    home_address_id = indiv_victim_data['home_address']
-                    if indiv_victim_data['home_address'] == "":
-                        indiv_victim_data['home_address'] = None
-                    else:
-                        indiv_victim_data['home_address'] = Address.objects.get(id=home_address_id)
-
-                    employer_address_id = indiv_victim_data['employer_address']
-                    if employer_address_id == "":
-                        indiv_victim_data['employer_address'] = None
-                    else:
-                        indiv_victim_data['employer_address'] = Address.objects.get(id=home_address_id)
-
-                    if indiv_victim_data['height'] == "":
-                        indiv_victim_data['height'] = None
-                    if indiv_victim_data['weight'] == "":
-                        indiv_victim_data['weight'] = None
-
-                    indiv_victim_data.update({'incident': incident, 'party_type': VICTIM})
-                    victims_to_create.append(IncidentInvolvedParty(**indiv_victim_data))
-            count = IncidentInvolvedParty.objects.bulk_create(victims_to_create)
-            print(f"Number of victims created: {count}")
 
             suspect_groups = []
             for k, g in groupby(suspects_data, lambda obj: obj.split("-")[:2]):
                 if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
                         or 'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
                     suspect_groups.append(list(g))
-            print(suspect_groups)
-            suspects_to_create = []
-            for group in suspect_groups:
-                if len(group) > 1:
-                    indiv_suspect_data = {key[11:]: suspects_data[key] for key in group}
-                    officer_id = indiv_suspect_data['officer_signed']
 
-                    converted_date = convert_slash_date_to_iso(indiv_suspect_data['date_of_birth'])
-                    indiv_suspect_data['date_of_birth'] = converted_date
-
-                    if officer_id in officers_cache:
-                        indiv_suspect_data['officer_signed'] = officers_cache[officer_id]
-                    else:
-                        officer = Officer.objects.get(id=officer_id)
-                        indiv_suspect_data['officer_signed'] = officers_cache[officer_id] = officer
-
-                    home_address_id = indiv_suspect_data['home_address']
-                    if home_address_id == "":
-                        indiv_suspect_data['home_address'] = None
-                    else:
-                        indiv_suspect_data['home_address'] = Address.objects.get(id=home_address_id)
-
-                    employer_address_id = indiv_suspect_data['employer_address']
-                    if employer_address_id == "":
-                        indiv_suspect_data['employer_address'] = None
-                    else:
-                        indiv_suspect_data['employer_address'] = Address.objects.get(id=home_address_id)
-
-                    if indiv_suspect_data['height'] == "":
-                        indiv_suspect_data['height'] = None
-                    if indiv_suspect_data['weight'] == "":
-                        indiv_suspect_data['weight'] = None
-
-
-                    indiv_suspect_data.update({'incident': incident, 'party_type': VICTIM})
-                    suspects_to_create.append(IncidentInvolvedParty(**indiv_suspect_data))
-            count = IncidentInvolvedParty.objects.bulk_create(suspects_to_create)
+            groups = victim_groups + suspect_groups
+            parties_to_create = cleanse_incident_party_data(incident=incident,
+                                                            data={**victims_data, **suspects_data},
+                                                            groups=groups,
+                                                            officers_cache=officers_cache)
+            count = IncidentInvolvedParty.objects.bulk_create(parties_to_create)
             print(f"Number of suspects created: {count}")
 
             return incident
