@@ -30,13 +30,13 @@ All of these are to be documented as they are completed
     - Will need more information surrounding this
 - [ ] Find a specific report (Search)
     - Search by the following fields:
-        - [ ] Incident Number
-        - [ ] Report Date and/or Time
+        - [x] Incident Number
+        - [x] Report Date and/or Time
         - [ ] Reporting Officer
         - [ ] Possible Occurrence Range
         - [ ] Location
-        - [ ] Beat?
-        - [ ] Shift?
+        - [x] Beat?
+        - [x] Shift?
         - [ ] Offense Type(s)
         - The following attributes for both victims and suspects:
             - [ ] Juvenile

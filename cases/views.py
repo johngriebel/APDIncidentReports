@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
-                    populate_initial_incident_update_form_data)
+                    populate_initial_incident_update_form_data,
+                    IncidentSearchForm)
 from .models import Incident, IncidentInvolvedParty
 from .constants import VICTIM, SUSPECT
 from .utils import parse_and_compile_incident_input_data
+from .search import get_search_results
 
 
 # Create your views here.
@@ -93,3 +95,23 @@ def incident_detail(request, incident_id):
                                                          'incident_form': incident_form,
                                                          'victim_formset': victim_formset,
                                                          'suspect_formset': suspect_formset})
+
+
+def search(request, *args, **kwargs):
+    display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
+    if request.method == "POST":
+        form = IncidentSearchForm(request.POST)
+        results = get_search_results(request.POST)
+        print(f"request.POST: {request.POST}")
+        was_post = True
+    else:
+        form = IncidentSearchForm()
+        results = []
+        was_post = False
+
+    context = {'form': form,
+               'results': results,
+               'display_fields': display_fields,
+               'was_post': was_post}
+    return render(request, "cases/search.html", context=context)
+

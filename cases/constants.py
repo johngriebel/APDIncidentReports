@@ -1,5 +1,8 @@
+EMPTY_CHOICE = ("", "-------")
+
 GEORGIA = "GA"
-STATE_CHOICES = [(GEORGIA, "Georgia")]
+STATE_CHOICES = [EMPTY_CHOICE,
+                 (GEORGIA, "Georgia")]
 
 DAY = "D"
 EVENING = "E"
@@ -7,18 +10,21 @@ NIGHT = "N"
 
 SHIFT_CHOICES = [(DAY, "Day"),
                  (EVENING, "Evening"),
-                 (NIGHT, "Night")]
+                 (NIGHT, "Night"),
+                 EMPTY_CHOICE]
 
 VICTIM = "VICTIM"
 SUSPECT = "SUSPECT"
 
 PARTY_TYPE_CHOICES = [(VICTIM, "Victim"),
-                (SUSPECT, "Suspect")]
+                      (SUSPECT, "Suspect"),
+                      EMPTY_CHOICE]
 
 MALE = "M"
 FEMALE = "F"
 SEX_CHOICES = [(MALE, "Male"),
-               (FEMALE, "Female")]
+               (FEMALE, "Female"),
+               EMPTY_CHOICE]
 
 # TODO: Hispanic?
 ASIAN = "ASIAN"
@@ -33,7 +39,8 @@ RACE_CHOICES = [(ASIAN, "Asian"),
                 (NATIVE, "Native American"),
                 (PAC_ISLANDER, "Native Hawaiian/Pacific Islander"),
                 (WHITE, "White"),
-                (OTHER, "Other")]
+                (OTHER, "Other"),
+                EMPTY_CHOICE]
 
 # Eye Colors
 EYE_BLACK = "BLK"
@@ -57,7 +64,8 @@ EYE_COLOR_CHOICES = [(EYE_BLACK, "Black"),
                      (EYE_GRAY, "Gray"),
                      (EYE_HAZEL, "Hazel"),
                      (EYE_MULTI, "MUL"),
-                     (EYE_UNKNOWN, "Unknown")]
+                     (EYE_UNKNOWN, "Unknown"),
+                     EMPTY_CHOICE]
 
 BALD = "BLD"
 BLOND = "BLN"
@@ -81,4 +89,5 @@ HAIR_COLOR_CHOICES = [(BALD, "Bald"),
                       (RED, "Red or Auburn"),
                       (SANDY, "Sandy"),
                       (WHITE, "White"),
-                      (EYE_UNKNOWN, "Unknown")]
+                      (EYE_UNKNOWN, "Unknown"),
+                      EMPTY_CHOICE]

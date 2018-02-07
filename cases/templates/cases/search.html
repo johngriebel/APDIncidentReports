@@ -1,0 +1,32 @@
+{% extends "cases/base.html" %}
+{% load bootstrap %}
+
+{% block content %}
+    <form role="form" action="{% url 'search' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+    <div class="form-group">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    {% if was_post %}
+        <h3>Search Results</h3>
+        <!-- TODO: refactor this to use a sub template. Index page uses the same exact HTML -->
+        <table class="table">
+            <thead>
+                {% for field in display_fields %}
+                    <th>{{ field }}</th>
+                {% endfor %}
+            </thead>
+            <tbody>
+                {% for incident in results %}
+                    <tr>
+                        <td><a href="{% url 'detail' incident.id %}">{{ incident.incident_number }}</a></td>
+                        <td>{{ incident.report_datetime }}</td>
+                        <td>{{ incident.reporting_officer }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

@@ -1,6 +1,6 @@
 import re
 from typing import Union, Tuple
-from datetime import date
+from datetime import datetime
 from itertools import groupby
 from .models import (Address,
                      Incident,
@@ -10,25 +10,35 @@ from .constants import VICTIM, SUSPECT
 date_format = re.compile("\d{4}-\d{2}-\d{2}")
 
 
-def convert_date_string_to_object(date_string: str) -> Union[date, None]:
+def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
     date_parts = None
     if date_string:
-        if "-" in date_string:
-            date_parts = date_string.split("-")
+        date_portion = date_string.split()[0]
+        time_portion = date_string.split()[-1]
+        if time_portion:
+            hours = int(time_portion[0])
+            minutes = int(time_portion[1])
+        else:
+            hours = 0
+            minutes = 0
+        if "-" in date_portion:
+            date_parts = date_portion.split("-")
             year = int(date_parts[0])
             month = int(date_parts[1])
             day = int(date_parts[2])
         elif "/" in date_string:
-            date_parts = date_string.split("/")
+            date_parts = date_portion.split("/")
             year = int(date_parts[2])
             month = int(date_parts[0])
             day = int(date_parts[1])
 
         if date_parts is not None and len(date_parts) == 3:
             print(("date parts", date_parts))
-            date_object = date(year=year,
-                               month=month,
-                               day=day)
+            date_object = datetime(year=year,
+                                   month=month,
+                                   day=day,
+                                   hour=hours,
+                                   minute=minutes)
             return date_object
         else:
             raise ValueError(f"Incorrectly formatted date string: {date_string}")
@@ -99,3 +109,8 @@ def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
     incident_data['offenses'] = post_data.getlist("offenses")
 
     return incident_data, victim_data, suspect_data, party_data
+
+
+def isincident_field(field_name: str) -> bool:
+    return ((not "location" in field_name) and ("victim" not in field_name)
+            and ("suspect" not in field_name) and not field_name == "csrfmiddlewaretoken")
