@@ -4,7 +4,7 @@ from django import forms
 from django.forms import ModelForm
 from .models import (Address, IncidentInvolvedParty,
                      Officer, Offense, Incident)
-from .utils import cleanse_incident_party_data, get_party_groups
+from .utils import cleanse_incident_party_data_and_create, get_party_groups
 from .constants import STATE_CHOICES, SHIFT_CHOICES
 
 
@@ -42,8 +42,8 @@ class IncidentForm(forms.Form):
     files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
                             required=False)
 
-    def save(self, party_data=None):
-        incident = None
+    def save(self, party_data=None, instance=None):
+        incident = instance
         try:
             data = deepcopy(self.cleaned_data)
             print(("data", data))
@@ -56,18 +56,18 @@ class IncidentForm(forms.Form):
                 if key.startswith("location_"):
                     address_data[key.replace("location_", "")] = data.pop(key)
 
-            address = Address.objects.get_or_create(**address_data,
-                                                    defaults=address_data)
+            address, _ = Address.objects.get_or_create(**address_data,
+                                                       defaults=address_data)
             data['location'] = address
-            incident = Incident.objects.create(**data)
+            incident, _ = Incident.objects.update_or_create(id=getattr(incident, "id", None),
+                                                            defaults=data)
             offenses = Offense.objects.filter(id__in=offense_ids)
             incident.offenses.set(offenses)
 
             groups = get_party_groups(data=party_data)
-            parties_to_create = cleanse_incident_party_data(incident=incident,
-                                                            data=party_data,
-                                                            groups=groups)
-            IncidentInvolvedParty.objects.bulk_create(parties_to_create)
+            cleanse_incident_party_data_and_create(incident=incident,
+                                                   data=party_data,
+                                                   groups=groups)
 
             return incident
         except Exception as e:
@@ -84,9 +84,12 @@ class IncidentInvolvedPartyForm(ModelForm):
 
 def populate_initial_incident_update_form_data(incident: Incident) -> dict:
     incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
-                    if (not field.startswith("location_")) and not field.startswith("files")}
+                     if (not field.startswith("location_")) and not field.startswith("files")}
     incident_data['stolen_amount'] = str(incident_data['stolen_amount']).replace("$", "")
     incident_data['damaged_amount'] = str(incident_data['damaged_amount']).replace("$", "")
+    for k in incident_data:
+        if "officer" in k:
+            incident_data[k] = incident_data[k].pk
 
     incident_data['offenses'] = incident.offenses.all()
 

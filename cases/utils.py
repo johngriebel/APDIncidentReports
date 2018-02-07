@@ -1,5 +1,5 @@
 import re
-from typing import Union
+from typing import Union, Tuple
 from datetime import date
 from itertools import groupby
 from .models import (Address,
@@ -54,9 +54,8 @@ def get_party_groups(data: dict) -> list:
     return groups
 
 
-def cleanse_incident_party_data(incident: Incident, data: dict, groups: list):
+def cleanse_incident_party_data_and_create(incident: Incident, data: dict, groups: list):
     officers_cache = {}
-    parties_to_create = []
     for group in groups:
         if len(group) > 1:
             indiv_party_data = {key[10:]: data[key] for key in group}
@@ -85,6 +84,18 @@ def cleanse_incident_party_data(incident: Incident, data: dict, groups: list):
 
             party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
             indiv_party_data.update({'incident': incident, 'party_type': party_type})
-            parties_to_create.append(IncidentInvolvedParty(**indiv_party_data))
+            IncidentInvolvedParty.objects.update_or_create(id=indiv_party_data.get("id", None),
+                                                           defaults=indiv_party_data)
 
-    return parties_to_create
+
+def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
+    victim_data = {key: post_data.get(key) for key in post_data if key.startswith("victims")}
+    suspect_data = {key: post_data.get(key) for key in post_data if key.startswith("suspects")}
+    party_data = {**victim_data, **suspect_data}
+
+    incident_data = {key: post_data.get(key) for key in post_data
+                     if (key not in victim_data and key not in suspect_data
+                         and key != "offenses")}
+    incident_data['offenses'] = post_data.getlist("offenses")
+
+    return incident_data, victim_data, suspect_data, party_data
