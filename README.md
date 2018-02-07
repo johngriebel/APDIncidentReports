@@ -59,6 +59,7 @@ All of these are to be documented as they are completed
     - Probably privacy concerns
 - [x] View the list of all reports
     - Trivial
+    - [ ] Decide which fields should be displayed in table
 - [ ] Cosmetics
     - Nice Nav Bar
     - Correct Color Scheme
