@@ -1,5 +1,5 @@
 from copy import deepcopy
-from itertools import groupby
+from django.forms import modelformset_factory
 from django import forms
 from django.forms import ModelForm
 from .models import (Address, IncidentInvolvedParty,
@@ -80,3 +80,17 @@ class IncidentInvolvedPartyForm(ModelForm):
     class Meta:
         model = IncidentInvolvedParty
         exclude = ['id', 'incident', 'party_type']
+
+
+def populate_initial_incident_update_form_data(incident: Incident) -> dict:
+    incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
+                    if (not field.startswith("location_")) and not field.startswith("files")}
+    incident_data['stolen_amount'] = str(incident_data['stolen_amount']).replace("$", "")
+    incident_data['damaged_amount'] = str(incident_data['damaged_amount']).replace("$", "")
+
+    incident_data['offenses'] = incident.offenses.all()
+
+    for field in ["street", "street_two", "city", "state", "zip_code"]:
+        incident_data["location_" + field] = getattr(incident.location, field)
+
+    return {'incident_data': incident_data}

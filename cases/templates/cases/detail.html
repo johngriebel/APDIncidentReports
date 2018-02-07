@@ -1,5 +1,28 @@
 {% extends "cases/base.html" %}
+{% load bootstrap %}
 
 {% block content %}
-    {{ incident.incident_number }}
+    <form role="form" action="{% url 'detail' incident.id %}" method="post">
+        {% csrf_token %}
+        <h3>Incident Information</h3>
+        {{ incident_form|bootstrap }}<br>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+        <h3>Victim(s)</h3>
+            {{ victim_formset.management_form }}
+            {% for victim_form in victim_formset %}
+                <h4>Victim {{ forloop.counter }}</h4>
+                {{ victim_form|bootstrap }}
+            {% endfor %}
+        <h3>Suspect(s)</h3>
+            {{ suspect_formset.management_form }}
+            {% for suspect_form in suspect_formset %}
+                <h4>Suspect {{ forloop.counter }}</h4>
+                {{ suspect_form|bootstrap }}
+            {% endfor %}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </form>
 {% endblock %}

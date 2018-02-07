@@ -1,8 +1,9 @@
 from copy import deepcopy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
-from .forms import IncidentForm, IncidentInvolvedPartyForm
-from .models import Incident, IncidentInvolvedParty, Offense
+from .forms import IncidentForm, IncidentInvolvedPartyForm, populate_initial_incident_update_form_data
+from .models import Incident, IncidentInvolvedParty
+from .constants import VICTIM, SUSPECT
 
 
 # Create your views here.
@@ -60,4 +61,25 @@ def create_incident(request, *args, **kwargs):
 
 def incident_detail(request, incident_id):
     incident = get_object_or_404(Incident, pk=incident_id)
-    return render(request, "cases/detail.html", context={'incident': incident})
+    forms = populate_initial_incident_update_form_data(incident)
+    incident_form = IncidentForm(data=forms['incident_data'])
+    victims = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                   party_type=VICTIM)
+    suspects = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                    party_type=SUSPECT)
+
+    VictimFormset = modelformset_factory(IncidentInvolvedParty,
+                                         form=IncidentInvolvedPartyForm,
+                                         exclude=('id', 'incident', 'party_type'))
+    SuspectFormset = modelformset_factory(IncidentInvolvedParty,
+                                          form=IncidentInvolvedPartyForm,
+                                          exclude=['id', 'incident', 'party_type'])
+    victim_formset = VictimFormset(prefix="victims",
+                                   queryset=victims)
+    suspect_formset = SuspectFormset(prefix="suspects",
+                                     queryset=suspects)
+
+    return render(request, "cases/detail.html", context={'incident': incident,
+                                                         'incident_form': incident_form,
+                                                         'victim_formset': victim_formset,
+                                                         'suspect_formset': suspect_formset})
