@@ -1,6 +1,7 @@
 import re
 from typing import Union
 from datetime import date
+from itertools import groupby
 from .models import (Address,
                      Incident,
                      IncidentInvolvedParty,
@@ -35,40 +36,47 @@ def convert_date_string_to_object(date_string: str) -> Union[date, None]:
         return None
 
 
-def cleanse_incident_party_data(incident: Incident, data: dict, groups: list, officers_cache=dict):
+def handle_address(address: str) -> Union[None, Address]:
+    if address == "":
+        ret_address = None
+    else:
+        ret_address = Address.objects.get(id=address)
+
+    return ret_address
+
+
+def get_party_groups(data: dict) -> list:
+    groups = []
+    for k, g in groupby(data, lambda obj: obj.split("-")[:2]):
+        if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
+                or 'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
+            groups.append(list(g))
+    return groups
+
+
+def cleanse_incident_party_data(incident: Incident, data: dict, groups: list):
+    officers_cache = {}
     parties_to_create = []
     for group in groups:
         if len(group) > 1:
-            print(("group", group))
             indiv_party_data = {key[10:]: data[key] for key in group}
             if indiv_party_data.get('officer_signed', "") == "":
                 # If we've gotten here, the form is valid, but a required field is missing, so this
                 # must be an empty form. Skip it. this is a temporary hack
                 continue
-            print(f"Indiv victim data: {indiv_party_data}")
-            officer_id = indiv_party_data['officer_signed']
 
             converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
-
             indiv_party_data['date_of_birth'] = converted_date
 
+            officer_id = indiv_party_data['officer_signed']
             if officer_id in officers_cache:
                 indiv_party_data['officer_signed'] = officers_cache[officer_id]
             else:
                 officer = Officer.objects.get(id=officer_id)
                 indiv_party_data['officer_signed'] = officers_cache[officer_id] = officer
 
-            home_address_id = indiv_party_data['home_address']
-            if indiv_party_data['home_address'] == "":
-                indiv_party_data['home_address'] = None
-            else:
-                indiv_party_data['home_address'] = Address.objects.get(id=home_address_id)
-
-            employer_address_id = indiv_party_data['employer_address']
-            if employer_address_id == "":
-                indiv_party_data['employer_address'] = None
-            else:
-                indiv_party_data['employer_address'] = Address.objects.get(id=home_address_id)
+            for key in ["home_address", "employer_address"]:
+                indiv_party_data[key] = handle_address(indiv_party_data[key])
 
             if indiv_party_data['height'] == "":
                 indiv_party_data['height'] = None

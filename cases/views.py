@@ -24,26 +24,24 @@ def create_incident(request, *args, **kwargs):
                                           exclude=['id', 'incident', 'party_type'])
     if request.method == 'POST':
         data = deepcopy(request.POST)
+
         victim_data = {key: data.get(key) for key in data if key.startswith("victims")}
         suspect_data = {key: data.get(key) for key in data if key.startswith("suspects")}
+        party_data = {**victim_data, **suspect_data}
 
-        address_data = {key.replace("location_", ""): data.get(key)
-                        for key in data if key.startswith("location")}
-        print(("ADDRESS DATA", address_data))
         incident_data = {key: data.get(key) for key in data
                          if (key not in victim_data and key not in suspect_data
                              and key != "offenses")}
         incident_data['offenses'] = request.POST.getlist("offenses")
-        print(("INCIDENT DATA", incident_data))
         incident_form = IncidentForm(incident_data)
+
         victim_formset = VictimFormset(victim_data, prefix="victims",
                                        queryset=IncidentInvolvedParty.objects.none())
         suspect_formset = SuspectFormset(suspect_data, prefix="suspects",
                                          queryset=IncidentInvolvedParty.objects.none())
 
         if incident_form.is_valid() and victim_formset.is_valid and suspect_formset.is_valid():
-            incident = incident_form.save(victims_data=victim_data,
-                                          suspects_data=suspect_data)
+            incident = incident_form.save(party_data=party_data)
             return redirect(f"/cases/{incident.id}")
         else:
             print(incident_form.errors)

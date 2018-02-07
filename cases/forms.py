@@ -4,7 +4,7 @@ from django import forms
 from django.forms import ModelForm
 from .models import (Address, IncidentInvolvedParty,
                      Officer, Offense, Incident)
-from .utils import cleanse_incident_party_data
+from .utils import cleanse_incident_party_data, get_party_groups
 from .constants import STATE_CHOICES, SHIFT_CHOICES
 
 
@@ -42,7 +42,7 @@ class IncidentForm(forms.Form):
     files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
                             required=False)
 
-    def save(self, victims_data=None, suspects_data=None):
+    def save(self, party_data=None):
         incident = None
         try:
             data = deepcopy(self.cleaned_data)
@@ -56,33 +56,18 @@ class IncidentForm(forms.Form):
                 if key.startswith("location_"):
                     address_data[key.replace("location_", "")] = data.pop(key)
 
-            address = Address.objects.create(**address_data)
+            address = Address.objects.get_or_create(**address_data,
+                                                    defaults=address_data)
             data['location'] = address
             incident = Incident.objects.create(**data)
             offenses = Offense.objects.filter(id__in=offense_ids)
             incident.offenses.set(offenses)
 
-            officers_cache = {}
-
-            victim_groups = []
-            for k, g in groupby(victims_data, lambda obj: obj.split("-")[:2]):
-                if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
-                        or'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
-                    victim_groups.append(list(g))
-
-            suspect_groups = []
-            for k, g in groupby(suspects_data, lambda obj: obj.split("-")[:2]):
-                if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
-                        or 'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
-                    suspect_groups.append(list(g))
-
-            groups = victim_groups + suspect_groups
+            groups = get_party_groups(data=party_data)
             parties_to_create = cleanse_incident_party_data(incident=incident,
-                                                            data={**victims_data, **suspects_data},
-                                                            groups=groups,
-                                                            officers_cache=officers_cache)
-            count = IncidentInvolvedParty.objects.bulk_create(parties_to_create)
-            print(f"Number of suspects created: {count}")
+                                                            data=party_data,
+                                                            groups=groups)
+            IncidentInvolvedParty.objects.bulk_create(parties_to_create)
 
             return incident
         except Exception as e:
