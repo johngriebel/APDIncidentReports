@@ -2,10 +2,18 @@
 {% load bootstrap %}
 
 {% block content %}
-    Welcome to the create incident page.
-    <form role="form" action="{% url 'create' %}" method="post">
+    <form role="form" action="{% url 'create-incident' %}" method="post">
         {% csrf_token %}
+        <h3>Incident Information</h3>
         {{ form|bootstrap }}<br>
+        <h3>Victim(s)</h3>
+            <table>
+                {{ victim_formset|bootstrap }}
+            </table>
+        <h3>Suspect(s)</h3>
+            <table>
+                {{ suspect_formset|bootstrap }}
+            </table>
         <div class="form-group">
             <button type="submit" class="btn btn-primary">Create</button>
         </div>

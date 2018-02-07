@@ -59,9 +59,11 @@ class Incident(models.Model):
     beat = models.IntegerField()
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES)
     damaged_amount = MoneyField(max_digits=12, decimal_places=2,
-                                default_currency="USD", default=0.0)
+                                default_currency="USD", default=0.0,
+                                null=True, blank=True)
     stolen_amount = MoneyField(max_digits=12, decimal_places=2,
-                               default_currency="USD", default=0.0)
+                               default_currency="USD", default=0.0,
+                               null=True, blank=True)
 
     offenses = models.ManyToManyField("Offense")
     narrative = models.TextField(null=True)
@@ -101,22 +103,25 @@ class IncidentInvolvedParty(models.Model):
     juvenile = models.BooleanField(default=False)
     home_address = models.ForeignKey(Address, null=True,
                                      on_delete=models.CASCADE,
-                                     related_name="incident_party_address")
+                                     related_name="incident_party_address",
+                                     blank=True)
     # THis is a todo field. I haven't arrived at a good solution for storing these safely yet.
     social_security_number = None
-    date_of_birth = models.DateField(null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     race = models.CharField(max_length=50, choices=RACE_CHOICES)
-    height = models.IntegerField(null=True)
-    weight = models.IntegerField(null=True)
-    hair_color = models.CharField(max_length=20, null=True, choices=HAIR_COLOR_CHOICES)
-    eye_color = models.CharField(max_length=20, null=True, choices=EYE_COLOR_CHOICES)
-    drivers_license = models.CharField(max_length=100, null=True)
-    drivers_license_state = models.CharField(max_length=2, null=True, choices=STATE_CHOICES)
-    employer = models.CharField(max_length=200)
+    height = models.IntegerField(null=True, blank=True)
+    weight = models.IntegerField(null=True, blank=True)
+    hair_color = models.CharField(max_length=20, null=True, choices=HAIR_COLOR_CHOICES, blank=True)
+    eye_color = models.CharField(max_length=20, null=True, choices=EYE_COLOR_CHOICES, blank=True)
+    drivers_license = models.CharField(max_length=100, null=True, blank=True)
+    drivers_license_state = models.CharField(max_length=2, null=True,
+                                             choices=STATE_CHOICES, blank=True)
+    employer = models.CharField(max_length=200, null=True, blank=True)
     employer_address = models.ForeignKey(Address, null=True,
                                          on_delete=models.CASCADE,
-                                         related_name="incident_employer_address")
+                                         related_name="incident_employer_address",
+                                         blank=True)
     build = models.CharField(max_length=25, null=True, blank=True)
     tattoos = models.TextField(null=True, blank=True)
     scars = models.TextField(null=True, blank=True)
