@@ -2,6 +2,7 @@
 {% load bootstrap %}
 
 {% block content %}
+    <a href="{% url 'print-report' incident.id %}"><button class="btn btn-primary">Print</button></a>
     <form role="form" action="{% url 'detail' incident.id %}" method="post">
         {% csrf_token %}
         <h3>Incident Details</h3>

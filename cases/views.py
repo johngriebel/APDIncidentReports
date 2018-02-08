@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
+from django.http import HttpResponse
+from django.utils import timezone
+from reportlab.pdfgen import canvas
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
@@ -8,6 +11,7 @@ from .models import Incident, IncidentInvolvedParty
 from .constants import VICTIM, SUSPECT
 from .utils import parse_and_compile_incident_input_data
 from .search import get_search_results
+from .printing import IncidentReportPDFGenerator
 
 
 # Create your views here.
@@ -117,3 +121,12 @@ def search(request, *args, **kwargs):
                'was_post': was_post}
     return render(request, "cases/search.html", context=context)
 
+
+def print_report(request, *args, **kwargs):
+    print((args, kwargs))
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="somefilename.pdf"'
+
+    pdf_generator = IncidentReportPDFGenerator(response, kwargs.get('incident_id'))
+    pdf_generator.generate()
+    return response
