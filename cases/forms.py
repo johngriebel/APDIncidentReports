@@ -107,7 +107,7 @@ class IncidentSearchForm(forms.Form):
     max_stolen_amount = forms.IntegerField(required=False)
 
     # Party related fields
-    victim_juvenile = forms.NullBooleanSelect()
+    victim_juvenile = forms.NullBooleanField()
     victim_date_of_birth_min = forms.DateField(required=False)
     victim_date_of_birth_max = forms.DateField(required=False)
     victim_sex = forms.ChoiceField(choices=SEX_CHOICES,required=False)
@@ -120,7 +120,7 @@ class IncidentSearchForm(forms.Form):
     victim_hair_color = forms.ChoiceField(choices=HAIR_COLOR_CHOICES, required=False)
     victim_eye_color = forms.ChoiceField(choices=EYE_COLOR_CHOICES, required=False)
 
-    suspect_juvenile = forms.NullBooleanSelect()
+    suspect_juvenile = forms.NullBooleanField()
     suspect_date_of_birth_min = forms.DateField(required=False)
     suspect_date_of_birth_max = forms.DateField(required=False)
     suspect_sex = forms.ChoiceField(choices=SEX_CHOICES, required=False)

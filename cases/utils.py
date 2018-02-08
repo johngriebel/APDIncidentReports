@@ -66,9 +66,14 @@ def get_party_groups(data: dict) -> list:
 
 def cleanse_incident_party_data_and_create(incident: Incident, data: dict, groups: list):
     officers_cache = {}
+    print(("data", data))
     for group in groups:
+        print(("Group", group))
+        print(len(group))
         if len(group) > 1:
-            indiv_party_data = {key[10:]: data[key] for key in group}
+            # TODO: Indexing to 10 will be a problem if there are ever double digits victims or suspects
+            indiv_party_data = {key[10:].lstrip("-"): data[key] for key in group}
+            print(("indiv party data", indiv_party_data))
             if indiv_party_data.get('officer_signed', "") == "":
                 # If we've gotten here, the form is valid, but a required field is missing, so this
                 # must be an empty form. Skip it. this is a temporary hack
@@ -91,10 +96,12 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 indiv_party_data['height'] = None
             if indiv_party_data['weight'] == "":
                 indiv_party_data['weight'] = None
-
+            print(("group[0].lower()", group[0].lower()))
             party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
             indiv_party_data.update({'incident': incident, 'party_type': party_type})
-            IncidentInvolvedParty.objects.update_or_create(id=indiv_party_data.get("id", None),
+            party_id = indiv_party_data.get('id') or None
+            print(f"Incident involved party id: {party_id}")
+            IncidentInvolvedParty.objects.update_or_create(id=party_id,
                                                            defaults=indiv_party_data)
 
 
@@ -114,3 +121,7 @@ def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
 def isincident_field(field_name: str) -> bool:
     return ((not "location" in field_name) and ("victim" not in field_name)
             and ("suspect" not in field_name) and not field_name == "csrfmiddlewaretoken")
+
+
+def isincidentparty_field(field_name: str) -> bool:
+    return "suspect" in field_name or "victim" in field_name

@@ -27,7 +27,7 @@ All of these are to be documented as they are completed
     - Get this more or less for free once report creation is finished
 - [ ] Approve reports
     - Will need more information surrounding this
-- [ ] Find a specific report (Search)
+- [x] Find a specific report (Search)
     - Search by the following fields:
         - [x] Incident Number
         - [x] Report Date and/or Time
@@ -39,20 +39,21 @@ All of these are to be documented as they are completed
         - [x] Shift?
         - [x] Offense Type(s)
         - The following attributes for both victims and suspects:
-            - [ ] Juvenile
-            - [ ] Date of Birth
-            - [ ] Sex
-            - [ ] Race
-            - [ ] Height
-            - [ ] Weight
-            - [ ] Build
-            - [ ] Tattoos
-            - [ ] Scars
-            - [ ] Hairstyle
-            - [ ] Hair Color
-            - [ ] Eye Color
+            - [x] Juvenile
+            - [x] Date of Birth
+            - [x] Sex
+            - [x] Race
+            - [x] Height
+            - [x] Weight
+            - [x] Build
+            - [x] Tattoos
+            - [x] Scars
+            - [x] Hairstyle
+            - [x] Hair Color
+            - [x] Eye Color
             - Some of these may apply only to victims, or only to suspects, but the DB Schema makes
               it easier to enable it for both party types
+    - Would be nice to allow per field options 
 - [ ] Ability to print a report
     - Record all print requests -> Who printed it and when
 - [ ] Email/Share reports?
