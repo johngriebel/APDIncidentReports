@@ -31,12 +31,13 @@ All of these are to be documented as they are completed
     - Search by the following fields:
         - [x] Incident Number
         - [x] Report Date and/or Time
-        - [ ] Reporting Officer
-        - [ ] Possible Occurrence Range
-        - [ ] Location
+        - [x] Reporting Officer
+            - Last name implemented, add lookup by office id
+        - [x] Possible Occurrence Range
+        - [x] Location
         - [x] Beat?
         - [x] Shift?
-        - [ ] Offense Type(s)
+        - [x] Offense Type(s)
         - The following attributes for both victims and suspects:
             - [ ] Juvenile
             - [ ] Date of Birth

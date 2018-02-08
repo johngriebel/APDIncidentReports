@@ -86,7 +86,10 @@ class IncidentSearchForm(forms.Form):
     incident_number = forms.CharField(max_length=35, required=False)
     report_datetime_min = forms.DateTimeField(required=False)
     report_datetime_max = forms.DateTimeField(required=False)
-    reporting_officer = forms.ModelChoiceField(required=False, queryset=Officer.objects.all())
+    reporting_officer = forms.CharField(required=False)
+
+    earliest_occurrence_datetime = forms.DateTimeField(required=False)
+    latest_occurrence_datetime = forms.DateTimeField(required=False)
 
     location_street = forms.CharField(required=False)
     location_street_two = forms.CharField(required=False)
