@@ -72,7 +72,7 @@ class IncidentForm(forms.Form):
             return incident
         except Exception as e:
             if incident is not None and incident.id is not None:
-                incident.delete()
+                pass
             raise e
 
 

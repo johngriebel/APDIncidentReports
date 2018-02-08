@@ -76,13 +76,15 @@ def incident_detail(request, incident_id):
                                        queryset=victims)
         suspect_formset = SuspectFormset(suspect_data, prefix="suspects",
                                          queryset=suspects)
-        if incident_form.is_valid() and victim_formset.is_valid and suspect_formset.is_valid():
+        incident_valid = incident_form.is_valid()
+        victim_valid = victim_formset.is_valid()
+        suspect_valid = suspect_formset.is_valid()
+        if incident_valid and victim_valid and suspect_valid:
             incident = incident_form.save(party_data=party_data, instance=incident)
             return redirect(f"/cases/{incident.id}")
         else:
             print(incident_form.errors)
     else:
-
         forms = populate_initial_incident_update_form_data(incident)
         incident_form = IncidentForm(data=forms['incident_data'])
 
