@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.http import HttpResponse
-from django.utils import timezone
-from reportlab.pdfgen import canvas
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
