@@ -44,6 +44,7 @@ class Incident(models.Model):
     reviewed_by_officer = models.ForeignKey(Officer,
                                             on_delete=models.CASCADE,
                                             related_name="reviewed_incidents")
+    reviewed_datetime = models.DateTimeField(null=True, blank=True)
     investigating_officer = models.ForeignKey(Officer,
                                               on_delete=models.CASCADE,
                                               related_name="investigated_incidents")
@@ -53,6 +54,7 @@ class Incident(models.Model):
     supervisor = models.ForeignKey(Officer,
                                    on_delete=models.CASCADE,
                                    related_name="supervised_reports")
+    approved_datetime = models.DateTimeField(null=True, blank=True)
     earliest_occurrence_datetime = models.DateTimeField()
     latest_occurrence_datetime = models.DateTimeField()
     location = models.ForeignKey(Address, on_delete=models.CASCADE)
@@ -97,6 +99,8 @@ class Offense(models.Model):
 
 
 class IncidentInvolvedParty(models.Model):
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE)
     officer_signed = models.ForeignKey(Officer, null=True, on_delete=models.CASCADE)
     party_type = models.CharField(max_length=7, choices=PARTY_TYPE_CHOICES)
@@ -126,6 +130,10 @@ class IncidentInvolvedParty(models.Model):
     tattoos = models.TextField(null=True, blank=True)
     scars = models.TextField(null=True, blank=True)
     hairstyle = models.CharField(max_length=30, null=True, blank=True)
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 def determine_file_upload_path(instance, filename):
