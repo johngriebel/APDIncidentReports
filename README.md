@@ -54,7 +54,7 @@ All of these are to be documented as they are completed
             - Some of these may apply only to victims, or only to suspects, but the DB Schema makes
               it easier to enable it for both party types
     - Would be nice to allow per field options 
-- [ ] Ability to print a report
+- [x] Ability to print a report
     - Record all print requests -> Who printed it and when
 - [ ] Email/Share reports?
     - Probably privacy concerns
