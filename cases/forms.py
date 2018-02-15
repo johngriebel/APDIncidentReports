@@ -4,7 +4,9 @@ from django.forms import ModelForm
 from .models import (Address, IncidentInvolvedParty,
                      Officer, Offense, Incident)
 from .utils import cleanse_incident_party_data_and_create, get_party_groups
-from .constants import (STATE_CHOICES, SHIFT_CHOICES, SEX_CHOICES, RACE_CHOICES, HAIR_COLOR_CHOICES,
+from .constants import (STATE_CHOICES, SHIFT_CHOICES,
+                        SEX_CHOICES, RACE_CHOICES,
+                        HAIR_COLOR_CHOICES,
                         EYE_COLOR_CHOICES)
 
 
