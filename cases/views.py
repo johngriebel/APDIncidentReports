@@ -12,7 +12,6 @@ from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
 
 
-# Create your views here.
 def index(request, *args, **kwargs):
     incidents = Incident.objects.all()
     display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
