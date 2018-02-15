@@ -11,9 +11,8 @@ This is very much a living document. Don't hesitate to ask questions.
 
 ### Features
 All of these are to be documented as they are completed
-- [ ] Authentication
-    - Sign up or invite?
-    - Use a third party authentication service such as Auth0?
+- [x] Authentication
+    - Basic Authentication is done. No password reset or any thing like that
 - [x] Define Database Schema
 - [x] Create reports
     - [x] Define a ModelForm for relevant models
