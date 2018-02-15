@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.http import HttpResponse
@@ -12,6 +13,7 @@ from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
 
 
+@login_required
 def index(request, *args, **kwargs):
     incidents = Incident.objects.all()
     display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
@@ -20,6 +22,7 @@ def index(request, *args, **kwargs):
     return render(request, "cases/index.html", context=context)
 
 
+@login_required
 def create_incident(request, *args, **kwargs):
     VictimFormset = modelformset_factory(IncidentInvolvedParty,
                                          form=IncidentInvolvedPartyForm,
@@ -56,6 +59,7 @@ def create_incident(request, *args, **kwargs):
     return render(request, "cases/create_incident.html", context=context)
 
 
+@login_required
 def incident_detail(request, incident_id):
     incident = get_object_or_404(Incident, pk=incident_id)
     VictimFormset = modelformset_factory(IncidentInvolvedParty,
@@ -100,6 +104,7 @@ def incident_detail(request, incident_id):
                                                          'suspect_formset': suspect_formset})
 
 
+@login_required
 def search(request, *args, **kwargs):
     display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
     if request.method == "POST":
@@ -119,6 +124,7 @@ def search(request, *args, **kwargs):
     return render(request, "cases/search.html", context=context)
 
 
+@login_required
 def print_report(request, *args, **kwargs):
     print((args, kwargs))
     response = HttpResponse(content_type='application/pdf')
