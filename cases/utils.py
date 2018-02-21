@@ -76,6 +76,14 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
             converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
             indiv_party_data['date_of_birth'] = converted_date
 
+            home_address = {addr_key.replace("home_address_", ""): indiv_party_data[addr_key]
+                            for addr_key in indiv_party_data if "home_address_" in addr_key}
+            employer_address = {addr_key.replace("employer_address_", ""):
+                                indiv_party_data[addr_key]
+                                for addr_key in indiv_party_data if "employer_address_" in addr_key}
+            indiv_party_data['home_address'] = home_address
+            indiv_party_data['employer_address'] = employer_address
+
             officer_id = indiv_party_data['officer_signed']
             if officer_id in officers_cache:
                 indiv_party_data['officer_signed'] = officers_cache[officer_id]
@@ -95,6 +103,9 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
             indiv_party_data.update({'incident': incident, 'party_type': party_type})
             party_id = indiv_party_data.get('id') or None
             print(f"Incident involved party id: {party_id}")
+            indiv_party_data = {key: value for key, value in indiv_party_data.items()
+                                if ("home_address_" not in key)
+                                and ("employer_address_" not in key)}
             IncidentInvolvedParty.objects.update_or_create(id=party_id,
                                                            defaults=indiv_party_data)
 

@@ -44,7 +44,7 @@ def create_incident(request, *args, **kwargs):
 
         if incident_form.is_valid() and victim_formset.is_valid and suspect_formset.is_valid():
             incident = incident_form.save(party_data=party_data)
-            return redirect(f"/cases/{incident.id}")
+            return redirect(f"/{incident.id}")
         else:
             print(incident_form.errors)
     else:
@@ -87,22 +87,27 @@ def incident_detail(request, incident_id):
         suspect_valid = suspect_formset.is_valid()
         if incident_valid and victim_valid and suspect_valid:
             incident = incident_form.save(party_data=party_data, instance=incident)
-            return redirect(f"/cases/{incident.id}")
+            return redirect(f"/{incident.id}")
         else:
             print(incident_form.errors)
     else:
         forms = populate_initial_incident_update_form_data(incident)
         incident_form = IncidentForm(data=forms['incident_data'])
 
-        victim_formset = VictimFormset(prefix="victims",
-                                       queryset=victims)
-        suspect_formset = SuspectFormset(prefix="suspects",
-                                         queryset=suspects)
+        victim_forms = []
+        for victim in forms['victim_data']:
+            victim_forms.append(IncidentInvolvedPartyForm(victim))
+
+        suspect_forms = []
+        for suspect in forms['suspect_data']:
+            suspect_forms.append(IncidentInvolvedPartyForm(suspect))
+
+        print(f"BADGER: {incident_form}")
 
     return render(request, "cases/detail.html", context={'incident': incident,
                                                          'incident_form': incident_form,
-                                                         'victim_formset': victim_formset,
-                                                         'suspect_formset': suspect_formset})
+                                                         'victim_forms': victim_forms,
+                                                         'suspect_forms': suspect_forms})
 
 
 @login_required

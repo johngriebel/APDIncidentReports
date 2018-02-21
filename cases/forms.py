@@ -5,10 +5,11 @@ from address.forms import AddressField
 from .models import (IncidentInvolvedParty,
                      Officer, Offense, Incident)
 from .utils import cleanse_incident_party_data_and_create, get_party_groups
-from .constants import (STATE_CHOICES, SHIFT_CHOICES,
+from .constants import (SHIFT_CHOICES,
                         SEX_CHOICES, RACE_CHOICES,
                         HAIR_COLOR_CHOICES,
-                        EYE_COLOR_CHOICES)
+                        EYE_COLOR_CHOICES,
+                        VICTIM, SUSPECT)
 
 
 class IncidentForm(forms.Form):
@@ -44,14 +45,9 @@ class IncidentForm(forms.Form):
             offense_ids = data.pop("offenses")
             files = data.pop("files")
 
-            address_data = {}
-            for key in self.cleaned_data:
-                if key.startswith("location_"):
-                    address_data[key.replace("location_", "")] = data.pop(key)
-
             # address, _ = Address.objects.get_or_create(**address_data,
             #                                            defaults=address_data)
-            data['location'] = address
+            # data['location'] = address
             incident, _ = Incident.objects.update_or_create(id=getattr(incident, "id", None),
                                                             defaults=data)
             offenses = Offense.objects.filter(id__in=offense_ids)
@@ -84,7 +80,7 @@ class IncidentSearchForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField(required=False)
     latest_occurrence_datetime = forms.DateTimeField(required=False)
 
-    locations = AddressField()
+    location = AddressField()
 
     beat = forms.IntegerField(required=False)
     shift = forms.ChoiceField(required=False, choices=SHIFT_CHOICES)
@@ -125,7 +121,7 @@ class IncidentSearchForm(forms.Form):
 
 def populate_initial_incident_update_form_data(incident: Incident) -> dict:
     incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
-                     if (not field.startswith("location_")) and not field.startswith("files")}
+                     if not field.startswith("files")}
     incident_data['stolen_amount'] = str(incident_data['stolen_amount']).replace("$", "")
     incident_data['damaged_amount'] = str(incident_data['damaged_amount']).replace("$", "")
     for k in incident_data:
@@ -133,8 +129,32 @@ def populate_initial_incident_update_form_data(incident: Incident) -> dict:
             incident_data[k] = incident_data[k].pk
 
     incident_data['offenses'] = incident.offenses.all()
+    incident_data['location_formatted'] = incident.location.formatted
+    # for field in ["street", "street_two", "city", "state", "zip_code"]:
+    #     incident_data["location_" + field] = getattr(incident.location, field)
 
-    for field in ["street", "street_two", "city", "state", "zip_code"]:
-        incident_data["location_" + field] = getattr(incident.location, field)
+    victims = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                   party_type=VICTIM)
+    victim_data = []
+    for victim in victims:
+        vic_data = {field: getattr(victim, field) for field in IncidentInvolvedPartyForm().fields
+                    if not field.startswith("files")}
+        vic_data['officer_signed'] = victim.officer_signed.id
+        vic_data['home_address'] = victim.home_address.formatted if victim.home_address else ""
+        vic_data['employer_address'] = victim.employer_address.formatted if victim.employer_address else ""
+        victim_data.append(vic_data)
 
-    return {'incident_data': incident_data}
+    suspects = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                    party_type=SUSPECT)
+    suspect_data = []
+    for suspect in suspects:
+        sus_data = {field: getattr(suspect, field) for field in IncidentInvolvedPartyForm().fields
+                    if not field.startswith("files")}
+        sus_data['officer_signed'] = suspect.officer_signed.id
+        sus_data['home_address'] = suspect.home_address.formatted if suspect.home_address else ""
+        sus_data['employer_address'] = suspect.employer_address.formatted if suspect.employer_address else ""
+        suspect_data.append(sus_data)
+
+    return {'incident_data': incident_data,
+            'victim_data': victim_data,
+            'suspect_data': suspect_data}

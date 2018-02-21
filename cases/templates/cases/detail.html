@@ -6,16 +6,17 @@
     <form role="form" action="{% url 'detail' incident.id %}" method="post">
         {% csrf_token %}
         <h3>Incident Details</h3>
+        {{ incident_form.media }}
         {{ incident_form|bootstrap }}<br>
         <h3>Victim(s)</h3>
-            {{ victim_formset.management_form }}
-            {% for victim_form in victim_formset %}
+            {% for victim_form in victim_forms %}
+                {{ victim_form.media }}
                 <h4>Victim {{ forloop.counter }}</h4>
                 {{ victim_form|bootstrap }}
             {% endfor %}
         <h3>Suspect(s)</h3>
-            {{ suspect_formset.management_form }}
-            {% for suspect_form in suspect_formset %}
+            {% for suspect_form in suspect_forms %}
+                {{ suspect_form.media }}
                 <h4>Suspect {{ forloop.counter }}</h4>
                 {{ suspect_form|bootstrap }}
             {% endfor %}

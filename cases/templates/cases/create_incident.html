@@ -4,6 +4,7 @@
 
 {% block content %}
     <form role="form" action="{% url 'create-incident' %}" method="post">
+        {{ form.media }}
         {% csrf_token %}
         <h3>Incident Information</h3>
             <!-- {{ form|bootstrap }}<br> -->
@@ -19,10 +20,12 @@
                 </div>
             {% endfor %}
         <h3>Victim(s)</h3>
+                {{ victim_formset.media }}
             <table>
                 {{ victim_formset|bootstrap }}
             </table>
         <h3>Suspect(s)</h3>
+                {{ suspect_formset.media }}
             <table>
                 {{ suspect_formset|bootstrap }}
             </table>
