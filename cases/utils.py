@@ -112,8 +112,9 @@ def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
 
     incident_data = {key: post_data.get(key) for key in post_data
                      if (key not in victim_data and key not in suspect_data
-                         and key != "offenses")}
+                         and key not in ["offenses", "report_datetime"])}
     incident_data['offenses'] = post_data.getlist("offenses")
+    incident_data['report_datetime'] = post_data.getlist("report_datetime")[0]
 
     return incident_data, victim_data, suspect_data, party_data
 

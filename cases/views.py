@@ -24,6 +24,7 @@ def index(request, *args, **kwargs):
 
 @login_required
 def create_incident(request, *args, **kwargs):
+    # print(f"request.POST: {request.POST}")
     VictimFormset = modelformset_factory(IncidentInvolvedParty,
                                          form=IncidentInvolvedPartyForm,
                                          exclude=('id', 'incident', 'party_type'))
@@ -31,7 +32,7 @@ def create_incident(request, *args, **kwargs):
                                           form=IncidentInvolvedPartyForm,
                                           exclude=['id', 'incident', 'party_type'])
     if request.method == 'POST':
-
+        print(f"request.POST: {request.POST.getlist('report_datetime')}")
         (incident_data, victim_data,
          suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
         incident_form = IncidentForm(incident_data)
