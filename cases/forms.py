@@ -1,19 +1,14 @@
 from copy import deepcopy
 from django import forms
 from django.forms import ModelForm
-from .models import (Address, IncidentInvolvedParty,
+from address.forms import AddressField
+from .models import (IncidentInvolvedParty,
                      Officer, Offense, Incident)
 from .utils import cleanse_incident_party_data_and_create, get_party_groups
 from .constants import (STATE_CHOICES, SHIFT_CHOICES,
                         SEX_CHOICES, RACE_CHOICES,
                         HAIR_COLOR_CHOICES,
                         EYE_COLOR_CHOICES)
-
-
-class AddressForm(ModelForm):
-    class Meta:
-        model = Address
-        exclude = ['id']
 
 
 class IncidentForm(forms.Form):
@@ -27,11 +22,7 @@ class IncidentForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField()
     latest_occurrence_datetime = forms.DateTimeField()
 
-    location_street = forms.CharField()
-    location_street_two = forms.CharField(required=False)
-    location_city = forms.CharField()
-    location_state = forms.ChoiceField(choices=STATE_CHOICES)
-    location_zip_code = forms.CharField(max_length=5)
+    location = AddressField()
 
     beat = forms.IntegerField()
     shift = forms.ChoiceField(choices=SHIFT_CHOICES)
@@ -58,8 +49,8 @@ class IncidentForm(forms.Form):
                 if key.startswith("location_"):
                     address_data[key.replace("location_", "")] = data.pop(key)
 
-            address, _ = Address.objects.get_or_create(**address_data,
-                                                       defaults=address_data)
+            # address, _ = Address.objects.get_or_create(**address_data,
+            #                                            defaults=address_data)
             data['location'] = address
             incident, _ = Incident.objects.update_or_create(id=getattr(incident, "id", None),
                                                             defaults=data)
@@ -93,11 +84,7 @@ class IncidentSearchForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField(required=False)
     latest_occurrence_datetime = forms.DateTimeField(required=False)
 
-    location_street = forms.CharField(required=False)
-    location_street_two = forms.CharField(required=False)
-    location_city = forms.CharField(required=False)
-    location_state = forms.ChoiceField(choices=STATE_CHOICES, required=False)
-    location_zip_code = forms.CharField(max_length=5, required=False)
+    locations = AddressField()
 
     beat = forms.IntegerField(required=False)
     shift = forms.ChoiceField(required=False, choices=SHIFT_CHOICES)

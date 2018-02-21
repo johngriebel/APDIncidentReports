@@ -16,7 +16,7 @@ All of these are to be documented as they are completed
 - [x] Define Database Schema
 - [x] Create reports
     - [x] Define a ModelForm for relevant models
-    - [ ] Datetime widget
+    - [x] Datetime widget
     - [x] Basic, manual version with separate page for each entity
     - [x] Single page, in-line creation of all entities
     - [ ] Smart address lookup

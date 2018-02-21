@@ -2,8 +2,7 @@ import re
 from typing import Union, Tuple
 from datetime import datetime
 from itertools import groupby
-from .models import (Address,
-                     Incident,
+from .models import (Incident,
                      IncidentInvolvedParty,
                      Officer)
 from .constants import VICTIM, SUSPECT
@@ -46,13 +45,8 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
         return None
 
 
-def handle_address(address: str) -> Union[None, Address]:
-    if address == "":
-        ret_address = None
-    else:
-        ret_address = Address.objects.get(id=address)
-
-    return ret_address
+def handle_address(address: str):
+    return None
 
 
 def get_party_groups(data: dict) -> list:

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'djmoney',
     'bootstrapform',
+    'address',
 
     'cases'
 ]
@@ -130,3 +131,5 @@ STATIC_URL = '/static/'
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "index"
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
