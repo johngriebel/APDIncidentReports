@@ -19,7 +19,7 @@ All of these are to be documented as they are completed
     - [x] Datetime widget
     - [x] Basic, manual version with separate page for each entity
     - [x] Single page, in-line creation of all entities
-    - [ ] Smart address lookup
+    - [x] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
     - [ ] File upload
 - [x] Update Reports
@@ -63,6 +63,9 @@ All of these are to be documented as they are completed
 - [ ] Cosmetics
     - Nice Nav Bar
     - Correct Color Scheme
+- [ ] Unit Testing
+- [ ] Code cleanup/refactor
+- [ ] Logging
 
 ### Deployment
 - [ ] Talk to APD, determine their hosting practices (Do they use AWS, 

@@ -1,4 +1,5 @@
 import re
+import logging
 from typing import Union, Tuple
 from datetime import datetime
 from itertools import groupby
@@ -8,9 +9,11 @@ from .models import (Incident,
                      Officer)
 from .constants import VICTIM, SUSPECT
 date_format = re.compile("\d{4}-\d{2}-\d{2}")
+logger = logging.getLogger('cases')
 
 
 def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
+    logger.debug(f"Date String: {date_string}")
     date_parts = None
     if date_string:
         date_portion = date_string.split()[0]
@@ -76,23 +79,21 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 # If we've gotten here, the form is valid, but a required field is missing, so this
                 # must be an empty form. Skip it. this is a temporary hack
                 continue
-
+            logger.debug(f"indiv party data: {indiv_party_data}")
             converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
             indiv_party_data['date_of_birth'] = converted_date
-            print(f"indiv party data: {indiv_party_data}")
+
             indiv_party_data['home_address_raw'] = indiv_party_data['home_address_formatted']
-            print(f"home address raw: {indiv_party_data.get('home_address_raw')}")
             home_address = {addr_key.replace("home_address_", ""): indiv_party_data[addr_key]
                             for addr_key in indiv_party_data if "home_address_" in addr_key}
-            print(f"Home address before to_python: {home_address}")
             home_address_object = to_python(home_address)
-            print(f"Home address object: {home_address_object}")
-            # print(f"Home address value: {home_address}")
+
             indiv_party_data['employer_address_raw'] = indiv_party_data['employer_address_formatted']
             employer_address = {addr_key.replace("employer_address_", ""):
                                 indiv_party_data[addr_key]
                                 for addr_key in indiv_party_data if "employer_address_" in addr_key}
             employer_address_object = to_python(employer_address)
+
             indiv_party_data['home_address'] = home_address_object
             indiv_party_data['employer_address'] = employer_address_object
 
@@ -112,7 +113,6 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 indiv_party_data['weight'] = None
 
             party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
-            party_id = indiv_party_data.get('id') or None
 
             indiv_party_data = {key: value for key, value in indiv_party_data.items()
                                 if ("employer_address_" not in key)
@@ -126,20 +126,21 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
 
 
 def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
-    victim_data = {key: post_data.get(key) for key in post_data if key.startswith("victims")}
-    print(f"VICTIM DATA KEYS: {victim_data.keys()}")
-    suspect_data = {key: post_data.get(key) for key in post_data if key.startswith("suspects")}
-    party_data = {**victim_data, **suspect_data}
+    victim_data = [{key: post_data.get(key) for key in post_data if key.startswith("victims")}]
+    suspect_data = [{key: post_data.get(key) for key in post_data if key.startswith("suspects")}]
+    party_data = {}
+
+    for vdata in victim_data:
+        party_data.update(vdata)
+    for sdata in suspect_data:
+        party_data.update(sdata)
 
     incident_data = {key: post_data.get(key) for key in post_data
                      if (key not in victim_data and key not in suspect_data
                          and key not in ["offenses", "report_datetime"])}
     incident_data['offenses'] = post_data.getlist("offenses")
     incident_data['report_datetime'] = post_data.getlist("report_datetime")[0]
-    # print(f"Incident Data:\n{incident_data}\n"
-    #       f"Victim Data:\n{victim_data}\n"
-    #       f"Suspect Data:\n{suspect_data}\n"
-    #       f"Party Data:\n{party_data}\n")
+
     print(f"VICTIM DATA: {victim_data}")
     return incident_data, victim_data, suspect_data, party_data
 
