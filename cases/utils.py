@@ -1,6 +1,6 @@
 import re
 import logging
-from typing import Union, Tuple
+from typing import Union, Tuple, Dict, List
 from datetime import datetime
 from itertools import groupby
 from address.models import to_python
@@ -104,9 +104,6 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 officer = Officer.objects.get(id=officer_id)
                 indiv_party_data['officer_signed'] = officers_cache[officer_id] = officer
 
-            # for key in ["home_address", "employer_address"]:
-            #     indiv_party_data[key] = handle_address(indiv_party_data[key])
-
             if indiv_party_data['height'] == "":
                 indiv_party_data['height'] = None
             if indiv_party_data['weight'] == "":
@@ -125,7 +122,7 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
             obj.save()
 
 
-def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
+def parse_and_compile_incident_input_data(post_data: dict) -> Tuple[Dict, List, List, Dict]:
     victim_data = [{key: post_data.get(key) for key in post_data if key.startswith("victims")}]
     suspect_data = [{key: post_data.get(key) for key in post_data if key.startswith("suspects")}]
     party_data = {}

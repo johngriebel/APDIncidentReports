@@ -1,13 +1,12 @@
 import logging
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.forms import modelformset_factory
 from django.http import HttpResponse
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
                     IncidentSearchForm)
-from .models import Incident, IncidentInvolvedParty
+from .models import Incident
 from .utils import parse_and_compile_incident_input_data
 from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
@@ -25,26 +24,20 @@ def index(request, *args, **kwargs):
 
 @login_required
 def create_incident(request, *args, **kwargs):
-    # print(f"request.POST: {request.POST}")
-    VictimFormset = modelformset_factory(IncidentInvolvedParty,
-                                         form=IncidentInvolvedPartyForm,
-                                         exclude=('id', 'incident',
-                                                  'party_type', 'diplay_sequence'))
-    SuspectFormset = modelformset_factory(IncidentInvolvedParty,
-                                          form=IncidentInvolvedPartyForm,
-                                          exclude=['id', 'incident',
-                                                   'party_type', 'display_sequence'])
     if request.method == 'POST':
-        print(f"request.POST: {request.POST.getlist('report_datetime')}")
         (incident_data, victim_data,
          suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
         incident_form = IncidentForm(incident_data)
+        victim_form = IncidentInvolvedPartyForm(victim_data[0])
+        suspect_form = IncidentInvolvedPartyForm(suspect_data[0])
 
-        if incident_form.is_valid():
+        isvalid = (incident_form.is_valid()
+                   and victim_form.is_valid()
+                   and suspect_form.is_valid())
+
+        if isvalid:
             incident = incident_form.save(party_data=party_data)
             return redirect(f"/{incident.id}")
-        else:
-            print(incident_form.errors)
     else:
         incident_form = IncidentForm()
         victim_form = IncidentInvolvedPartyForm(prefix="victims-0")
