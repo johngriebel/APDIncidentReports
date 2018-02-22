@@ -40,26 +40,19 @@ def create_incident(request, *args, **kwargs):
          suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
         incident_form = IncidentForm(incident_data)
 
-        victim_formset = VictimFormset(victim_data, prefix="victims",
-                                       queryset=IncidentInvolvedParty.objects.none())
-        suspect_formset = SuspectFormset(suspect_data, prefix="suspects",
-                                         queryset=IncidentInvolvedParty.objects.none())
-
-        if incident_form.is_valid() and victim_formset.is_valid and suspect_formset.is_valid():
+        if incident_form.is_valid():
             incident = incident_form.save(party_data=party_data)
             return redirect(f"/{incident.id}")
         else:
             print(incident_form.errors)
     else:
         incident_form = IncidentForm()
-        victim_formset = VictimFormset(prefix="victims",
-                                       queryset=IncidentInvolvedParty.objects.none())
-        suspect_formset = SuspectFormset(prefix="suspects",
-                                         queryset=IncidentInvolvedParty.objects.none())
+        victim_form = IncidentInvolvedPartyForm(prefix="victims-0")
+        suspect_form = IncidentInvolvedPartyForm(prefix="suspects-0")
 
-    context = {'form': incident_form,
-               'victim_formset': victim_formset,
-               'suspect_formset': suspect_formset}
+    context = {'incident_form': incident_form,
+               'victim_form': victim_form,
+               'suspect_form': suspect_form}
     return render(request, "cases/create_incident.html", context=context)
 
 

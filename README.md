@@ -61,8 +61,11 @@ All of these are to be documented as they are completed
     - Trivial
     - [ ] Decide which fields should be displayed in table
 - [ ] Cosmetics
-    - Nice Nav Bar
+    - [X] Nice Nav Bar
     - Correct Color Scheme
+    - [ ] Better Height Input
+    - [ ] Better selector field for the various officer fields
+    - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
 - [ ] Unit Testing
 - [ ] Code cleanup/refactor
 - [ ] Logging

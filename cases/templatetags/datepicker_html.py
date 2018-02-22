@@ -1,5 +1,6 @@
 import logging
 import json
+from django.utils import timezone
 from django import template
 register = template.Library()
 logger = logging.getLogger('cases')
@@ -32,10 +33,17 @@ def datepicker_html(value, prefix=None):
     print(f"Full field name: {field_name}")
 
     pyt_strformat = "%m/%d/%Y"
-    date_time_obj = value.form.cleaned_data[value.name]
+    if value.form.is_bound:
+        date_time_obj = value.form.cleaned_data[value.name]
+    else:
+        date_time_obj = None
     if "datetime" in value.name:
         date_time_format = "MM/DD/YYYY HH:mm"
         pyt_strformat += " %H:%m"
+
+        if date_time_obj is None:
+            date_time_obj = timezone.now()
+
         options = {'format': date_time_format,
                    'inline': True,
                    'sideBySide': True,
