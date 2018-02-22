@@ -44,7 +44,22 @@
         <h3>Suspect(s)</h3>
             {% for suspect_form in suspect_forms %}
                 <h4>Suspect {{ forloop.counter }}</h4>
-                {{ suspect_form|bootstrap }}
+                {% with prefix="suspects"|build_prefix:forloop.counter0 %}
+                    <!-- {{ suspect_form|bootstrap }} -->
+                    {% for field in suspect_form %}
+                        <div class="fieldWrapper">
+                            {{ field.errors }}
+                            {{ field.label_tag }}
+                            {% if "date_of_birth" in field.name %}
+                                {% autoescape off %}
+                                {{ field|datepicker_html:prefix }}
+                                {% endautoescape %}
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endwith %}
             {% endfor %}
         <div class="form-group">
             <button type="submit" class="btn btn-primary">Update</button>
