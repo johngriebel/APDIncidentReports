@@ -54,6 +54,7 @@ class IncidentForm(forms.Form):
             incident.offenses.set(offenses)
 
             groups = get_party_groups(data=party_data)
+
             cleanse_incident_party_data_and_create(incident=incident,
                                                    data=party_data,
                                                    groups=groups)
@@ -66,9 +67,12 @@ class IncidentForm(forms.Form):
 
 
 class IncidentInvolvedPartyForm(ModelForm):
+    home_address = AddressField(required=False)
+    employer_address = AddressField(required=False)
+
     class Meta:
         model = IncidentInvolvedParty
-        exclude = ['id', 'incident', 'party_type']
+        exclude = ['id', 'incident', 'party_type', "display_sequence"]
 
 
 class IncidentSearchForm(forms.Form):
@@ -130,29 +134,33 @@ def populate_initial_incident_update_form_data(incident: Incident) -> dict:
 
     incident_data['offenses'] = incident.offenses.all()
     incident_data['location_formatted'] = incident.location.formatted
-    # for field in ["street", "street_two", "city", "state", "zip_code"]:
-    #     incident_data["location_" + field] = getattr(incident.location, field)
 
     victims = IncidentInvolvedParty.objects.filter(incident=incident,
-                                                   party_type=VICTIM)
+                                                   party_type=VICTIM).order_by('display_sequence')
+    print(f"VICTIM COUNT: {victims.count()}")
     victim_data = []
+    victim_idx = 0
     for victim in victims:
-        vic_data = {field: getattr(victim, field) for field in IncidentInvolvedPartyForm().fields
+        prefix = f"victims-{victim_idx}"
+        vic_data = {f'{prefix}-{field}': getattr(victim, field) for field in IncidentInvolvedPartyForm().fields
                     if not field.startswith("files")}
-        vic_data['officer_signed'] = victim.officer_signed.id
-        vic_data['home_address'] = victim.home_address.formatted if victim.home_address else ""
-        vic_data['employer_address'] = victim.employer_address.formatted if victim.employer_address else ""
+        vic_data[f'{prefix}-officer_signed'] = victim.officer_signed.id
+        vic_data[f'{prefix}-home_address_formatted'] = victim.home_address.formatted if victim.home_address else ""
+        vic_data[f'{prefix}-employer_address_formatted'] = victim.employer_address.formatted if victim.employer_address else ""
+        vic_data[f'{prefix}-id'] = victim.id
         victim_data.append(vic_data)
 
     suspects = IncidentInvolvedParty.objects.filter(incident=incident,
-                                                    party_type=SUSPECT)
+                                                    party_type=SUSPECT).order_by('display_sequence')
     suspect_data = []
+    suspect_idx = 0
     for suspect in suspects:
-        sus_data = {field: getattr(suspect, field) for field in IncidentInvolvedPartyForm().fields
+        prefix = f"suspects-{suspect_idx}"
+        sus_data = {f'{prefix}-{field}': getattr(suspect, field) for field in IncidentInvolvedPartyForm().fields
                     if not field.startswith("files")}
-        sus_data['officer_signed'] = suspect.officer_signed.id
-        sus_data['home_address'] = suspect.home_address.formatted if suspect.home_address else ""
-        sus_data['employer_address'] = suspect.employer_address.formatted if suspect.employer_address else ""
+        sus_data[f'{prefix}-officer_signed'] = suspect.officer_signed.id
+        sus_data[f'{prefix}-home_address_formatted'] = suspect.home_address.formatted if suspect.home_address else ""
+        sus_data[f'{prefix}-employer_address_formatted'] = suspect.employer_address.formatted if suspect.employer_address else ""
         suspect_data.append(sus_data)
 
     return {'incident_data': incident_data,

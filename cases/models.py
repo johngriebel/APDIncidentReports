@@ -115,6 +115,7 @@ class IncidentInvolvedParty(models.Model):
     tattoos = models.TextField(null=True, blank=True)
     scars = models.TextField(null=True, blank=True)
     hairstyle = models.CharField(max_length=30, null=True, blank=True)
+    display_sequence = models.IntegerField(null=True)
 
     @property
     def name(self):

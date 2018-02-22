@@ -2,6 +2,7 @@ import re
 from typing import Union, Tuple
 from datetime import datetime
 from itertools import groupby
+from address.models import to_python
 from .models import (Incident,
                      IncidentInvolvedParty,
                      Officer)
@@ -32,7 +33,6 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
             day = int(date_parts[1])
 
         if date_parts is not None and len(date_parts) == 3:
-            print(("date parts", date_parts))
             date_object = datetime(year=year,
                                    month=month,
                                    day=day,
@@ -58,16 +58,20 @@ def get_party_groups(data: dict) -> list:
     return groups
 
 
+def get_display_sequence_from_group(key_str):
+    return key_str.split("-")[1]
+
+
 def cleanse_incident_party_data_and_create(incident: Incident, data: dict, groups: list):
     officers_cache = {}
-    print(("data", data))
+
     for group in groups:
-        print(("Group", group))
-        print(len(group))
+
         if len(group) > 1:
+            display_seq = get_display_sequence_from_group(group[0])
             # TODO: Indexing to 10 will be a problem if there are ever double digits victims or suspects
             indiv_party_data = {key[10:].lstrip("-"): data[key] for key in group}
-            print(("indiv party data", indiv_party_data))
+            indiv_party_data['display_sequence'] = display_seq
             if indiv_party_data.get('officer_signed', "") == "":
                 # If we've gotten here, the form is valid, but a required field is missing, so this
                 # must be an empty form. Skip it. this is a temporary hack
@@ -75,14 +79,22 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
 
             converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
             indiv_party_data['date_of_birth'] = converted_date
-
+            print(f"indiv party data: {indiv_party_data}")
+            indiv_party_data['home_address_raw'] = indiv_party_data['home_address_formatted']
+            print(f"home address raw: {indiv_party_data.get('home_address_raw')}")
             home_address = {addr_key.replace("home_address_", ""): indiv_party_data[addr_key]
                             for addr_key in indiv_party_data if "home_address_" in addr_key}
+            print(f"Home address before to_python: {home_address}")
+            home_address_object = to_python(home_address)
+            print(f"Home address object: {home_address_object}")
+            # print(f"Home address value: {home_address}")
+            indiv_party_data['employer_address_raw'] = indiv_party_data['employer_address_formatted']
             employer_address = {addr_key.replace("employer_address_", ""):
                                 indiv_party_data[addr_key]
                                 for addr_key in indiv_party_data if "employer_address_" in addr_key}
-            indiv_party_data['home_address'] = home_address
-            indiv_party_data['employer_address'] = employer_address
+            employer_address_object = to_python(employer_address)
+            indiv_party_data['home_address'] = home_address_object
+            indiv_party_data['employer_address'] = employer_address_object
 
             officer_id = indiv_party_data['officer_signed']
             if officer_id in officers_cache:
@@ -91,27 +103,31 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 officer = Officer.objects.get(id=officer_id)
                 indiv_party_data['officer_signed'] = officers_cache[officer_id] = officer
 
-            for key in ["home_address", "employer_address"]:
-                indiv_party_data[key] = handle_address(indiv_party_data[key])
+            # for key in ["home_address", "employer_address"]:
+            #     indiv_party_data[key] = handle_address(indiv_party_data[key])
 
             if indiv_party_data['height'] == "":
                 indiv_party_data['height'] = None
             if indiv_party_data['weight'] == "":
                 indiv_party_data['weight'] = None
-            print(("group[0].lower()", group[0].lower()))
+
             party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
-            indiv_party_data.update({'incident': incident, 'party_type': party_type})
             party_id = indiv_party_data.get('id') or None
-            print(f"Incident involved party id: {party_id}")
+
             indiv_party_data = {key: value for key, value in indiv_party_data.items()
-                                if ("home_address_" not in key)
-                                and ("employer_address_" not in key)}
-            IncidentInvolvedParty.objects.update_or_create(id=party_id,
-                                                           defaults=indiv_party_data)
+                                if ("employer_address_" not in key)
+                                and ("home_address_" not in key)}
+            obj, _ = IncidentInvolvedParty.objects.update_or_create(display_sequence=display_seq,
+                                                                    incident=incident,
+                                                                    party_type=party_type,
+                                                                    defaults=indiv_party_data)
+            obj.home_address = indiv_party_data['home_address']
+            obj.save()
 
 
 def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
     victim_data = {key: post_data.get(key) for key in post_data if key.startswith("victims")}
+    print(f"VICTIM DATA KEYS: {victim_data.keys()}")
     suspect_data = {key: post_data.get(key) for key in post_data if key.startswith("suspects")}
     party_data = {**victim_data, **suspect_data}
 
@@ -120,7 +136,11 @@ def parse_and_compile_incident_input_data(post_data: dict) -> Tuple:
                          and key not in ["offenses", "report_datetime"])}
     incident_data['offenses'] = post_data.getlist("offenses")
     incident_data['report_datetime'] = post_data.getlist("report_datetime")[0]
-
+    # print(f"Incident Data:\n{incident_data}\n"
+    #       f"Victim Data:\n{victim_data}\n"
+    #       f"Suspect Data:\n{suspect_data}\n"
+    #       f"Party Data:\n{party_data}\n")
+    print(f"VICTIM DATA: {victim_data}")
     return incident_data, victim_data, suspect_data, party_data
 
 
