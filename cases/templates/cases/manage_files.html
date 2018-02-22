@@ -1,0 +1,13 @@
+{% extends "cases/base.html" %}
+{% load bootstrap %}
+
+{% block content %}
+<table class="table">
+    {% for inc_file in files %}
+        <tr>
+            <td>{{ inc_file.file.name }}</td>
+        </tr>
+
+    {% endfor %}
+</table>
+{% endblock %}

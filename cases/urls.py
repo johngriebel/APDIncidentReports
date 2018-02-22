@@ -6,5 +6,6 @@ urlpatterns = [
     path('create/', views.create_incident, name="create-incident"),
     path('<int:incident_id>/', views.incident_detail, name="detail"),
     path('search/', views.search, name="search"),
-    path('print/<int:incident_id>/', views.print_report, name="print-report")
+    path('print/<int:incident_id>/', views.print_report, name="print-report"),
+    path('manage-files/<int:incident_id>/', views.manage_files, name="manage-files")
 ]

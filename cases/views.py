@@ -6,7 +6,7 @@ from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
                     IncidentSearchForm)
-from .models import Incident
+from .models import Incident, IncidentFile
 from .utils import parse_and_compile_incident_input_data
 from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
@@ -52,7 +52,9 @@ def create_incident(request, *args, **kwargs):
 @login_required
 def incident_detail(request, incident_id):
     incident = get_object_or_404(Incident, pk=incident_id)
+    logger.debug(request.method)
     if request.method == "POST":
+        files = request.FILES.getlist('files')
         (incident_data, victim_data,
          suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
         incident_form = IncidentForm(incident_data)
@@ -75,14 +77,16 @@ def incident_detail(request, incident_id):
             suspect_idx += 1
 
         if incident_valid:
-            incident = incident_form.save(party_data=party_data, instance=incident)
+            incident = incident_form.save(party_data=party_data,
+                                          instance=incident,
+                                          files=files)
             return redirect(f"/{incident.id}")
         else:
             print(incident_form.errors)
     else:
         forms = populate_initial_incident_update_form_data(incident)
-        logger.debug(f"Incident Data to be rendered:\n{forms['incident_data']}")
         incident_form = IncidentForm(data=forms['incident_data'])
+        files = forms['existing_files']
 
         victim_forms = []
         victim_idx = 0
@@ -103,7 +107,8 @@ def incident_detail(request, incident_id):
     return render(request, "cases/detail.html", context={'incident': incident,
                                                          'incident_form': incident_form,
                                                          'victim_forms': victim_forms,
-                                                         'suspect_forms': suspect_forms})
+                                                         'suspect_forms': suspect_forms,
+                                                         'existing_files': files})
 
 
 @login_required
@@ -135,3 +140,14 @@ def print_report(request, *args, **kwargs):
     pdf_generator = IncidentReportPDFGenerator(response, kwargs.get('incident_id'))
     pdf_generator.generate()
     return response
+
+
+@login_required
+def manage_files(request, *args, **kwargs):
+    logger.debug(("args", args, "kwargs", kwargs))
+    incident = Incident.objects.get(id=kwargs.get("incident_id"))
+    files = IncidentFile.objects.filter(incident=incident)
+    context = {'incident': incident,
+               'files': files}
+    logger.debug(("context", context))
+    return render(request, "cases/manage_files.html", context=context)
