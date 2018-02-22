@@ -1,17 +1,15 @@
 from copy import deepcopy
 from django import forms
 from django.forms import ModelForm
-from .models import (Address, IncidentInvolvedParty,
+from address.forms import AddressField
+from .models import (IncidentInvolvedParty,
                      Officer, Offense, Incident)
 from .utils import cleanse_incident_party_data_and_create, get_party_groups
-from .constants import (STATE_CHOICES, SHIFT_CHOICES, SEX_CHOICES, RACE_CHOICES, HAIR_COLOR_CHOICES,
-                        EYE_COLOR_CHOICES)
-
-
-class AddressForm(ModelForm):
-    class Meta:
-        model = Address
-        exclude = ['id']
+from .constants import (SHIFT_CHOICES,
+                        SEX_CHOICES, RACE_CHOICES,
+                        HAIR_COLOR_CHOICES,
+                        EYE_COLOR_CHOICES,
+                        VICTIM, SUSPECT)
 
 
 class IncidentForm(forms.Form):
@@ -25,11 +23,7 @@ class IncidentForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField()
     latest_occurrence_datetime = forms.DateTimeField()
 
-    location_street = forms.CharField()
-    location_street_two = forms.CharField(required=False)
-    location_city = forms.CharField()
-    location_state = forms.ChoiceField(choices=STATE_CHOICES)
-    location_zip_code = forms.CharField(max_length=5)
+    location = AddressField()
 
     beat = forms.IntegerField()
     shift = forms.ChoiceField(choices=SHIFT_CHOICES)
@@ -51,20 +45,16 @@ class IncidentForm(forms.Form):
             offense_ids = data.pop("offenses")
             files = data.pop("files")
 
-            address_data = {}
-            for key in self.cleaned_data:
-                if key.startswith("location_"):
-                    address_data[key.replace("location_", "")] = data.pop(key)
-
-            address, _ = Address.objects.get_or_create(**address_data,
-                                                       defaults=address_data)
-            data['location'] = address
+            # address, _ = Address.objects.get_or_create(**address_data,
+            #                                            defaults=address_data)
+            # data['location'] = address
             incident, _ = Incident.objects.update_or_create(id=getattr(incident, "id", None),
                                                             defaults=data)
             offenses = Offense.objects.filter(id__in=offense_ids)
             incident.offenses.set(offenses)
 
             groups = get_party_groups(data=party_data)
+
             cleanse_incident_party_data_and_create(incident=incident,
                                                    data=party_data,
                                                    groups=groups)
@@ -77,9 +67,12 @@ class IncidentForm(forms.Form):
 
 
 class IncidentInvolvedPartyForm(ModelForm):
+    home_address = AddressField(required=False)
+    employer_address = AddressField(required=False)
+
     class Meta:
         model = IncidentInvolvedParty
-        exclude = ['id', 'incident', 'party_type']
+        exclude = ['id', 'incident', 'party_type', "display_sequence"]
 
 
 class IncidentSearchForm(forms.Form):
@@ -91,11 +84,7 @@ class IncidentSearchForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField(required=False)
     latest_occurrence_datetime = forms.DateTimeField(required=False)
 
-    location_street = forms.CharField(required=False)
-    location_street_two = forms.CharField(required=False)
-    location_city = forms.CharField(required=False)
-    location_state = forms.ChoiceField(choices=STATE_CHOICES, required=False)
-    location_zip_code = forms.CharField(max_length=5, required=False)
+    location = AddressField()
 
     beat = forms.IntegerField(required=False)
     shift = forms.ChoiceField(required=False, choices=SHIFT_CHOICES)
@@ -136,7 +125,7 @@ class IncidentSearchForm(forms.Form):
 
 def populate_initial_incident_update_form_data(incident: Incident) -> dict:
     incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
-                     if (not field.startswith("location_")) and not field.startswith("files")}
+                     if not field.startswith("files")}
     incident_data['stolen_amount'] = str(incident_data['stolen_amount']).replace("$", "")
     incident_data['damaged_amount'] = str(incident_data['damaged_amount']).replace("$", "")
     for k in incident_data:
@@ -144,8 +133,36 @@ def populate_initial_incident_update_form_data(incident: Incident) -> dict:
             incident_data[k] = incident_data[k].pk
 
     incident_data['offenses'] = incident.offenses.all()
+    incident_data['location_formatted'] = incident.location.formatted
 
-    for field in ["street", "street_two", "city", "state", "zip_code"]:
-        incident_data["location_" + field] = getattr(incident.location, field)
+    victims = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                   party_type=VICTIM).order_by('display_sequence')
+    print(f"VICTIM COUNT: {victims.count()}")
+    victim_data = []
+    victim_idx = 0
+    for victim in victims:
+        prefix = f"victims-{victim_idx}"
+        vic_data = {f'{prefix}-{field}': getattr(victim, field) for field in IncidentInvolvedPartyForm().fields
+                    if not field.startswith("files")}
+        vic_data[f'{prefix}-officer_signed'] = victim.officer_signed.id
+        vic_data[f'{prefix}-home_address_formatted'] = victim.home_address.formatted if victim.home_address else ""
+        vic_data[f'{prefix}-employer_address_formatted'] = victim.employer_address.formatted if victim.employer_address else ""
+        vic_data[f'{prefix}-id'] = victim.id
+        victim_data.append(vic_data)
 
-    return {'incident_data': incident_data}
+    suspects = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                    party_type=SUSPECT).order_by('display_sequence')
+    suspect_data = []
+    suspect_idx = 0
+    for suspect in suspects:
+        prefix = f"suspects-{suspect_idx}"
+        sus_data = {f'{prefix}-{field}': getattr(suspect, field) for field in IncidentInvolvedPartyForm().fields
+                    if not field.startswith("files")}
+        sus_data[f'{prefix}-officer_signed'] = suspect.officer_signed.id
+        sus_data[f'{prefix}-home_address_formatted'] = suspect.home_address.formatted if suspect.home_address else ""
+        sus_data[f'{prefix}-employer_address_formatted'] = suspect.employer_address.formatted if suspect.employer_address else ""
+        suspect_data.append(sus_data)
+
+    return {'incident_data': incident_data,
+            'victim_data': victim_data,
+            'suspect_data': suspect_data}

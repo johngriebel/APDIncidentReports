@@ -22,7 +22,7 @@ def cleanse_filter_key(key: str) -> str:
     elif key == "offenses":
         filter_key = key + "__in"
     else:
-        filter_key = key + "__iexact"
+        filter_key = key + "__icontains"
     return filter_key
 
 
