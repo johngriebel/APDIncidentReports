@@ -15,11 +15,18 @@ logger = logging.getLogger('cases')
 def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
     date_parts = None
     if date_string:
-        date_portion = date_string.split()[0]
-        time_portion = date_string.split()[-1]
+        parts = date_string.split()
+        logger.debug(f"Parts: {parts}")
+        date_portion = parts[0]
+        if len(parts) > 1:
+            time_portion = date_string.split()[-1]
+        else:
+            time_portion = None
         if time_portion:
-            hours = int(time_portion[0])
-            minutes = int(time_portion[1])
+            time_parts = time_portion.split(":")
+            logger.debug(("time parts", time_parts))
+            hours = int(time_parts[0])
+            minutes = int(time_parts[1])
         else:
             hours = 0
             minutes = 0
@@ -35,6 +42,7 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
             day = int(date_parts[1])
 
         if date_parts is not None and len(date_parts) == 3:
+            logger.debug((year, month, day, hours, minutes))
             date_object = datetime(year=year,
                                    month=month,
                                    day=day,
