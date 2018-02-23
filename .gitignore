@@ -4,3 +4,4 @@ venv/
 *__pycache__/*
 *.pyo
 .DS_Store
+logs/

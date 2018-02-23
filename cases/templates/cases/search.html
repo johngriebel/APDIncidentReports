@@ -2,13 +2,6 @@
 {% load bootstrap %}
 
 {% block content %}
-    <form role="form" action="{% url 'search' %}" method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-    <div class="form-group">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
     {% if was_post %}
         <h3>Search Results</h3>
         <!-- TODO: refactor this to use a sub template. Index page uses the same exact HTML -->
@@ -29,4 +22,11 @@
             </tbody>
         </table>
     {% endif %}
+    <form role="form" action="{% url 'search' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+    <div class="form-group">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
 {% endblock %}

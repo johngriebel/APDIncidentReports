@@ -11,16 +11,15 @@ This is very much a living document. Don't hesitate to ask questions.
 
 ### Features
 All of these are to be documented as they are completed
-- [ ] Authentication
-    - Sign up or invite?
-    - Use a third party authentication service such as Auth0?
+- [x] Authentication
+    - Basic Authentication is done. No password reset or any thing like that
 - [x] Define Database Schema
 - [x] Create reports
     - [x] Define a ModelForm for relevant models
-    - [ ] Datetime widget
+    - [x] Datetime widget
     - [x] Basic, manual version with separate page for each entity
     - [x] Single page, in-line creation of all entities
-    - [ ] Smart address lookup
+    - [x] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
     - [ ] File upload
 - [x] Update Reports
@@ -62,8 +61,14 @@ All of these are to be documented as they are completed
     - Trivial
     - [ ] Decide which fields should be displayed in table
 - [ ] Cosmetics
-    - Nice Nav Bar
+    - [X] Nice Nav Bar
     - Correct Color Scheme
+    - [ ] Better Height Input
+    - [ ] Better selector field for the various officer fields
+    - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
+- [ ] Unit Testing
+- [ ] Code cleanup/refactor
+- [ ] Logging
 
 ### Deployment
 - [ ] Talk to APD, determine their hosting practices (Do they use AWS, 

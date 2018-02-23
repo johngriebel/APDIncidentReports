@@ -1,25 +1,12 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from djmoney.models.fields import MoneyField
+from address.models import AddressField
 from .constants import (STATE_CHOICES, SHIFT_CHOICES,
                         PARTY_TYPE_CHOICES, SEX_CHOICES,
                         RACE_CHOICES, HAIR_COLOR_CHOICES,
                         EYE_COLOR_CHOICES)
 User = get_user_model()
-
-
-class Address(models.Model):
-    street = models.CharField(max_length=255)
-    street_two = models.CharField(max_length=255, null=True, blank=True)
-    city = models.CharField(max_length=255, default="Atlanta")
-    state = models.CharField(max_length=2, choices=STATE_CHOICES)
-    zip_code = models.CharField(max_length=5)
-
-    def __str__(self):
-        return f"{self.street} {self.street_two or ''} {self.city}, {self.state} {self.zip_code}"
-
-    class Meta:
-        db_table = "address"
 
 
 class Officer(models.Model):
@@ -57,7 +44,7 @@ class Incident(models.Model):
     approved_datetime = models.DateTimeField(null=True, blank=True)
     earliest_occurrence_datetime = models.DateTimeField()
     latest_occurrence_datetime = models.DateTimeField()
-    location = models.ForeignKey(Address, on_delete=models.CASCADE)
+    location = AddressField(on_delete=models.SET_NULL, null=True)
     beat = models.IntegerField()
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES)
     damaged_amount = MoneyField(max_digits=12, decimal_places=2,
@@ -105,10 +92,9 @@ class IncidentInvolvedParty(models.Model):
     officer_signed = models.ForeignKey(Officer, null=True, on_delete=models.CASCADE)
     party_type = models.CharField(max_length=7, choices=PARTY_TYPE_CHOICES)
     juvenile = models.BooleanField(default=False)
-    home_address = models.ForeignKey(Address, null=True,
-                                     on_delete=models.CASCADE,
-                                     related_name="incident_party_address",
-                                     blank=True)
+    home_address = AddressField(blank=True, null=True,
+                                related_name="incident_home_address",
+                                on_delete=models.SET_NULL)
     # THis is a todo field. I haven't arrived at a good solution for storing these safely yet.
     social_security_number = None
     date_of_birth = models.DateField(null=True, blank=True)
@@ -122,14 +108,14 @@ class IncidentInvolvedParty(models.Model):
     drivers_license_state = models.CharField(max_length=2, null=True,
                                              choices=STATE_CHOICES, blank=True)
     employer = models.CharField(max_length=200, null=True, blank=True)
-    employer_address = models.ForeignKey(Address, null=True,
-                                         on_delete=models.CASCADE,
-                                         related_name="incident_employer_address",
-                                         blank=True)
+    employer_address = AddressField(blank=True, null=True,
+                                    related_name="incident_employer_address",
+                                    on_delete=models.SET_NULL)
     build = models.CharField(max_length=25, null=True, blank=True)
     tattoos = models.TextField(null=True, blank=True)
     scars = models.TextField(null=True, blank=True)
     hairstyle = models.CharField(max_length=30, null=True, blank=True)
+    display_sequence = models.IntegerField(null=True)
 
     @property
     def name(self):

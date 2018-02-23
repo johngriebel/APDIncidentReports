@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+from APDIncidentReports import BASE_DIR
+from .apd_logging import APD_LOGGING
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'djmoney',
     'bootstrapform',
+    'address',
 
     'cases'
 ]
@@ -127,3 +128,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATIC_URL = '/static/'
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "index"
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+LOGGING = APD_LOGGING
