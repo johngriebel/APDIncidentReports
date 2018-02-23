@@ -5,3 +5,4 @@ venv/
 *.pyo
 .DS_Store
 logs/
+case_file_uploads/

@@ -1,15 +1,20 @@
+import logging
 from copy import deepcopy
 from django import forms
 from django.forms import ModelForm
 from address.forms import AddressField
 from .models import (IncidentInvolvedParty,
-                     Officer, Offense, Incident)
-from .utils import cleanse_incident_party_data_and_create, get_party_groups
+                     Officer, Offense, Incident,
+                     IncidentFile)
+from .utils import (cleanse_incident_party_data_and_create,
+                    get_party_groups,
+                    handle_files)
 from .constants import (SHIFT_CHOICES,
                         SEX_CHOICES, RACE_CHOICES,
                         HAIR_COLOR_CHOICES,
                         EYE_COLOR_CHOICES,
                         VICTIM, SUSPECT)
+logger = logging.getLogger('cases')
 
 
 class IncidentForm(forms.Form):
@@ -36,18 +41,14 @@ class IncidentForm(forms.Form):
     files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
                             required=False)
 
-    def save(self, party_data=None, instance=None):
+    def save(self, party_data=None, instance=None, files=None):
         incident = instance
         try:
             data = deepcopy(self.cleaned_data)
-            print(("data", data))
 
             offense_ids = data.pop("offenses")
-            files = data.pop("files")
+            data.pop("files")
 
-            # address, _ = Address.objects.get_or_create(**address_data,
-            #                                            defaults=address_data)
-            # data['location'] = address
             incident, _ = Incident.objects.update_or_create(id=getattr(incident, "id", None),
                                                             defaults=data)
             offenses = Offense.objects.filter(id__in=offense_ids)
@@ -58,6 +59,8 @@ class IncidentForm(forms.Form):
             cleanse_incident_party_data_and_create(incident=incident,
                                                    data=party_data,
                                                    groups=groups)
+            handle_files(incident=incident,
+                         files=files)
 
             return incident
         except Exception as e:
@@ -123,6 +126,11 @@ class IncidentSearchForm(forms.Form):
     suspect_eye_color = forms.ChoiceField(choices=EYE_COLOR_CHOICES, required=False)
 
 
+class IncidentFileForm(forms.Form):
+    files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
+                            required=False)
+
+
 def populate_initial_incident_update_form_data(incident: Incident) -> dict:
     incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
                      if not field.startswith("files")}
@@ -163,6 +171,9 @@ def populate_initial_incident_update_form_data(incident: Incident) -> dict:
         sus_data[f'{prefix}-employer_address_formatted'] = suspect.employer_address.formatted if suspect.employer_address else ""
         suspect_data.append(sus_data)
 
+    incident_files = IncidentFile.objects.filter(incident=incident)
+
     return {'incident_data': incident_data,
             'victim_data': victim_data,
-            'suspect_data': suspect_data}
+            'suspect_data': suspect_data,
+            'existing_files': incident_files}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from pathlib import Path
 from APDIncidentReports import BASE_DIR
 from .apd_logging import APD_LOGGING
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -134,3 +135,6 @@ LOGIN_REDIRECT_URL = "index"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 LOGGING = APD_LOGGING
+
+MEDIA_ROOT = Path(BASE_DIR, "case_file_uploads")
+MEDIA_URL = "/uploads/"

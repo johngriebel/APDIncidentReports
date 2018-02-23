@@ -4,8 +4,17 @@
 {% load build_prefix %}
 
 {% block content %}
-    <a href="{% url 'print-report' incident.id %}"><button class="btn btn-primary">Print</button></a>
-    <form role="form" action="{% url 'detail' incident.id %}" method="post">
+    <div class="btn-group" role="group">
+        <div class="btn-group mr-2" role="group">
+            <a href="{% url 'print-report' incident.id %}"><button class="btn btn-primary">Print</button></a>
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <a href="{% url 'manage-files' incident.id %}">
+                <button class="btn btn-primary">Manage Files</button>
+            </a>
+        </div>
+    </div>
+    <form role="form" action="{% url 'detail' incident.id %}" method="post" enctype="multipart/form-data" class="form-group">
         {{ incident_form.media }}
         {% csrf_token %}
         <h3>Incident Details</h3>
@@ -19,8 +28,15 @@
                 {% else %}
                     {{ field }}
                 {% endif %}
-            </div>
+            </div><br>
         {% endfor %}
+
+        Existing Files:
+        <ul>
+        {% for inc_file in existing_files %}
+            <li>{{ inc_file.file.name }}</li>
+        {% endfor %}
+        </ul>
         <h3>Victim(s)</h3>
             {% for victim_form in victim_forms %}
                 <h4>Victim {{ forloop.counter }}</h4>
@@ -40,7 +56,7 @@
                         </div>
                     {% endfor %}
                 {% endwith %}
-            {% endfor %}
+            {% endfor %}<br>
         <h3>Suspect(s)</h3>
             {% for suspect_form in suspect_forms %}
                 <h4>Suspect {{ forloop.counter }}</h4>

@@ -1,19 +1,18 @@
 import re
 import logging
-from typing import Union, Tuple, Dict, List
+from typing import Union, Tuple, Dict, List, Any
 from datetime import datetime
 from itertools import groupby
 from address.models import to_python
 from .models import (Incident,
                      IncidentInvolvedParty,
-                     Officer)
+                     Officer, IncidentFile)
 from .constants import VICTIM, SUSPECT
 date_format = re.compile("\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
 
 
 def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
-    logger.debug(f"Date String: {date_string}")
     date_parts = None
     if date_string:
         date_portion = date_string.split()[0]
@@ -48,8 +47,14 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
         return None
 
 
-def handle_address(address: str):
-    return None
+def handle_address(party_data: Dict[str, Any], key: str) -> Dict:
+    address_dict = {addr_key.replace(f"{key}_", ""): party_data[addr_key]
+                    for addr_key in party_data if f"{key}_" in addr_key}
+    address_dict[f"raw"] = party_data[f"{key}_formatted"]
+    address_object = to_python(address_dict)
+    address_data = {f"{key}_raw": party_data[f"{key}_formatted"],
+                    key: address_object}
+    return address_data
 
 
 def get_party_groups(data: dict) -> list:
@@ -63,6 +68,16 @@ def get_party_groups(data: dict) -> list:
 
 def get_display_sequence_from_group(key_str):
     return key_str.split("-")[1]
+
+
+def handle_files(incident: Incident, files: List) -> List[IncidentFile]:
+    inc_files = []
+    for upload in files:
+        incident_file = IncidentFile(incident=incident,
+                                     file=upload)
+        incident_file.save()
+        inc_files.append(incident_file)
+    return inc_files
 
 
 def cleanse_incident_party_data_and_create(incident: Incident, data: dict, groups: list):
@@ -79,23 +94,18 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
                 # If we've gotten here, the form is valid, but a required field is missing, so this
                 # must be an empty form. Skip it. this is a temporary hack
                 continue
-            logger.debug(f"indiv party data: {indiv_party_data}")
+
             converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
             indiv_party_data['date_of_birth'] = converted_date
 
-            indiv_party_data['home_address_raw'] = indiv_party_data['home_address_formatted']
-            home_address = {addr_key.replace("home_address_", ""): indiv_party_data[addr_key]
-                            for addr_key in indiv_party_data if "home_address_" in addr_key}
-            home_address_object = to_python(home_address)
-
-            indiv_party_data['employer_address_raw'] = indiv_party_data['employer_address_formatted']
-            employer_address = {addr_key.replace("employer_address_", ""):
-                                indiv_party_data[addr_key]
-                                for addr_key in indiv_party_data if "employer_address_" in addr_key}
-            employer_address_object = to_python(employer_address)
-
-            indiv_party_data['home_address'] = home_address_object
-            indiv_party_data['employer_address'] = employer_address_object
+            indiv_party_data.update(handle_address(party_data=indiv_party_data,
+                                                   key="home_address"))
+            indiv_party_data.update(handle_address(party_data=indiv_party_data,
+                                                   key="employer_address"))
+            # TODO: Add this to handle_address somehow
+            indiv_party_data = {key: value for key, value in indiv_party_data.items()
+                                if ("employer_address_" not in key)
+                                and ("home_address_" not in key)}
 
             officer_id = indiv_party_data['officer_signed']
             if officer_id in officers_cache:
@@ -111,9 +121,6 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
 
             party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
 
-            indiv_party_data = {key: value for key, value in indiv_party_data.items()
-                                if ("employer_address_" not in key)
-                                and ("home_address_" not in key)}
             obj, _ = IncidentInvolvedParty.objects.update_or_create(display_sequence=display_seq,
                                                                     incident=incident,
                                                                     party_type=party_type,
@@ -122,7 +129,7 @@ def cleanse_incident_party_data_and_create(incident: Incident, data: dict, group
             obj.save()
 
 
-def parse_and_compile_incident_input_data(post_data: dict) -> Tuple[Dict, List, List, Dict]:
+def parse_and_compile_incident_input_data(post_data) -> Tuple[Dict, List, List, Dict]:
     victim_data = [{key: post_data.get(key) for key in post_data if key.startswith("victims")}]
     suspect_data = [{key: post_data.get(key) for key in post_data if key.startswith("suspects")}]
     party_data = {}
@@ -138,7 +145,6 @@ def parse_and_compile_incident_input_data(post_data: dict) -> Tuple[Dict, List, 
     incident_data['offenses'] = post_data.getlist("offenses")
     incident_data['report_datetime'] = post_data.getlist("report_datetime")[0]
 
-    print(f"VICTIM DATA: {victim_data}")
     return incident_data, victim_data, suspect_data, party_data
 
 
