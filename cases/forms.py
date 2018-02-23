@@ -87,7 +87,7 @@ class IncidentSearchForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField(required=False)
     latest_occurrence_datetime = forms.DateTimeField(required=False)
 
-    location = AddressField()
+    location = AddressField(required=False)
 
     beat = forms.IntegerField(required=False)
     shift = forms.ChoiceField(required=False, choices=SHIFT_CHOICES)

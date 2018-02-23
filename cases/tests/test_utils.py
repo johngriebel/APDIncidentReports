@@ -33,7 +33,7 @@ class UtilsTestCase(TestCase):
         month = random.randint(1, 12)
         day = random.randint(1, 28)
         hour = random.randint(0, 23)
-        minute = random.randint(0,59)
+        minute = random.randint(0, 59)
         date_string = f"{year}-{month}-{day} {hour}:{minute}"
         converted = convert_date_string_to_object(date_string=date_string)
         expected = datetime(year=year,

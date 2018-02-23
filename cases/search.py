@@ -6,7 +6,6 @@ from .utils import (isincident_field,
 
 
 def cleanse_filter_key(key: str) -> str:
-    print(f"Key: {key}")
     if "_min" in key:
         filter_key = key.replace("_min", "__gte")
     elif "_max" in key:
