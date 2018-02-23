@@ -1,16 +1,21 @@
 import logging
+import json
+from collections import namedtuple
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
                     IncidentSearchForm)
 from .models import Incident, IncidentFile
-from .utils import parse_and_compile_incident_input_data
+from .utils import (parse_and_compile_incident_input_data)
 from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
 logger = logging.getLogger('cases')
+
+
+ContextFile = namedtuple("ContextFile", ["url", "display_name"])
 
 
 @login_required
@@ -144,10 +149,35 @@ def print_report(request, *args, **kwargs):
 
 @login_required
 def manage_files(request, *args, **kwargs):
-    logger.debug(("args", args, "kwargs", kwargs))
     incident = Incident.objects.get(id=kwargs.get("incident_id"))
     files = IncidentFile.objects.filter(incident=incident)
+
+    context_files = [ContextFile(url=inc_file.file.url,
+                                 display_name=inc_file.display_name)
+                     for inc_file in files]
+    logger.debug(f"Context Files:\n {context_files}")
     context = {'incident': incident,
                'files': files}
-    logger.debug(("context", context))
     return render(request, "cases/manage_files.html", context=context)
+
+
+@login_required
+def delete_files(request, *args, **kwargs):
+    logger.debug(("args", args, "kwargs", kwargs))
+    incident_file_id_list = json.loads(request.body, encoding="utf-8")
+    logger.debug(f"IncidentFiles to delete: {incident_file_id_list}")
+    try:
+        result = IncidentFile.objects.filter(id__in=incident_file_id_list).delete()
+        logger.debug(f"Successfully deleted incident files: {result}")
+        success = True
+        message = result
+        status = 200
+    except Exception as e:
+        logger.exception(e)
+        success = False
+        message = str(e)
+        status = 500
+    data = {'success': success,
+            'message': message}
+    return JsonResponse(status=status,
+                        data=data)

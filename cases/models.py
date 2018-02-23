@@ -130,3 +130,22 @@ class IncidentFile(models.Model):
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE)
     file = models.FileField(upload_to=determine_file_upload_path)
 
+    @property
+    def display_name(self) -> str:
+        return "/".join(self.file.name.split("/")[1:])
+
+    @property
+    def smart_size(self) -> str:
+        raw_size = self.file.size
+        kilobytes = raw_size / 1024
+
+        if kilobytes < 1:
+            return f"{raw_size} B"
+
+        megabytes = kilobytes / 1024
+        if megabytes < 1:
+            return f"{kilobytes} KB"
+
+        gigabytes = megabytes / 1024
+        return f"{gigabytes} GB"
+

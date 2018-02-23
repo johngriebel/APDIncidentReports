@@ -9,7 +9,9 @@
             <a href="{% url 'print-report' incident.id %}"><button class="btn btn-primary">Print</button></a>
         </div>
         <div class="btn-group mr-2" role="group" aria-label="First group">
-            <a href="{% url 'manage-files' incident.id %}"><button class="btn btn-primary">Manage Files</button></a>
+            <a href="{% url 'manage-files' incident.id %}">
+                <button class="btn btn-primary">Manage Files</button>
+            </a>
         </div>
     </div>
     <form role="form" action="{% url 'detail' incident.id %}" method="post" enctype="multipart/form-data" class="form-group">
