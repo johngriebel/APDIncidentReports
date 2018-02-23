@@ -8,5 +8,6 @@ urlpatterns = [
     path('search/', views.search, name="search"),
     path('print/<int:incident_id>/', views.print_report, name="print-report"),
     path('manage-files/<int:incident_id>/', views.manage_files, name="manage-files"),
-    path('delete-files/<int:incident_id>/', views.delete_files, name="delete-files")
+    path('delete-files/<int:incident_id>/', views.delete_files, name="delete-files"),
+    path('upload-files/<int:incident_id>/', views.upload_file, name="upload-files")
 ]

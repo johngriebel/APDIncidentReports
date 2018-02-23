@@ -126,6 +126,11 @@ class IncidentSearchForm(forms.Form):
     suspect_eye_color = forms.ChoiceField(choices=EYE_COLOR_CHOICES, required=False)
 
 
+class IncidentFileForm(forms.Form):
+    files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
+                            required=False)
+
+
 def populate_initial_incident_update_form_data(incident: Incident) -> dict:
     incident_data = {field: getattr(incident, field) for field in IncidentForm().fields
                      if not field.startswith("files")}

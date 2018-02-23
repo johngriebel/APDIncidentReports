@@ -7,9 +7,11 @@ from django.http import HttpResponse, JsonResponse
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
                     populate_initial_incident_update_form_data,
-                    IncidentSearchForm)
+                    IncidentSearchForm,
+                    IncidentFileForm)
 from .models import Incident, IncidentFile
-from .utils import (parse_and_compile_incident_input_data)
+from .utils import (parse_and_compile_incident_input_data,
+                    handle_files)
 from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
 logger = logging.getLogger('cases')
@@ -156,18 +158,22 @@ def manage_files(request, *args, **kwargs):
                                  display_name=inc_file.display_name)
                      for inc_file in files]
     logger.debug(f"Context Files:\n {context_files}")
+    form = IncidentFileForm()
     context = {'incident': incident,
-               'files': files}
+               'files': files,
+               'form': form}
     return render(request, "cases/manage_files.html", context=context)
 
 
 @login_required
 def delete_files(request, *args, **kwargs):
-    logger.debug(("args", args, "kwargs", kwargs))
     incident_file_id_list = json.loads(request.body, encoding="utf-8")
     logger.debug(f"IncidentFiles to delete: {incident_file_id_list}")
     try:
-        result = IncidentFile.objects.filter(id__in=incident_file_id_list).delete()
+        incident_files = IncidentFile.objects.filter(id__in=incident_file_id_list)
+        for f in incident_files:
+            f.file.delete()
+        result = incident_files.delete()
         logger.debug(f"Successfully deleted incident files: {result}")
         success = True
         message = result
@@ -181,3 +187,23 @@ def delete_files(request, *args, **kwargs):
             'message': message}
     return JsonResponse(status=status,
                         data=data)
+
+
+@login_required
+def upload_file(request, *args, **kwargs):
+    incident = Incident.objects.get(id=kwargs.get("incident_id"))
+    existing_files = IncidentFile.objects.filter(incident=incident)
+    if request.method == "POST":
+        form = IncidentFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            files = request.FILES.getlist('files')
+            handle_files(incident=incident,
+                         files=files)
+            return redirect("manage-files", incident_id=incident.id)
+    else:
+        form = IncidentFileForm()
+    context = {'incident': incident,
+               'files': existing_files,
+               'form': form}
+    return render(request, "cases/manage_files.html", context=context)
+

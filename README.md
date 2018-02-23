@@ -21,7 +21,7 @@ All of these are to be documented as they are completed
     - [x] Single page, in-line creation of all entities
     - [x] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
-    - [ ] File upload
+    - [x] File upload
 - [x] Update Reports
     - Get this more or less for free once report creation is finished
 - [ ] Approve reports
@@ -68,7 +68,7 @@ All of these are to be documented as they are completed
     - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
 - [ ] Unit Testing
 - [ ] Code cleanup/refactor
-- [ ] Logging
+- [x] Logging
 
 ### Deployment
 - [ ] Talk to APD, determine their hosting practices (Do they use AWS, 
