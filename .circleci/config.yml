@@ -42,9 +42,6 @@ jobs:
           command: |
             . venv/bin/activate
             coverage run --source='.' manage.py test
-      - run:
-          name: report coverage
-          command: |
             coverage report -m
 
       - store_artifacts:
