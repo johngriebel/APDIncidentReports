@@ -21,10 +21,11 @@ All of these are to be documented as they are completed
     - [x] Single page, in-line creation of all entities
     - [x] Smart address lookup
     - [ ] Enter all Offense types into database with UCR and NGIC codes, create fixture file
+        - Is there some nice and easy way to parse these from somewhere?
     - [x] File upload
 - [x] Update Reports
     - Get this more or less for free once report creation is finished
-- [ ] Approve reports
+- [ ] Approve reports?
     - Will need more information surrounding this
 - [x] Find a specific report (Search)
     - Search by the following fields:
@@ -67,7 +68,7 @@ All of these are to be documented as they are completed
     - [ ] Better selector field for the various officer fields
     - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
 - [x] Unit Testing
-- [ ] Code cleanup/refactor
+- [x] Code cleanup/refactor
 - [x] Logging
 
 ### Deployment
