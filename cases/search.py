@@ -46,8 +46,6 @@ def build_reverse_lookups(key: str, params: dict):
                 return {}
         party_type = key.split("_")[0]
         filter_key = key.replace(party_type, "incidentinvolvedparty_")
-        print(f"Filter Key: {filter_key}")
-        print(filter_key.split("__")[-1])
         filter_key_parts = filter_key.split("__")
         filter_key = filter_key_parts[0] + "__" + cleanse_filter_key(filter_key_parts[1])
         value = cleanse_value(key, data=params)
@@ -65,9 +63,6 @@ def get_search_results(params: dict):
                 filter_dict[filter_key] = cleanse_value(key, params)
         elif isincidentparty_field(key):
             reverse_lookups = build_reverse_lookups(key, params)
-            print(f"Reverse Lookups: {reverse_lookups}")
             filter_dict.update(reverse_lookups)
-    print(f"Filter Dict: {filter_dict}")
     incidents = Incident.objects.filter(**filter_dict)
-    print(f"Incidents: {incidents}")
     return incidents

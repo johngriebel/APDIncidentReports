@@ -22,15 +22,15 @@ DATETIME_HTML = (
 
 
 def datepicker_html(value, prefix=None):
-    print(f"Which field? {value.name}")
-    print(f"Prefix: {prefix}")
+    logger.debug(f"Which field? {value.name}")
+    logger.debug(f"Prefix: {prefix}")
 
     if prefix:
         field_name = prefix + value.name
     else:
         field_name = value.name
 
-    print(f"Full field name: {field_name}")
+    logger.debug(f"Full field name: {field_name}")
 
     pyt_strformat = "%m/%d/%Y"
     if value.form.is_bound:

@@ -66,7 +66,7 @@ All of these are to be documented as they are completed
     - [ ] Better Height Input
     - [ ] Better selector field for the various officer fields
     - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
-- [ ] Unit Testing
+- [x] Unit Testing
 - [ ] Code cleanup/refactor
 - [x] Logging
 
