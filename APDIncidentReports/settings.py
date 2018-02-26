@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 from APDIncidentReports import BASE_DIR
 from .apd_logging import APD_LOGGING
@@ -80,15 +81,8 @@ WSGI_APPLICATION = 'APDIncidentReports.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "APD",
-        'USER': "postgres",
-        'PASSWORD': "postgres",
-        'HOST': "127.0.0.1",
-        'PORT': "6432",
-    }
+DATABASES = {dj_database_url.config(conn_max_age=600,
+                                    default="postgres://postgres:postgres@localhost:6432/APD")
 }
 
 
