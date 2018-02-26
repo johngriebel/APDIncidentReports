@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 from copy import deepcopy
 from django import forms
 from django.forms import ModelForm
@@ -177,3 +178,31 @@ def populate_initial_incident_update_form_data(incident: Incident) -> dict:
             'victim_data': victim_data,
             'suspect_data': suspect_data,
             'existing_files': incident_files}
+
+
+def init_incident_detail_context(incident: Incident) -> Dict:
+    forms = populate_initial_incident_update_form_data(incident)
+    incident_form = IncidentForm(data=forms['incident_data'])
+    files = forms['existing_files']
+
+    victim_forms = []
+    victim_idx = 0
+    for victim in forms['victim_data']:
+        prefix = f"victims-{victim_idx}"
+        victim_forms.append(IncidentInvolvedPartyForm(victim,
+                                                      prefix=prefix))
+        victim_idx += 1
+
+    suspect_forms = []
+    suspect_idx = 0
+    for suspect in forms['suspect_data']:
+        prefix = f"suspects-{suspect_idx}"
+        suspect_forms.append(IncidentInvolvedPartyForm(suspect,
+                                                       prefix=prefix))
+        suspect_idx += 1
+
+    return {'incident': incident,
+            'incident_form': incident_form,
+            'victim_forms': victim_forms,
+            'suspect_forms': suspect_forms,
+            'existing_files': files}

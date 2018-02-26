@@ -4,7 +4,7 @@
 {% load build_prefix %}
 
 {% block content %}
-    <form role="form" action="{% url 'create-incident' %}" method="post">
+    <form role="form" class="form-group" action="{% url 'create-incident' %}" method="post" enctype="multipart/form-data">
         {{ form.media }}
         {% csrf_token %}
         <h3>Incident Information</h3>

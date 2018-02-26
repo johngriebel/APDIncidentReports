@@ -6,9 +6,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .forms import (IncidentForm,
                     IncidentInvolvedPartyForm,
-                    populate_initial_incident_update_form_data,
                     IncidentSearchForm,
-                    IncidentFileForm)
+                    IncidentFileForm,
+                    init_incident_detail_context)
 from .models import Incident, IncidentFile
 from .utils import (parse_and_compile_incident_input_data,
                     handle_files)
@@ -29,22 +29,55 @@ def index(request, *args, **kwargs):
     return render(request, "cases/index.html", context=context)
 
 
+def _create_or_update_incident(incident, request) -> Incident:
+    files = request.FILES.getlist('files')
+    (incident_data, victim_data,
+     suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
+
+    logger.debug(f"Incident data: {incident_data}")
+
+    incident_form = IncidentForm(incident_data)
+
+    victim_forms = []
+    victim_idx = 0
+    for victim in victim_data:
+        prefix = f"victims-{victim_idx}"
+        victim_forms.append(IncidentInvolvedPartyForm(victim,
+                                                      prefix=prefix))
+        victim_idx += 1
+
+    suspect_forms = []
+    suspect_idx = 0
+    for suspect in suspect_data:
+        prefix = f"suspects-{suspect_idx}"
+        suspect_forms.append(IncidentInvolvedPartyForm(suspect,
+                                                       prefix=prefix))
+        suspect_idx += 1
+
+    victim_valid = all([vic.is_valid() for vic in victim_forms])
+    sus_valid = all([sus.is_valid() for sus in suspect_forms])
+    valid = incident_form.is_valid() and victim_valid and sus_valid
+
+    if valid:
+        incident = incident_form.save(party_data=party_data,
+                                      instance=incident,
+                                      files=files)
+        return incident
+    else:
+        all_errors = []
+        all_errors += [f.errors for f in victim_forms]
+        all_errors += [f.errors for f in suspect_forms]
+        all_errors += incident_form.errors
+
+        logger.debug(all_errors)
+
+
 @login_required
 def create_incident(request, *args, **kwargs):
+    incident = None
     if request.method == 'POST':
-        (incident_data, victim_data,
-         suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
-        incident_form = IncidentForm(incident_data)
-        victim_form = IncidentInvolvedPartyForm(victim_data[0])
-        suspect_form = IncidentInvolvedPartyForm(suspect_data[0])
-
-        isvalid = (incident_form.is_valid()
-                   and victim_form.is_valid()
-                   and suspect_form.is_valid())
-
-        if isvalid:
-            incident = incident_form.save(party_data=party_data)
-            return redirect(f"/{incident.id}")
+        incident = _create_or_update_incident(incident, request)
+        return redirect(f"/{incident.id}")
     else:
         incident_form = IncidentForm()
         victim_form = IncidentInvolvedPartyForm(prefix="victims-0")
@@ -59,63 +92,12 @@ def create_incident(request, *args, **kwargs):
 @login_required
 def incident_detail(request, incident_id):
     incident = get_object_or_404(Incident, pk=incident_id)
-    logger.debug(request.method)
     if request.method == "POST":
-        files = request.FILES.getlist('files')
-        (incident_data, victim_data,
-         suspect_data, party_data) = parse_and_compile_incident_input_data(request.POST)
-        incident_form = IncidentForm(incident_data)
-
-        incident_valid = incident_form.is_valid()
-        victim_forms = []
-        victim_idx = 0
-        for victim in victim_data:
-            prefix = f"victims-{victim_idx}"
-            victim_forms.append(IncidentInvolvedPartyForm(victim,
-                                                          prefix=prefix))
-            victim_idx += 1
-
-        suspect_forms = []
-        suspect_idx = 0
-        for suspect in suspect_data:
-            prefix = f"suspects-{suspect_idx}"
-            suspect_forms.append(IncidentInvolvedPartyForm(suspect,
-                                                           prefix=prefix))
-            suspect_idx += 1
-
-        if incident_valid:
-            incident = incident_form.save(party_data=party_data,
-                                          instance=incident,
-                                          files=files)
-            return redirect(f"/{incident.id}")
-        else:
-            print(incident_form.errors)
+        incident = _create_or_update_incident(incident, request)
+        return redirect(f"/{incident.id}")
     else:
-        forms = populate_initial_incident_update_form_data(incident)
-        incident_form = IncidentForm(data=forms['incident_data'])
-        files = forms['existing_files']
-
-        victim_forms = []
-        victim_idx = 0
-        for victim in forms['victim_data']:
-            prefix = f"victims-{victim_idx}"
-            victim_forms.append(IncidentInvolvedPartyForm(victim,
-                                                          prefix=prefix))
-            victim_idx += 1
-
-        suspect_forms = []
-        suspect_idx = 0
-        for suspect in forms['suspect_data']:
-            prefix = f"suspects-{suspect_idx}"
-            suspect_forms.append(IncidentInvolvedPartyForm(suspect,
-                                                           prefix=prefix))
-            suspect_idx += 1
-
-    return render(request, "cases/detail.html", context={'incident': incident,
-                                                         'incident_form': incident_form,
-                                                         'victim_forms': victim_forms,
-                                                         'suspect_forms': suspect_forms,
-                                                         'existing_files': files})
+        context = init_incident_detail_context(incident=incident)
+    return render(request, "cases/detail.html", context=context)
 
 
 @login_required
@@ -124,7 +106,6 @@ def search(request, *args, **kwargs):
     if request.method == "POST":
         form = IncidentSearchForm(request.POST)
         results = get_search_results(request.POST)
-        print(f"request.POST: {request.POST}")
         was_post = True
     else:
         form = IncidentSearchForm()
@@ -140,7 +121,6 @@ def search(request, *args, **kwargs):
 
 @login_required
 def print_report(request, *args, **kwargs):
-    print((args, kwargs))
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename="somefilename.pdf"'
 
