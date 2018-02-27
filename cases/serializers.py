@@ -27,16 +27,19 @@ class OfficerSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def to_internal_value(self, data):
-        try:
-            return Officer.objects.get(id=data)
-        except Officer.DoesNotExist:
-            logger.debug(f"Tried to find officer with ID: {data}")
-            message = self.error_messages['invalid'].format(
-                datatype=type(data).__name__
-            )
-            raise serializers.ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            }, code='invalid')
+        if isinstance(data, int):
+            try:
+                return Officer.objects.get(id=data)
+            except Officer.DoesNotExist:
+                logger.debug(f"Tried to find officer with ID: {data}")
+                message = self.error_messages['invalid'].format(
+                    datatype=type(data).__name__
+                )
+                raise serializers.ValidationError({
+                    api_settings.NON_FIELD_ERRORS_KEY: [message]
+                }, code='invalid')
+        else:
+            return super(OfficerSerializer, self).to_internal_value(data=data)
 
     class Meta:
         model = Officer
@@ -54,16 +57,19 @@ class OfficerSerializer(serializers.ModelSerializer):
 class OffenseSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
-        try:
-            return Offense.objects.get(id=data)
-        except Offense.DoesNotExist:
-            logger.debug(f"Tried to find offense with ID: {data}")
-            message = self.error_messages['invalid'].format(
-                datatype=type(data).__name__
-            )
-            raise serializers.ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            }, code='invalid')
+        if isinstance(data, int):
+            try:
+                return Offense.objects.get(id=data)
+            except Offense.DoesNotExist:
+                logger.debug(f"Tried to find offense with ID: {data}")
+                message = self.error_messages['invalid'].format(
+                    datatype=type(data).__name__
+                )
+                raise serializers.ValidationError({
+                    api_settings.NON_FIELD_ERRORS_KEY: [message]
+                }, code='invalid')
+        else:
+            return super(OffenseSerializer, self).to_internal_value(data=data)
 
     class Meta:
         model = Offense
