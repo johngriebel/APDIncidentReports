@@ -22,6 +22,7 @@ ContextFile = namedtuple("ContextFile", ["url", "display_name"])
 
 @login_required
 def index(request, *args, **kwargs):
+    logger.debug(f"User: {request.user}")
     incidents = Incident.objects.all()
     display_fields = ["Incident Number", "Report Date & Time", "Reporting Officer"]
     context = {'incidents': incidents,

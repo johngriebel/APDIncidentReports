@@ -1,8 +1,22 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
+from . import views, rest_views
+
+
+router = routers.SimpleRouter()
+router.register("officers", rest_views.OfficerViewSet)
+router.register("incidents", rest_views.IncidentViewSet)
+
+incidents_router = routers.NestedSimpleRouter(router, "incidents", lookup="incidents")
+incidents_router.register("victims", rest_views.VictimViewSet)
+incidents_router.register("suspects", rest_views.SuspectViewSet)
+incidents_router.register("files", rest_views.IncidentFileViewSet)
 
 urlpatterns = [
     path('', views.index, name="index"),
+    path('', include(router.urls)),
+    path('', include(incidents_router.urls)),
     path('create/', views.create_incident, name="create-incident"),
     path('<int:incident_id>/', views.incident_detail, name="detail"),
     path('search/', views.search, name="search"),

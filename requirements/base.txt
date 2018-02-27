@@ -6,3 +6,5 @@ django-bootstrap-form==3.3
 reportlab==3.4.0
 https://github.com/johngriebel/django-address/archive/master.zip
 dj_database_url==0.4.2
+django-rest-framework==3.7.7
+drf-nested-routers==0.90.2
