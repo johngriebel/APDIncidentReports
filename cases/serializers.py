@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from address.models import _to_python, Address
 from rest_framework import serializers
 from rest_framework.settings import api_settings
+from rest_framework.fields import empty
 from .models import (Officer, Incident,
                      Offense, IncidentInvolvedParty,
                      IncidentFile)
@@ -11,6 +12,19 @@ logger = logging.getLogger('cases')
 
 
 class AddressSerializer(serializers.ModelSerializer):
+
+    def run_validation(self, data=empty):
+        logger.debug("in address serializer.run_validation method")
+        logger.debug(("data", data))
+        if data != empty:
+            for addr_field in ["raw", "country", "country_code", "state",
+                               "state_code", "postal_code", "street_number",
+                               "route", "locality"]:
+                if addr_field not in data:
+                    raise serializers.ValidationError(f"Missing field {addr_field} from address.")
+            address_obj = _to_python(data)
+            return address_obj
+
     class Meta:
         model = Address
         fields = "__all__"
@@ -27,7 +41,9 @@ class OfficerSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def to_internal_value(self, data):
-        if isinstance(data, int):
+        logger.debug("ARMADILLO")
+        logger.debug(type(data))
+        if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
                 return Officer.objects.get(id=data)
             except Officer.DoesNotExist:
@@ -110,9 +126,26 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 
 class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
+    officer_signed = OfficerSerializer()
+    home_address = AddressSerializer(required=False)
+    employer_address = AddressSerializer(required=False)
+
+    def create(self, validated_data):
+        for addr in ["home_address", "employer_address"]:
+            address_attrs = validated_data.get(addr)
+            if address_attrs is not None:
+                address_obj = _to_python(validated_data.pop(addr))
+                validated_data[addr] = address_obj
+
+        validated_data['incident'] = Incident.objects.get(pk=validated_data['incident'])
+        validated_data['officer_signed'] = Officer.objects.get(pk=validated_data['officer_signed'])
+
+        self.instance = IncidentInvolvedParty.objects.create(**validated_data)
+
     class Meta:
         model = IncidentInvolvedParty
         exclude = ("display_sequence",)
+        read_only_fields = ("id", "incident","party_type")
 
 
 class IncidentFileSerializer(serializers.ModelSerializer):
