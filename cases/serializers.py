@@ -14,8 +14,6 @@ logger = logging.getLogger('cases')
 class AddressSerializer(serializers.ModelSerializer):
 
     def run_validation(self, data=empty):
-        logger.debug("in address serializer.run_validation method")
-        logger.debug(("data", data))
         if data != empty:
             for addr_field in ["raw", "country", "country_code", "state",
                                "state_code", "postal_code", "street_number",
@@ -41,8 +39,6 @@ class OfficerSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def to_internal_value(self, data):
-        logger.debug("ARMADILLO")
-        logger.debug(type(data))
         if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
                 return Officer.objects.get(id=data)

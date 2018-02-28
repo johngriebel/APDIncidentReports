@@ -1,8 +1,11 @@
 import re
 import logging
-from typing import Union, Tuple, Dict, List, Any, Set
+import json
+from typing import Union, Tuple, Dict, List, Any
 from datetime import datetime
 from itertools import groupby
+from rest_framework import status
+from rest_framework.response import Response
 from address.models import to_python
 from .models import (Incident,
                      IncidentInvolvedParty,
@@ -184,3 +187,29 @@ def isincident_field(field_name: str) -> bool:
 
 def isincidentparty_field(field_name: str) -> bool:
     return "suspect" in field_name or "victim" in field_name
+
+
+def create_incident_involved_party(request, serializer_class,
+                                   kwargs: Dict[str, Any]) -> Response:
+    dirty_data = {key: value for key, value in request.data.items()}
+    dirty_data['incident'] = kwargs.get('incidents_pk')
+    dirty_data['party_type'] = kwargs['party_type']
+
+    for addr in ["home_address", "employer_address"]:
+        address_attrs = dirty_data.get(addr)
+        if address_attrs is not None:
+            dirty_data[addr] = json.loads(dirty_data[addr])
+    serializer = serializer_class(data=dirty_data)
+    valid = serializer.is_valid()
+
+    if not valid:
+        logger.debug(serializer.errors)
+        resp_status = status.HTTP_400_BAD_REQUEST
+        resp_data = serializer.errors
+    else:
+        serializer.create(validated_data=dirty_data)
+        resp_status = status.HTTP_201_CREATED
+        resp_data = serializer.data
+
+    return Response(status=resp_status,
+                    data=resp_data)

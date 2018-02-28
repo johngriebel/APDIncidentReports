@@ -3,13 +3,13 @@ import json
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
-from address.models import _to_python
 from .models import (Officer, Incident,
                      IncidentInvolvedParty,
                      IncidentFile)
 from .serializers import (OfficerSerializer, IncidentSerializer,
                           IncidentInvolvedPartySerializer,
                           IncidentFileSerializer)
+from .utils import create_incident_involved_party
 from .constants import VICTIM, SUSPECT
 from rest_framework import viewsets
 logger = logging.getLogger('cases')
@@ -50,35 +50,26 @@ class VictimViewSet(viewsets.ModelViewSet):
         return qs
 
     def create(self, request, *args, **kwargs):
-        logger.debug((args, kwargs))
-        dirty_data = {key: value for key, value in request.data.items()}
-        dirty_data['incident'] = kwargs.get('incidents_pk')
-        dirty_data['party_type'] = VICTIM
-
-        for addr in ["home_address", "employer_address"]:
-            address_attrs = dirty_data.get(addr)
-            if address_attrs is not None:
-                dirty_data[addr] = json.loads(dirty_data[addr])
-
-        serializer = self.get_serializer(data=dirty_data)
-        valid = serializer.is_valid()
-
-        if not valid:
-            logger.debug(serializer.errors)
-            resp_status = status.HTTP_400_BAD_REQUEST
-            resp_data = serializer.errors
-        else:
-            serializer.create(validated_data=dirty_data)
-            resp_status = status.HTTP_201_CREATED
-            resp_data = serializer.data
-
-        return Response(status=resp_status,
-                        data=resp_data)
+        kwargs['party_type'] = VICTIM
+        return create_incident_involved_party(request=request,
+                                              serializer_class=self.get_serializer_class(),
+                                              kwargs=kwargs)
 
 
 class SuspectViewSet(viewsets.ModelViewSet):
     queryset = IncidentInvolvedParty.objects.filter(party_type=SUSPECT)
     serializer_class = IncidentInvolvedPartySerializer
+
+    def get_queryset(self):
+        qs = IncidentInvolvedParty.objects.filter(incident__id=self.kwargs.get('incidents_pk'),
+                                                  party_type=SUSPECT)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        kwargs['party_type'] = SUSPECT
+        return create_incident_involved_party(request=request,
+                                              serializer_class=self.get_serializer_class(),
+                                              kwargs=kwargs)
 
 
 class IncidentFileViewSet(viewsets.ModelViewSet):
