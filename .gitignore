@@ -8,3 +8,5 @@ logs/
 case_file_uploads/
 .coverage
 htmlcov/
+.editorconfig
+webui/node_modules
