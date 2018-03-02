@@ -15,8 +15,8 @@ incidents_router.register("files", rest_views.IncidentFileViewSet)
 
 urlpatterns = [
     path('', views.index, name="index"),
-    path('', include(router.urls)),
-    path('', include(incidents_router.urls)),
+    path('api/', include(router.urls)),
+    path('api/', include(incidents_router.urls)),
     path('create/', views.create_incident, name="create-incident"),
     path('<int:incident_id>/', views.incident_detail, name="detail"),
     path('search/', views.search, name="search"),
