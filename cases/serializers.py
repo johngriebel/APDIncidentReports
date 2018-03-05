@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OfficerSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = UserSerializer()
 
     def to_internal_value(self, data):
         if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):

@@ -1,5 +1,16 @@
-<ul class="incidents">
-    <li *ngFor="let incident of incidents">
-        <span class="badge">{{incident.id}}</span> {{incident.incident_number}}
-    </li>
-</ul>
+<table class="incidents table">
+    <thead>
+        <tr>
+            <th>Incident Number</th>
+            <th>Report Datetime</th>
+            <th>Reporting Officer</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let incident of incidents">
+            <td><a routerLink="/incidents/{{incident.id}}">{{incident.incident_number}}</a></td>
+            <td>{{incident.report_datetime}}</td>
+            <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
+        </tr>
+    </tbody>
+</table>

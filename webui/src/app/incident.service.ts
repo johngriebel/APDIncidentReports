@@ -19,13 +19,21 @@ export class IncidentService {
 
     private log(message: string) {
         this.messageService.add('IncidentService: ' + message);
-}
+    }
 
     getIncidents(): Observable<Incident[]> {
-        return this.http.get<Incident[]>(this.incidentsUrl);//.pipe(
-            //tap(incidents => this.log(`fetched incidents`)),
-            //catchError(this.handleError('getIncidents', []))
-        //);
+        return this.http.get<Incident[]>(this.incidentsUrl).pipe(
+            tap(incidents => this.log(`fetched incidents`)),
+            catchError(this.handleError('getIncidents', []))
+        );
+    }
+
+    getIncident(id: number): Observable<Incident> {
+        const url = `${this.incidentsUrl}${id}`;
+        return this.http.get<Incident>(url).pipe(
+            tap(_ => this.log(`fetched hero id=${id}`)),
+            catchError(this.handleError<Incident>(`getHero id=${id}`))
+          );
     }
 
     private handleError<T> (operation = 'operation', result?: T) {
