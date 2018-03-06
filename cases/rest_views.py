@@ -39,6 +39,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED,
                         data=serializer.data)
 
+    def partial_update(self, request, *args, **kwargs):
+        for key in request.data:
+            logger.debug(f"Key: {key}")
+            logger.debug(f"Value: {request.data[key]}")
+
 
 class VictimViewSet(viewsets.ModelViewSet):
     queryset = IncidentInvolvedParty.objects.filter(party_type=VICTIM)

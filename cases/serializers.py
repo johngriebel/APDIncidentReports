@@ -30,6 +30,22 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class DateTimeAsObjectField(serializers.Field):
+
+    def to_representation(self, value):
+        local_datetime = timezone.localtime(value,
+                                            timezone=pytz.timezone("US/Eastern"))
+        date_string = local_datetime.date().strftime("%Y-%m-%d")
+        time_string = local_datetime.time().strftime("%H:%M")
+        logger.debug(f"Date String: {date_string}")
+        date_obj = {'date': date_string,
+                    'time': time_string}
+        return date_obj
+
+    def to_internal_value(self, data):
+        pass
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -98,7 +114,10 @@ class IncidentSerializer(serializers.ModelSerializer):
     officer_making_report = OfficerSerializer()
     supervisor = OfficerSerializer()
     location = AddressSerializer()
-    report_datetime = serializers.SerializerMethodField()
+    report_datetime = DateTimeAsObjectField()
+    approved_datetime = DateTimeAsObjectField()
+    earliest_occurrence_datetime = DateTimeAsObjectField()
+    latest_occurrence_datetime = DateTimeAsObjectField()
 
     def get_report_datetime(self, obj: Incident):
         # TODO: Make the timezone a setting

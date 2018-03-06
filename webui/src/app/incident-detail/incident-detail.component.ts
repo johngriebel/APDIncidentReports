@@ -27,4 +27,8 @@ export class IncidentDetailComponent implements OnInit {
         .subscribe((incident) => {this.incident = incident; console.log(this.incident)});
     }
 
+    save(): void {
+        this.incidentService.updateIncident(this.incident).subscribe();
+    }
+
 }

@@ -36,6 +36,13 @@ export class IncidentService {
           );
     }
 
+    updateIncident (incident: Incident): Observable<any> {
+        return this.http.patch(this.incidentsUrl + incident.id + "/", incident, httpOptions).pipe(
+            tap(_ => this.log(`updated hero id=${incident.id}`)),
+            catchError(this.handleError<any>('updateIncident'))
+          );
+    }
+
     private handleError<T> (operation = 'operation', result?: T) {
         return (error: any): Observable<T> => {
 

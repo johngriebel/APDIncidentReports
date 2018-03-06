@@ -17,10 +17,109 @@
                 <input class="form-control" id="report_time" type="time" name="report_time" value="{{incident.report_datetime.time}}">
             </div>
         </div>
+        <!-- TODO: Populate the select drop downs with other available officers, make them searchable -->
+        <div class="form-group row">
+            <label for="reporting_officer" class="col-sm-2 col-form-label">Reporting Officer:</label>
+            <div class="col-sm-10">
+                <select class="custom-select" id="reporting_officer">
+                    <option selected value="{{incident.reporting_officer.id}}">{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+                <label for="reviewed_by_officer" class="col-sm-2 col-form-label">Reviewed By:</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="reviewed_by_officer">
+                        <option selected>{{incident.reviewed_by_officer.user.last_name}} - {{incident.reviewed_by_officer.officer_number}}</option>
+                    </select>
+                </div>
+        </div>
+        
+        <div class="form-group row">
+            <label for="investigating_officer" class="col-sm-2 col-form-label">Investigating Officer:</label>
+            <div class="col-sm-10">
+                <select class="custom-select" id="investigating_officer">
+                    <option selected>{{incident.investigating_officer.user.last_name}} - {{incident.investigating_officer.officer_number}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="officer_making_report" class="col-sm-2 col-form-label">Officer Making Report:</label>
+            <div class="col-sm-10">
+                <select class="custom-select" id="officer_making_report">
+                    <option selected>{{incident.officer_making_report.user.last_name}} - {{incident.officer_making_report.officer_number}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="supervisor" class="col-sm-2 col-form-label">Supervisor:</label>
+            <div class="col-sm-10">
+                <select class="custom-select" id="supervisor">
+                    <option selected>{{incident.supervisor.user.last_name}} - {{incident.supervisor.officer_number}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="earliest_occurrence_date" class="col-sm-2 col-form-label">Earliest Date:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="earliest_occurrence_date" type="date" [(ngModel)]="incident.earliest_occurrence_datetime.date" name="earliest_occurrence_date">
+            </div>
+            <label for="earliest_occurrence_time" class="col-sm-2 col-form-label">Time:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="earliest_occurrence_time" type="time" name="earliest_occurrence_time" [(ngModel)]="incident.earliest_occurrence_datetime.time">
+            </div>
+        </div>
+        <div class="form-group row">
+                <label for="latest_occurrence_date" class="col-sm-2 col-form-label">Latest Date:</label>
+                <div class="col-sm-4">
+                    <input class="form-control" id="latest_occurrence_date" type="date" [(ngModel)]="incident.latest_occurrence_datetime.date" name="latest_occurrence_date">
+                </div>
+                <label for="latest_occurrence_time" class="col-sm-2 col-form-label">Time:</label>
+                <div class="col-sm-4">
+                    <input class="form-control" id="latest_occurrence_time" type="time" name="latest_occurrence_time" [(ngModel)]="incident.latest_occurrence_datetime.time">
+                </div>
+            </div>
         <div class="form-group row">
             <label for="incident_number" class="col-sm-2 col-form-label">Location:</label>
-            <input id="location" class="form-control address col-sm-10" name="location" value="{{incident.location.formatted}}">
-        </div>     
-
+            <input id="location" class="form-control address col-sm-10" name="location" [(ngModel)]="incident.location.raw">
+        </div>
+        <div class="form-group row">
+            <label for="beat" class="col-sm-2 col-form-label">Beat:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="beat" [(ngModel)]="incident.beat" name="beat" type="number">
+            </div>
+            <label for="shift" class="col-sm-2 col-form-label">Shift:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="shift" [(ngModel)]="incident.shift" name="shift">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="damaged_amount" class="col-sm-2 col-form-label">Damaged Amount:</label>
+            <div class="col-sm-10">
+                <input class="form-control" id="damaged_amount" [(ngModel)]="incident.damaged_amount" name="damaged_amount" type="number">
+            </div>
+        </div>
+        <div class="form-group row">
+                <label for="stolen_amount" class="col-sm-2 col-form-label">Stolen Amount:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" id="stolen_amount" [(ngModel)]="incident.stolen_amount" name="stolen_amount" type="number">
+                </div>
+        </div>
+        <div class="form-group row">
+                <label for="narrative" class="col-sm-2 col-form-label">Narrative:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="narrative" [(ngModel)]="incident.narrative" name="narrative"></textarea>
+                </div>
+        </div>
+        <!-- This multi select needs the same changes as the others-->
+        <div class="form-group row">
+            <label for="offenses" class="col-sm-2 col-form-label">Offenses:</label>
+            <div class="col-sm-10">
+                <select id="offenses" multiple class="form-control">
+                    <option *ngFor="let offense of incident.offenses" value="offense.id" selected>{{offense.ucr_name_classification}} - {{offense.ucr_subclass_description}}: {{offense.ucr_code}}</option>
+                </select>
+            </div>
+        </div>
+        <button (click)="save()" class="btn btn-primary">Update</button>
     </form>
 </div>
