@@ -23,7 +23,7 @@ import { AppRoutingModule } from './/app-routing.module';
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [IncidentService, 
               MessageService],

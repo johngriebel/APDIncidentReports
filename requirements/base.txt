@@ -8,3 +8,4 @@ https://github.com/johngriebel/django-address/archive/master.zip
 dj_database_url==0.4.2
 djangorestframework==3.7.7
 drf-nested-routers==0.90.2
+django-cors-headers==2.1.0

@@ -17,7 +17,7 @@ export class IncidentService {
     constructor(private messageService: MessageService,
                 private http: HttpClient) { }
 
-    private log(message: string) {
+    public log(message: string) {
         this.messageService.add('IncidentService: ' + message);
     }
 
@@ -31,8 +31,8 @@ export class IncidentService {
     getIncident(id: number): Observable<Incident> {
         const url = `${this.incidentsUrl}${id}`;
         return this.http.get<Incident>(url).pipe(
-            tap(_ => this.log(`fetched hero id=${id}`)),
-            catchError(this.handleError<Incident>(`getHero id=${id}`))
+            tap(_ => this.log(`fetched incident id=${id}`)),
+            catchError(this.handleError<Incident>(`getIncident id=${id}`))
           );
     }
 

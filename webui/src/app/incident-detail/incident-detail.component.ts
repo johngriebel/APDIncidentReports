@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Incident } from '../incident';
 import { IncidentService } from '../incident.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-incident-detail',
@@ -17,13 +18,13 @@ export class IncidentDetailComponent implements OnInit {
                 private location: Location) { }
 
     ngOnInit(): void {
-        this.getHero();
+        this.getIncident();
     }
 
-    getHero(): void {
+    getIncident(): void {
         const id = +this.route.snapshot.paramMap.get('id');
         this.incidentService.getIncident(id)
-        .subscribe(incident => this.incident = incident);
+        .subscribe((incident) => {this.incident = incident; console.log(this.incident)});
     }
 
 }

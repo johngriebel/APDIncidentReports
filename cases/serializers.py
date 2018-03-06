@@ -1,5 +1,7 @@
 import logging
+import pytz
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from address.models import _to_python, Address
 from rest_framework import serializers
 from rest_framework.settings import api_settings
@@ -96,6 +98,18 @@ class IncidentSerializer(serializers.ModelSerializer):
     officer_making_report = OfficerSerializer()
     supervisor = OfficerSerializer()
     location = AddressSerializer()
+    report_datetime = serializers.SerializerMethodField()
+
+    def get_report_datetime(self, obj: Incident):
+        # TODO: Make the timezone a setting
+        local_datetime = timezone.localtime(obj.report_datetime,
+                                            timezone=pytz.timezone("US/Eastern"))
+        date_string = local_datetime.date().strftime("%Y-%m-%d")
+        time_string = local_datetime.time().strftime("%H:%M")
+        logger.debug(f"Date String: {date_string}")
+        date_obj = {'date': date_string,
+                    'time': time_string}
+        return date_obj
 
     def validate_location(self, value):
         for addr_field in ["raw", "country", "country_code", "state",
