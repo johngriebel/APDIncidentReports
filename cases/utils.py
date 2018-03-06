@@ -1,8 +1,10 @@
 import re
 import logging
 import json
+import pytz
 from typing import Union, Tuple, Dict, List, Any
 from datetime import datetime
+from django.utils import timezone
 from itertools import groupby
 from rest_framework import status
 from rest_framework.response import Response
@@ -51,6 +53,8 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
                                    day=day,
                                    hour=hours,
                                    minute=minutes)
+            date_object = timezone.make_aware(date_object,
+                                timezone=pytz.timezone("US/Eastern"))
             return date_object
         else:
             raise ValueError(f"Incorrectly formatted date string: {date_string}")

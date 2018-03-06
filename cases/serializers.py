@@ -9,6 +9,7 @@ from rest_framework.fields import empty
 from .models import (Officer, Incident,
                      Offense, IncidentInvolvedParty,
                      IncidentFile)
+from .utils import convert_date_string_to_object
 User = get_user_model()
 logger = logging.getLogger('cases')
 
@@ -17,11 +18,6 @@ class AddressSerializer(serializers.ModelSerializer):
 
     def run_validation(self, data=empty):
         if data != empty:
-            for addr_field in ["raw", "country", "country_code", "state",
-                               "state_code", "postal_code", "street_number",
-                               "route", "locality"]:
-                if addr_field not in data:
-                    raise serializers.ValidationError(f"Missing field {addr_field} from address.")
             address_obj = _to_python(data)
             return address_obj
 
@@ -37,13 +33,12 @@ class DateTimeAsObjectField(serializers.Field):
                                             timezone=pytz.timezone("US/Eastern"))
         date_string = local_datetime.date().strftime("%Y-%m-%d")
         time_string = local_datetime.time().strftime("%H:%M")
-        logger.debug(f"Date String: {date_string}")
         date_obj = {'date': date_string,
                     'time': time_string}
         return date_obj
 
     def to_internal_value(self, data):
-        pass
+        return convert_date_string_to_object(f"{data['date']} {data['time']}")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -89,7 +84,7 @@ class OffenseSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if isinstance(data, int):
             try:
-                return Offense.objects.get(id=data)
+                return data
             except Offense.DoesNotExist:
                 logger.debug(f"Tried to find offense with ID: {data}")
                 message = self.error_messages['invalid'].format(
@@ -115,12 +110,12 @@ class IncidentSerializer(serializers.ModelSerializer):
     supervisor = OfficerSerializer()
     location = AddressSerializer()
     report_datetime = DateTimeAsObjectField()
-    approved_datetime = DateTimeAsObjectField()
+    approved_datetime = DateTimeAsObjectField(required=False, allow_null=True)
     earliest_occurrence_datetime = DateTimeAsObjectField()
     latest_occurrence_datetime = DateTimeAsObjectField()
 
     def get_report_datetime(self, obj: Incident):
-        # TODO: Make the timezone a setting
+        # TODO: Make the timezone a settingzz
         local_datetime = timezone.localtime(obj.report_datetime,
                                             timezone=pytz.timezone("US/Eastern"))
         date_string = local_datetime.date().strftime("%Y-%m-%d")
@@ -130,24 +125,38 @@ class IncidentSerializer(serializers.ModelSerializer):
                     'time': time_string}
         return date_obj
 
-    def validate_location(self, value):
-        for addr_field in ["raw", "country", "country_code", "state",
-                           "state_code", "postal_code", "street_number",
-                           "route", "locality"]:
-            if addr_field not in value:
-                raise serializers.ValidationError(f"Missing field {addr_field} from location.")
-        address_obj = _to_python(value)
-        return address_obj
-
     def create(self, validated_data):
-        logger.debug("in the serializer's create method")
-        logger.debug(validated_data)
         offenses = validated_data.pop("offenses")
         incident = Incident.objects.create(**validated_data)
         offense_objects = Offense.objects.filter(id__in=offenses)
         for offense in offense_objects:
             incident.offenses.add(offense)
         return incident
+
+    def update(self, instance, validated_data):
+        offenses = validated_data.pop("offenses")
+        offense_objects = Offense.objects.filter(id__in=offenses)
+        for offense in offense_objects:
+            if offense not in instance.offenses.all():
+                instance.offenses.add(offense)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        return instance
+
+    def validate_incident_number(self, value):
+        if self.instance and value == self.instance.incident_number:
+            return value
+        else:
+            exists = Incident.objects.filter(incident_number=self.instance.incident_number).exists()
+            if exists:
+                raise serializers.ValidationError("An Incident with that incident "
+                                                  "number already exists")
+            else:
+                return value
 
     class Meta:
         model = Incident

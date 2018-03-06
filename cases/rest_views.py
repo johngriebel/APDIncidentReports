@@ -29,8 +29,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         dirty_data = {key: value for key, value in request.data.items()}
         for field in dirty_data:
             if "officer" in field or "supervisor" in field:
-                dirty_data[field] = Officer.objects.get(id=dirty_data[field])
-        dirty_data['offenses'] = json.loads(dirty_data['offenses'])
+                dirty_data[field] = dirty_data[field]['id']
+        offense_json_list = json.loads(dirty_data['offenses'])
+        dirty_data['offenses'] = [offense['id'] for offense in offense_json_list]
         dirty_data['location'] = json.loads(dirty_data['location'])
 
         serializer = self.get_serializer(data=request.data)
@@ -40,10 +41,35 @@ class IncidentViewSet(viewsets.ModelViewSet):
                         data=serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
-        for key in request.data:
-            logger.debug(f"Key: {key}")
-            logger.debug(f"Value: {request.data[key]}")
+        incident = Incident.objects.get(id=kwargs['pk'])
 
+        dirty_data = {key: value for key, value in request.data.items()}
+        for field in dirty_data:
+            if "officer" in field or "supervisor" in field:
+                dirty_data[field] = dirty_data[field]['id']
+
+        if dirty_data['damaged_amount'] is None:
+            dirty_data['damaged_amount'] = 0
+
+        if dirty_data['stolen_amount'] is None:
+            dirty_data['stolen_amount'] = 0
+
+        dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
+
+        logger.debug(f"Dirty Data after cleaning: {dirty_data}")
+
+        serializer = self.get_serializer(incident, data=dirty_data, partial=True)
+        serializer.is_valid()
+        if serializer.errors:
+            resp_status = status.HTTP_400_BAD_REQUEST
+            resp_data = serializer.errors
+        else:
+            serializer.save()
+            resp_status = status.HTTP_200_OK
+            resp_data = serializer.data
+
+        return Response(status=resp_status,
+                        data=resp_data)
 
 class VictimViewSet(viewsets.ModelViewSet):
     queryset = IncidentInvolvedParty.objects.filter(party_type=VICTIM)
