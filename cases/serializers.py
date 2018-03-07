@@ -1,5 +1,6 @@
 import logging
 import pytz
+from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from address.models import _to_python, Address
@@ -38,7 +39,12 @@ class DateTimeAsObjectField(serializers.Field):
         return date_obj
 
     def to_internal_value(self, data):
-        return convert_date_string_to_object(f"{data['date']} {data['time']}")
+        if isinstance(data, datetime):
+            return data
+        logger.debug("ARMADILLO")
+        internal = convert_date_string_to_object(f"{data['date']} {data['time']}")
+        logger.debug(f"INTERNAL VALUE: {type(internal)}")
+        return internal
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -82,9 +88,9 @@ class OfficerSerializer(serializers.ModelSerializer):
 class OffenseSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
-        if isinstance(data, int):
+        if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
-                return data
+                return Offense.objects.get(id=data)
             except Offense.DoesNotExist:
                 logger.debug(f"Tried to find offense with ID: {data}")
                 message = self.error_messages['invalid'].format(
@@ -127,6 +133,12 @@ class IncidentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         offenses = validated_data.pop("offenses")
+        logger.debug(f"Validated data: {validated_data}")
+
+        for field in validated_data.keys():
+            if "officer" in field or "supervisor" in field:
+                validated_data[field] = Officer.objects.get(id=validated_data[field])
+
         incident = Incident.objects.create(**validated_data)
         offense_objects = Offense.objects.filter(id__in=offenses)
         for offense in offense_objects:
@@ -148,13 +160,14 @@ class IncidentSerializer(serializers.ModelSerializer):
         return instance
 
     def validate_incident_number(self, value):
-        if self.instance and value == self.instance.incident_number:
-            return value
-        else:
-            exists = Incident.objects.filter(incident_number=self.instance.incident_number).exists()
-            if exists:
+        existing = Incident.objects.filter(incident_number=value).first()
+        if existing is not None:
+            if not self.instance:
                 raise serializers.ValidationError("An Incident with that incident "
                                                   "number already exists")
+            if value != self.instance.incident_number:
+                    raise serializers.ValidationError("An Incident with that incident "
+                                                      "number already exists")
             else:
                 return value
 

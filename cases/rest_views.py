@@ -9,7 +9,7 @@ from .models import (Officer, Incident,
 from .serializers import (OfficerSerializer, IncidentSerializer,
                           IncidentInvolvedPartySerializer,
                           IncidentFileSerializer)
-from .utils import create_incident_involved_party
+from .utils import create_incident_involved_party, convert_date_string_to_object
 from .constants import VICTIM, SUSPECT
 from rest_framework import viewsets
 logger = logging.getLogger('cases')
@@ -30,11 +30,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
         for field in dirty_data:
             if "officer" in field or "supervisor" in field:
                 dirty_data[field] = dirty_data[field]['id']
-        offense_json_list = json.loads(dirty_data['offenses'])
-        dirty_data['offenses'] = [offense['id'] for offense in offense_json_list]
-        dirty_data['location'] = json.loads(dirty_data['location'])
+            if "datetime" in field:
+                dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
+                                                                  f"{dirty_data[field]['time']}")
+        dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=dirty_data)
         serializer.is_valid()
         serializer.create(validated_data=dirty_data)
         return Response(status=status.HTTP_201_CREATED,
@@ -70,6 +71,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
         return Response(status=resp_status,
                         data=resp_data)
+
 
 class VictimViewSet(viewsets.ModelViewSet):
     queryset = IncidentInvolvedParty.objects.filter(party_type=VICTIM)
