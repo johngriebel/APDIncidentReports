@@ -1,8 +1,8 @@
 <!-- TODO: Properly display errors -->
 <div *ngIf="incident" class="container">
-    <div class="btn-group" role="group" style="padding: 5px;">
+    <div *ngIf="incident" class="btn-group" role="group" style="padding: 5px;">
         <div class="btn-group mr-2" role="group">
-            <a href="{% url 'print-report' incident.id %}">
+            <a href="http://127.0.0.1:8000/print/{{incident.id}}">
                 <button class="btn btn-primary">Print</button>
             </a>
         </div>
@@ -18,24 +18,24 @@
         <div class="form-group row">
             <label for="incident_number" class="col-sm-2 col-form-label">Incident Number:</label>
             <div class="col-sm-10">
-                <input class="form-control" id="incident_number" [(ngModel)]="incident.incident_number" name="incident_number">
+                <input class="form-control" id="incident_number" #incidentNumber [(ngModel)]="incident.incident_number" name="incident_number" placeholder="Incident Number">
             </div>
         </div>
         <div class="form-group row">
             <label for="report_date" class="col-sm-2 col-form-label">Report Date:</label>
             <div class="col-sm-4">
-                <input class="form-control" id="report_date" type="date" value="{{incident.report_datetime.date}}" name="report_date">
+                <input class="form-control" id="report_date" type="date" #reportDate [(ngModel)]="incident.report_datetime.date" name="report_date">
             </div>
             <label for="report_time" class="col-sm-2 col-form-label">Time:</label>
             <div class="col-sm-4">
-                <input class="form-control" id="report_time" type="time" name="report_time" value="{{incident.report_datetime.time}}">
+                <input class="form-control" id="report_time" type="time" #reportTime name="report_time" [(ngModel)]="incident.report_datetime.time">
             </div>
         </div>
         <!-- TODO: Populate the select drop downs with other available officers, make them searchable -->
         <div class="form-group row">
             <label for="reporting_officer" class="col-sm-2 col-form-label">Reporting Officer:</label>
             <div class="col-sm-10">
-                <select class="custom-select" id="reporting_officer">
+                <select class="custom-select" id="reporting_officer" #reportingOfficer>
                     <option selected value="{{incident.reporting_officer.id}}">{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</option>
                 </select>
             </div>
@@ -43,10 +43,20 @@
         <div class="form-group row">
                 <label for="reviewed_by_officer" class="col-sm-2 col-form-label">Reviewed By:</label>
                 <div class="col-sm-10">
-                    <select class="custom-select" id="reviewed_by_officer">
+                    <select class="custom-select" id="reviewed_by_officer" #reviewedByOfficer>
                         <option selected>{{incident.reviewed_by_officer.user.last_name}} - {{incident.reviewed_by_officer.officer_number}}</option>
                     </select>
                 </div>
+        </div>
+        <div class="form-group row">
+            <label for="reviewed_date" class="col-sm-2 col-form-label">Reviewed Date:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="report_date" type="date" value="{{incident.reviewed_datetime.date}}" name="reviewed_date">
+            </div>
+            <label for="report_time" class="col-sm-2 col-form-label">Time:</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="reviewed_time" type="time" name="reviewed_time" value="{{incident.reviewed_datetime.time}}">
+            </div>
         </div>
         
         <div class="form-group row">
@@ -95,22 +105,22 @@
             </div>
         <div class="form-group row">
             <label for="incident_number" class="col-sm-2 col-form-label">Location:</label>
-            <input id="location" class="form-control address col-sm-10" name="location" [(ngModel)]="incident.location.raw">
+            <input id="location" class="form-control address col-sm-10" name="location" #location [(ngModel)]="incident.location.raw">
         </div>
         <div class="form-group row">
             <label for="beat" class="col-sm-2 col-form-label">Beat:</label>
             <div class="col-sm-4">
-                <input class="form-control" id="beat" [(ngModel)]="incident.beat" name="beat" type="number">
+                <input class="form-control" id="beat" [(ngModel)]="incident.beat" name="beat" #beat type="number">
             </div>
             <label for="shift" class="col-sm-2 col-form-label">Shift:</label>
             <div class="col-sm-4">
-                <input class="form-control" id="shift" [(ngModel)]="incident.shift" name="shift">
+                <input class="form-control" id="shift" [(ngModel)]="incident.shift" #shift name="shift">
             </div>
         </div>
         <div class="form-group row">
             <label for="damaged_amount" class="col-sm-2 col-form-label">Damaged Amount:</label>
             <div class="col-sm-10">
-                <input class="form-control" id="damaged_amount" [(ngModel)]="incident.damaged_amount" name="damaged_amount" type="number">
+                <input class="form-control" id="damaged_amount" [(ngModel)]="incident.damaged_amount" #damagedAmount name="damaged_amount" type="number">
             </div>
         </div>
         <div class="form-group row">
@@ -134,6 +144,7 @@
                 </select>
             </div>
         </div>
-        <button (click)="save()" class="btn btn-primary">Update</button>
+        <button *ngIf="incident;else createButton" (click)="save()" class="btn btn-primary">Update</button>
+        <button #createButton (click)="create(incidentNumber.value, reportingOfficer.value, reportDate.value, reportTime.value)" class="btn btn-primary">Create</button>
     </form>
 </div>
