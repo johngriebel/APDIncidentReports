@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Incident } from '../incident';
+import { Incident } from '../data-model';
 import { IncidentService } from '../incident.service';
 
 @Component({
@@ -10,6 +10,7 @@ import { IncidentService } from '../incident.service';
 export class IncidentsComponent implements OnInit {
 
     incidents: Incident[];
+    selectedIncident: Incident;
 
     constructor(private incidentService: IncidentService) {}
 
@@ -19,6 +20,12 @@ export class IncidentsComponent implements OnInit {
 
     getIncidents(): void {
         this.incidentService.getIncidents().subscribe(incidents => this.incidents = incidents);
+        this.selectedIncident = undefined;
+    }
+
+    select(incident: Incident) {
+        this.selectedIncident = incident;
+        console.log(this.selectedIncident);
     }
 
 }

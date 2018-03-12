@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { Incident } from './incident';
+import { Incident } from './data-model';
 import { MessageService } from './message.service';
 
 const httpOptions = {
@@ -37,8 +37,9 @@ export class IncidentService {
     }
 
     updateIncident (incident: Incident): Observable<any> {
+        console.log(incident.location);
         return this.http.patch(this.incidentsUrl + incident.id + "/", incident, httpOptions).pipe(
-            tap(_ => this.log(`updated hero id=${incident.id}`)),
+            tap(_ => this.log(`updated incident id=${incident.id}`)),
             catchError(this.handleError<any>('updateIncident'))
           );
     }

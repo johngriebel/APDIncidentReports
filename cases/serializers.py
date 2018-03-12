@@ -22,6 +22,9 @@ class AddressSerializer(serializers.ModelSerializer):
             address_obj = _to_python(data)
             return address_obj
 
+    def to_representation(self, instance):
+        return instance.as_dict()
+
     class Meta:
         model = Address
         fields = "__all__"
@@ -41,7 +44,6 @@ class DateTimeAsObjectField(serializers.Field):
     def to_internal_value(self, data):
         if isinstance(data, datetime):
             return data
-        logger.debug("ARMADILLO")
         internal = convert_date_string_to_object(f"{data['date']} {data['time']}")
         logger.debug(f"INTERNAL VALUE: {type(internal)}")
         return internal
@@ -117,6 +119,7 @@ class IncidentSerializer(serializers.ModelSerializer):
     location = AddressSerializer()
     report_datetime = DateTimeAsObjectField()
     approved_datetime = DateTimeAsObjectField(required=False, allow_null=True)
+    reviewed_datetime = DateTimeAsObjectField(required=False, allow_null=True)
     earliest_occurrence_datetime = DateTimeAsObjectField()
     latest_occurrence_datetime = DateTimeAsObjectField()
 
@@ -133,7 +136,6 @@ class IncidentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         offenses = validated_data.pop("offenses")
-        logger.debug(f"Validated data: {validated_data}")
 
         for field in validated_data.keys():
             if "officer" in field or "supervisor" in field:
@@ -146,13 +148,19 @@ class IncidentSerializer(serializers.ModelSerializer):
         return incident
 
     def update(self, instance, validated_data):
-        offenses = validated_data.pop("offenses")
+        offenses = validated_data.pop("offenses", [])
         offense_objects = Offense.objects.filter(id__in=offenses)
+
         for offense in offense_objects:
             if offense not in instance.offenses.all():
                 instance.offenses.add(offense)
 
+        for field in validated_data.keys():
+            if "officer" in field or "supervisor" in field:
+                validated_data[field] = Officer.objects.get(id=validated_data[field])
+
         for attr, value in validated_data.items():
+            logger.debug(f"Updating attr: {attr} to value:{value}")
             setattr(instance, attr, value)
 
         instance.save()

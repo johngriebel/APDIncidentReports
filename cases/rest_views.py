@@ -22,7 +22,7 @@ class OfficerViewSet(viewsets.ModelViewSet):
 
 
 class IncidentViewSet(viewsets.ModelViewSet):
-    queryset = Incident.objects.all()
+    queryset = Incident.objects.all().order_by("-report_datetime")
     serializer_class = IncidentSerializer
 
     def create(self, request, *args, **kwargs):
@@ -43,31 +43,33 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         incident = Incident.objects.get(id=kwargs['pk'])
-
+        logger.debug(f"Request.data: {request.data}")
         dirty_data = {key: value for key, value in request.data.items()}
         for field in dirty_data:
             if "officer" in field or "supervisor" in field:
                 dirty_data[field] = dirty_data[field]['id']
+            if "datetime" in field:
+                logger.debug(f"dirty_data[{field}]: {dirty_data[field]}")
+                dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
+                                                                  f"{dirty_data[field]['time']}")
+        if "offenses" in dirty_data:
+            dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
 
-        if dirty_data['damaged_amount'] is None:
+        if "damaged_amount" in dirty_data and dirty_data['damaged_amount'] is None:
             dirty_data['damaged_amount'] = 0
 
-        if dirty_data['stolen_amount'] is None:
+        if "stolen_amount" in dirty_data and dirty_data['stolen_amount'] is None:
             dirty_data['stolen_amount'] = 0
-
-        dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
-
         logger.debug(f"Dirty Data after cleaning: {dirty_data}")
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
-        serializer.is_valid()
-        if serializer.errors:
-            resp_status = status.HTTP_400_BAD_REQUEST
-            resp_data = serializer.errors
-        else:
-            serializer.save()
+        if serializer.is_valid():
+            serializer.update(instance=incident, validated_data=dirty_data)
             resp_status = status.HTTP_200_OK
             resp_data = serializer.data
+        else:
+            resp_status = status.HTTP_400_BAD_REQUEST
+            resp_data = serializer.errors
 
         return Response(status=resp_status,
                         data=resp_data)

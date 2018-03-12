@@ -1,9 +1,13 @@
+import logging
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
-from cases.tests.factories import OfficerFactory, OffenseFactory
+from address.models import _to_python
+from djmoney.money import Money
+from cases.tests.factories import OfficerFactory, OffenseFactory, IncidentFactory
 from cases.tests.utils import IncidentDataFaker
+logger = logging.getLogger('cases')
 
 
 class IncidentsTestCase(APITestCase):
@@ -39,5 +43,20 @@ class IncidentsTestCase(APITestCase):
                 'offenses': offenses,
                 'narrative': self.faker.generate_narrative()}
         response = self.client.post(url, data=data, format="json")
+        logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_update_incident(self):
+        location = _to_python(self.faker.generate_address())
+        offense = OffenseFactory()
+        incident = IncidentFactory(location=location)
+        incident.offenses.add(offense)
+        url = reverse("incident-detail", kwargs={'pk': incident.id})
+        data = {'stolen_amount': 125.00,
+                'stolen_amount_currency': "USD"}
+        response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        incident.refresh_from_db()
+        self.assertEqual(incident.stolen_amount, Money(amount=125.00, currency="USD"))
+
 
