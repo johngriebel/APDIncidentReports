@@ -1,7 +1,3 @@
-export class Offense {
-}
-
-
 export class Officer {
     id: number;
     officer_number: number;
@@ -12,10 +8,7 @@ export class Address {
     route: "";
     city: "";
     postal_code: "";
-    state: "";
-    country: "";
-    raw: "";
-    formatted: "'";
+    state_abbreviation: "";
 
 }
 
@@ -86,10 +79,21 @@ export class Victim {
     eye_color: '';
     drivers_license: '';
     drivers_license_state: '';
-    employer: ''
+    employer: '';
     employer_address: Address;
     build: '';
     tattoos: '';
     scars: '';
     hairstyle: '';
+}
+
+export class Offense {
+    id: 0;
+    ucr_name_classification: '';
+    ucr_subclass_description: '';
+    gcic_code: '';
+    ucr_code: '';
+    ucr_rank: '';
+    code_group: '';
+    ucr_alpha: '';
 }

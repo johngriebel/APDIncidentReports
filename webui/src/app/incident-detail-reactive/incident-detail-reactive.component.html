@@ -1,8 +1,14 @@
 <div class="container">
-    <h2>Incident Detail</h2>
-    <form [formGroup]="incidentForm">
+        <div *ngIf="incident.id !=0" class="btn-group" role="group" style="padding: 5px;">
+            <div class="btn-group mr-2" role="group">
+                <a href="http://127.0.0.1:8000/print/{{incident.id}}">
+                    <button class="btn btn-primary">Print</button>
+                </a>
+            </div>
+        </div>
+    <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Name:</label>
+            <label class="col-sm-2 col-form-label">Incident Number:</label>
                 <input class="form-control col-sm-10" formControlName="incident_number">
         </div>
         <div formGroupName="location">
@@ -14,13 +20,13 @@
                 <label class="col-sm-2 col-form-label">Street:</label>
                 <input class="form-control col-sm-3" formControlName="route">
                 <label class="col-sm-2 col-form-label">City:</label>
-                <input class="form-control col-sm-2" formControlName="locality">
+                <input class="form-control col-sm-2" formControlName="city">
             </div>
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Zip:</label>
                 <input class="form-control col-sm-4" formControlName="postal_code">
-                <label class="col-sm-2 col-form-label">State:</label>
-                <input class="form-control col-sm-4" formControlName="state">
+                <label class="col-sm-1 col-form-label">State:</label>
+                <input class="form-control col-sm-2" formControlName="state_abbreviation">
             </div>
         </div>
         <div formGroupName="report_datetime">
@@ -32,13 +38,259 @@
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
         </div>
+        <div formGroupName="reporting_officer">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Reporting Officer:</label>
+                <select class="form-control col-sm-10" formControlName="officer_number">
+                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div formGroupName="reviewed_datetime">
+            <h4>Review Date & Time</h4>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Date:</label>
+                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <label class="col-sm-2 col-form-label">Time:</label>
+                <input class="form-control col-sm-4" formControlName="time" type="time">
+            </div>
+        </div>
+        <div formGroupName="reviewed_by_officer">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Reviewed By:</label>
+                <select class="form-control col-sm-10" formControlName="officer_number">
+                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div formGroupName="investigating_officer">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Investigated By:</label>
+                <select class="form-control col-sm-10" formControlName="officer_number">
+                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div formGroupName="officer_making_report">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Officer Making Report:</label>
+                <select class="form-control col-sm-10" formControlName="officer_number">
+                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div formGroupName="supervisor">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Supervisor:</label>
+                <select class="form-control col-sm-10" formControlName="officer_number">
+                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div formGroupName="approved_datetime">
+            <h4>Approval Date & Time</h4>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Date:</label>
+                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <label class="col-sm-2 col-form-label">Time:</label>
+                <input class="form-control col-sm-4" formControlName="time" type="time">
+            </div>
+        </div>
+        <!-- TODO: This isn't *great* styling -->
+        <h4>Miscellaneous</h4>
+        <div formGroupName="earliest_occurrence_datetime">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Earliest Date:</label>
+                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <label class="col-sm-2 col-form-label">Time:</label>
+                <input class="form-control col-sm-4" formControlName="time" type="time">
+            </div>
+        </div>
+        <div formGroupName="latest_occurrence_datetime">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Latest Date:</label>
+                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <label class="col-sm-2 col-form-label">Time:</label>
+                <input class="form-control col-sm-4" formControlName="time" type="time">
+            </div>
+        </div>
         <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Reporting Officer:</label>
-            <select class="form-control col-sm-10" formControlName="reporting_officer">
-                <option *ngFor="let officer of availableOfficers" [value]="officer">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+            <label class="col-sm-2 col-form-label">Beat:</label>
+            <input class="form-control col-sm-10" formControlName="beat" type="number">
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Shift:</label>
+            <select class="form-control col-sm-10" formControlName="shift">
+                <option value="D">Day</option>
+                <option value="E">Evening</option>
+                <option value="N">Night</option>
             </select>
         </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Damaged:</label>
+            <input class="form-control col-sm-10" formControlName="damaged_amount" type="number">
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Stolen:</label>
+            <input class="form-control col-sm-10" formControlName="stolen_amount" type="number">
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Offenses:</label>
+            <select class="custom-select form-control col-sm-10" multiple formControlName="offenses">
+                <!-- TODO: Display all possible offenses, with only the ones relevant to this report being selected-->
+                <option *ngFor="let offense of availableOffenses" [value]="offense.id">{{offense.ucr_name_classification}} - {{offense.ucr_subclass_description}} - {{offense.ucr_code}}</option>
+            </select>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Narrative:</label>
+            <textarea class="form-control col-sm-10" formControlName="narrative"></textarea>
+        </div>
+        <div formArrayName="victims" class="well well-lg">
+            <h4>Victims</h4>
+            <div *ngFor="let victim of victims.controls; let i=index" [formGroupName]="i">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">First Name:</label>
+                    <input class="form-control col-sm-4" formControlName="first_name">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Last Name:</label>
+                    <input class="form-control col-sm-4" formControlName="last_name">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Officer Signed:</label>
+                    <select class="form-control col-sm-10" formControlName="officer_signed">
+                        <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Juvenile:</label>
+                    <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
+                </div>
+                <!--div formGroupName="home_address">
+                    <h4>Home Address</h4>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Building:</label>
+                        <input class="form-control col-sm-1" formControlName="street_number">
+                        <label class="col-sm-2 col-form-label">Street:</label>
+                        <input class="form-control col-sm-3" formControlName="route">
+                        <label class="col-sm-2 col-form-label">City:</label>
+                        <input class="form-control col-sm-2" formControlName="locality">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Zip:</label>
+                        <input class="form-control col-sm-4" formControlName="postal_code">
+                        <label class="col-sm-1 col-form-label">State:</label>
+                        <input class="form-control col-sm-2" formControlName="state">
+                        <label class="col-sm-1 col-form-label">Country:</label>
+                        <input class="form-control col-sm-2" formControlName="country">
+                    </div>
+                </div-->
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Date of Birth:</label>
+                    <input class="form-control col-sm-10" formControlName="date_of_birth" type="date">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Sex:</label>
+                    <select class="form-control col-sm-4" formControlName="sex">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                    <label class="col-sm-2 col-form-label">Race:</label>
+                    <select class="form-control col-sm-4" formControlName="race">
+                        <option value="ASIAN">Asian</option>
+                        <option value="BLACK">Black African American</option>
+                        <option value="NATIVE">Native American</option>
+                        <option value="HAWAIIAN/PACIFIC_ISLANADER">Native Hawaiian/Pacific Islander</option>
+                        <option value="WHITE">White</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Height:</label>
+                    <input class="form-control col-sm-4" formControlName="height" type="number">
+                    <label class="col-sm-2 col-form-label">Weight:</label>
+                    <input class="form-control col-sm-4" formControlName="weight" type="number">
+                </div>
+            </div>
+            <button (click)="addVictim()" type="button" class="btn btn-primary">Add Victim</button>
+        </div>
+        <div formArrayName="suspects" class="well well-lg">
+                <h4>Suspects</h4>
+                <div *ngFor="let suspect of suspects.controls; let i=index" [formGroupName]="i">
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">First Name:</label>
+                        <input class="form-control col-sm-4" formControlName="first_name">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Last Name:</label>
+                        <input class="form-control col-sm-4" formControlName="last_name">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Officer Signed:</label>
+                        <select class="form-control col-sm-10" formControlName="officer_signed">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Juvenile:</label>
+                        <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
+                    </div>
+                    <!--div formGroupName="home_address">
+                        <h4>Home Address</h4>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Building:</label>
+                            <input class="form-control col-sm-1" formControlName="street_number">
+                            <label class="col-sm-2 col-form-label">Street:</label>
+                            <input class="form-control col-sm-3" formControlName="route">
+                            <label class="col-sm-2 col-form-label">City:</label>
+                            <input class="form-control col-sm-2" formControlName="locality">
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Zip:</label>
+                            <input class="form-control col-sm-4" formControlName="postal_code">
+                            <label class="col-sm-1 col-form-label">State:</label>
+                            <input class="form-control col-sm-2" formControlName="state">
+                            <label class="col-sm-1 col-form-label">Country:</label>
+                            <input class="form-control col-sm-2" formControlName="country">
+                        </div>
+                    </div-->
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Date of Birth:</label>
+                        <input class="form-control col-sm-10" formControlName="date_of_birth" type="date">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Sex:</label>
+                        <select class="form-control col-sm-4" formControlName="sex">
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                        <label class="col-sm-2 col-form-label">Race:</label>
+                        <select class="form-control col-sm-4" formControlName="race">
+                            <option value="ASIAN">Asian</option>
+                            <option value="BLACK">Black African American</option>
+                            <option value="NATIVE">Native American</option>
+                            <option value="HAWAIIAN/PACIFIC_ISLANADER">Native Hawaiian/Pacific Islander</option>
+                            <option value="WHITE">White</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Height:</label>
+                        <input class="form-control col-sm-4" formControlName="height" type="number">
+                        <label class="col-sm-2 col-form-label">Weight:</label>
+                        <input class="form-control col-sm-4" formControlName="weight" type="number">
+                    </div>
+                </div>
+                <button (click)="addVictim()" type="button" class="btn btn-primary">Add Victim</button>
+            </div>
+            <div class="btn-group" role="group" style="padding: 5px;">
+                <div class="btn-group mr-2" role="group">
+                    <button class="btn btn-success" type="submit">Save</button>
+                </div>
+            </div>
     </form>
 </div>
 
-<p>Form value: {{ incidentForm.value | json }}</p>
+<!--p>Form value: {{ incidentForm.value | json }}</p-->

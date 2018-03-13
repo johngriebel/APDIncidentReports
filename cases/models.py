@@ -18,6 +18,9 @@ class State(models.Model):
     name = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=5, unique=True)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "abbreviation"
 
@@ -26,12 +29,21 @@ class City(models.Model):
     name = models.CharField(max_length=150)
     state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
 
+    def __str__(self):
+        return f"{self.name}, {self.state.abbreviation}"
+
+    class Meta:
+        db_table = "city"
+
 
 class Address(models.Model):
     street_number = models.CharField(max_length=25)
     route = models.CharField(max_length=255)
     city = models.ForeignKey(City, on_delete=models.DO_NOTHING)
     postal_code = models.CharField(max_length=10)
+
+    def __str__(self):
+        return f"{self.street_number} {self.route} {self.city} {self.postal_code}"
 
     class Meta:
         db_table = "address"

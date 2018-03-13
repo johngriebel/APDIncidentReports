@@ -9,9 +9,10 @@ from itertools import groupby
 from rest_framework import status
 from rest_framework.response import Response
 from address.models import to_python
-from .models import (Incident,
-                     IncidentInvolvedParty,
-                     Officer, IncidentFile)
+from cases.models import (Incident,
+                          IncidentInvolvedParty,
+                          Officer, IncidentFile,
+                          Address, City, State)
 from .constants import VICTIM, SUSPECT
 date_format = re.compile("\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
@@ -217,3 +218,32 @@ def create_incident_involved_party(request, serializer_class,
 
     return Response(status=resp_status,
                     data=resp_data)
+
+
+def parse_and_create_address(*, address_data: Dict[str, str]) -> Address:
+    # TODO: Validation
+    abbr = address_data.pop("state_abbreviation")
+    address_data.pop("country", None)
+    state, created = State.objects.get_or_create(abbreviation=abbr,
+                                        defaults={'name': address_data.get("state", ""),
+                                                  'abbreviation': abbr})
+    if created:
+        logger.debug(f"Created new state: {state}")
+    # state.save()
+    city = City(name=address_data.pop("city"),
+                state=state)
+    city.save()
+    address_data['city'] = city
+    address = Address(**address_data)
+    address.save()
+    logger.debug(f"Address object: {address}")
+    return address
+
+
+def handle_incident_foreign_keys_for_creation(*, validated_data):
+    for field in validated_data.keys():
+        if "officer" in field or "supervisor" in field:
+            validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
+    validated_data['location'] = parse_and_create_address(address_data=validated_data['location'])
+
+    return validated_data

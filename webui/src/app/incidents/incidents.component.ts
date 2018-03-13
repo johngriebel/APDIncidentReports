@@ -28,4 +28,9 @@ export class IncidentsComponent implements OnInit {
         console.log(this.selectedIncident);
     }
 
+    newIncident() {
+        this.selectedIncident = new Incident();
+        console.log(this.selectedIncident);
+    }
+
 }

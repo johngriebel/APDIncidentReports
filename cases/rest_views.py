@@ -5,10 +5,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from .models import (Officer, Incident,
                      IncidentInvolvedParty,
-                     IncidentFile)
+                     IncidentFile, Offense)
 from .serializers import (OfficerSerializer, IncidentSerializer,
                           IncidentInvolvedPartySerializer,
-                          IncidentFileSerializer)
+                          IncidentFileSerializer,
+                          OffenseSerializer)
 from .utils import create_incident_involved_party, convert_date_string_to_object
 from .constants import VICTIM, SUSPECT
 from rest_framework import viewsets
@@ -21,25 +22,34 @@ class OfficerViewSet(viewsets.ModelViewSet):
     serializer_class = OfficerSerializer
 
 
+class OffenseViewSet(viewsets.ModelViewSet):
+    queryset = Offense.objects.all()
+    serializer_class = OffenseSerializer
+
+
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all().order_by("-report_datetime")
     serializer_class = IncidentSerializer
 
     def create(self, request, *args, **kwargs):
+        logger.debug(f"Request.data: {request.data}")
         dirty_data = {key: value for key, value in request.data.items()}
+        logger.debug(f"Dirty data: {dirty_data}")
         for field in dirty_data:
             if "officer" in field or "supervisor" in field:
-                dirty_data[field] = dirty_data[field]['id']
+                dirty_data[field] = dirty_data[field]['officer_number']
             if "datetime" in field:
                 dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
                                                                   f"{dirty_data[field]['time']}")
-        dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
-
+        # dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
+        if "id" in dirty_data:
+            dirty_data.pop("id")
+        logger.debug(f"After cleaning: {dirty_data}")
         serializer = self.get_serializer(data=dirty_data)
         serializer.is_valid()
-        serializer.create(validated_data=dirty_data)
+        incident = serializer.create(validated_data=serializer.data)
         return Response(status=status.HTTP_201_CREATED,
-                        data=serializer.data)
+                        data=self.get_serializer_class()(instance=incident).data)
 
     def partial_update(self, request, *args, **kwargs):
         incident = Incident.objects.get(id=kwargs['pk'])

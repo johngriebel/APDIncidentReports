@@ -1,5 +1,7 @@
 import factory
+from pytz import timezone
 from faker import Faker
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from cases.models import (Officer, Offense,
                           Incident, IncidentInvolvedParty,
@@ -8,6 +10,7 @@ from cases.constants import (SEX_CHOICES, RACE_CHOICES,
                              HAIR_COLOR_CHOICES,
                              EYE_COLOR_CHOICES)
 User = get_user_model()
+this_timezone = timezone(settings.TIME_ZONE)
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -70,16 +73,16 @@ class IncidentFactory(factory.DjangoModelFactory):
         model = Incident
 
     incident_number = factory.Sequence(lambda n: f"incident_{n}")
-    report_datetime = factory.Faker("date_time_this_month")
+    report_datetime = factory.Faker("date_time_this_month", tzinfo=this_timezone)
     reporting_officer = factory.SubFactory(OfficerFactory)
     reviewed_by_officer = factory.SubFactory(OfficerFactory)
-    reviewed_datetime = factory.Faker("date_time_this_month")
+    reviewed_datetime = factory.Faker("date_time_this_month", tzinfo=this_timezone)
     investigating_officer = factory.SubFactory(OfficerFactory)
     officer_making_report = factory.SubFactory(OfficerFactory)
     supervisor = factory.SubFactory(OfficerFactory)
-    approved_datetime = factory.Faker("date_time_this_month")
-    earliest_occurrence_datetime = factory.Faker("date_time_this_month")
-    latest_occurrence_datetime = factory.Faker("date_time_this_month")
+    approved_datetime = factory.Faker("date_time_this_month", tzinfo=this_timezone)
+    earliest_occurrence_datetime = factory.Faker("date_time_this_month", tzinfo=this_timezone)
+    latest_occurrence_datetime = factory.Faker("date_time_this_month", tzinfo=this_timezone)
     location = factory.SubFactory(AddressFactory)
     beat = factory.Faker("random_int")
     shift = "E"

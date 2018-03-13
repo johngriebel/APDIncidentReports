@@ -18,13 +18,10 @@ class IncidentDataFaker:
     def generate_address(self) -> Dict[str, str]:
         location = {'street_number': self.fake.building_number(),
                     'route': self.fake.street_name(),
-                    'locality': self.fake.city(),
+                    'city': self.fake.city(),
                     'postal_code': self.fake.postalcode(),
                     'state': self.fake.state(),
-                    'country': self.fake.country()}
-        raw = (f"{location['street_number']} {location['route']} {location['locality']}, "
-               f"{location['state']} {location['postal_code']}, {location['country']}")
-        location['raw'] = raw
+                    'state_abbreviation': self.fake.state_abbr()}
         return location
 
     def generate_beat(self) -> int:

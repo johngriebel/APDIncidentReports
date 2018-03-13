@@ -28,6 +28,8 @@ COLOR_RGB_VALUES = {'red': (255, 0, 0),
                     'black': (0, 0, 0)}
 
 
+# Note: there is some hard coded stuff in here to make the printing example for one specific report
+# look nice. It needs to be actually fixed.
 class IncidentReportPDFGenerator:
     def __init__(self, response: HttpResponse, incident_id: int):
         self.response = response
@@ -57,6 +59,7 @@ class IncidentReportPDFGenerator:
 
         # Can this line fit on the current page?
         y_position = TOP_ALIGN_Y - ((row - 1) * 12)
+        print((y_position, MIN_Y_POSITION))
         if y_position < MIN_Y_POSITION:
             self._add_new_page()
             row = self.row_number
@@ -171,6 +174,7 @@ class IncidentReportPDFGenerator:
                          color="red")
         for offense in self.incident.offenses.all():
             self._draw_offense(offense=offense)
+            self.row_number += 1
 
         self.row_number += 2
         self._draw_label("------------ ATTACHMENTS ------------",
@@ -319,7 +323,8 @@ class IncidentReportPDFGenerator:
             self.row_number += len(lines)
 
     def _draw_signature_lines(self):
-
+        self._add_new_page()
+        self.row_number += 2
         reviewed_str = (f"OFFENSE REPORT REVIEWED BY {self.incident.reviewed_by_officer} "
                         f"ON {self.incident.reviewed_datetime}")
         reviewed_length = stringWidth(reviewed_str,

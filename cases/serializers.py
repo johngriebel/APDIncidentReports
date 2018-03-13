@@ -8,19 +8,50 @@ from rest_framework.settings import api_settings
 from rest_framework.fields import empty
 from .models import (Officer, Incident,
                      Offense, IncidentInvolvedParty,
-                     IncidentFile, Address)
-from .utils import convert_date_string_to_object
+                     IncidentFile, Address, State,
+                     City)
+from cases.utils import (convert_date_string_to_object,
+                         handle_incident_foreign_keys_for_creation)
 User = get_user_model()
 logger = logging.getLogger('cases')
 
 
+class StateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = State
+        fields = ("abbreviation",)
+
+
+class CitySerializer(serializers.ModelSerializer):
+    state = StateSerializer()
+
+    class Meta:
+        model = City
+        fields = ("name", "state")
+
+
 class AddressSerializer(serializers.ModelSerializer):
+    city = CitySerializer()
+
+    """def to_internal_value(self, data):
+        state = State(name=data.pop("state"),
+                      abbreviation=data.pop("state_abbreviation"))
+        state.save()
+        city = City(name=data.pop("city"),
+                    state=state)
+        city.save()
+        data['city'] = city
+        address = Address(**data)
+        address.save()
+        logger.debug(f"Address object: {address}")
+        return address"""
+
     class Meta:
         model = Address
         fields = "__all__"
 
 
-class DateTimeAsObjectField(serializers.Field):
+class DateTimeSerializer(serializers.Field):
 
     def to_representation(self, value):
         local_datetime = timezone.localtime(value,
@@ -107,31 +138,20 @@ class IncidentSerializer(serializers.ModelSerializer):
     officer_making_report = OfficerSerializer()
     supervisor = OfficerSerializer()
     location = AddressSerializer()
-    report_datetime = DateTimeAsObjectField()
-    approved_datetime = DateTimeAsObjectField(required=False, allow_null=True)
-    reviewed_datetime = DateTimeAsObjectField(required=False, allow_null=True)
-    earliest_occurrence_datetime = DateTimeAsObjectField()
-    latest_occurrence_datetime = DateTimeAsObjectField()
-
-    def get_report_datetime(self, obj: Incident):
-        # TODO: Make the timezone a setting
-        local_datetime = timezone.localtime(obj.report_datetime,
-                                            timezone=pytz.timezone("US/Eastern"))
-        date_string = local_datetime.date().strftime("%Y-%m-%d")
-        time_string = local_datetime.time().strftime("%H:%M")
-        logger.debug(f"Date String: {date_string}")
-        date_obj = {'date': date_string,
-                    'time': time_string}
-        return date_obj
+    report_datetime = DateTimeSerializer()
+    approved_datetime = DateTimeSerializer(required=False, allow_null=True)
+    reviewed_datetime = DateTimeSerializer(required=False, allow_null=True)
+    earliest_occurrence_datetime = DateTimeSerializer()
+    latest_occurrence_datetime = DateTimeSerializer()
 
     def create(self, validated_data):
+        logger.debug(f"Validated data: {validated_data}")
+
         offenses = validated_data.pop("offenses")
+        updated_data = handle_incident_foreign_keys_for_creation(validated_data=validated_data)
+        logger.debug(f"Updated Data: {updated_data}")
 
-        for field in validated_data.keys():
-            if "officer" in field or "supervisor" in field:
-                validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
-
-        incident = Incident.objects.create(**validated_data)
+        incident = Incident.objects.create(**updated_data)
         offense_objects = Offense.objects.filter(id__in=offenses)
         for offense in offense_objects:
             incident.offenses.add(offense)
