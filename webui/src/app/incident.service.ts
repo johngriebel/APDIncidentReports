@@ -70,7 +70,7 @@ export class IncidentService {
     }
 
     addIncident (incident: Incident): Observable<Incident> {
-        console.log(incident);
+        //console.log(incident);
         return this.http.post<Incident>(this.incidentsUrl, incident, httpOptions).pipe(
             tap((incident: Incident) => this.log(`added incident w/ id=${incident.id}`)),
             catchError(this.handleError<Incident>('addIncident'))

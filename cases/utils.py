@@ -4,6 +4,7 @@ import json
 import pytz
 from typing import Union, Tuple, Dict, List, Any
 from datetime import datetime
+from django.conf import settings
 from django.utils import timezone
 from itertools import groupby
 from rest_framework import status
@@ -22,7 +23,6 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
     date_parts = None
     if date_string:
         parts = date_string.split()
-        logger.debug(f"Parts: {parts}")
         date_portion = parts[0]
         if len(parts) > 1:
             time_portion = date_string.split()[-1]
@@ -30,7 +30,6 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
             time_portion = None
         if time_portion:
             time_parts = time_portion.split(":")
-            logger.debug(("time parts", time_parts))
             hours = int(time_parts[0])
             minutes = int(time_parts[1])
         else:
@@ -55,7 +54,7 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
                                    hour=hours,
                                    minute=minutes)
             date_object = timezone.make_aware(date_object,
-                                timezone=pytz.timezone("US/Eastern"))
+                                              timezone=pytz.timezone(settings.TIME_ZONE))
             return date_object
         else:
             raise ValueError(f"Incorrectly formatted date string: {date_string}")
@@ -222,11 +221,11 @@ def create_incident_involved_party(request, serializer_class,
 
 def parse_and_create_address(*, address_data: Dict[str, str]) -> Address:
     # TODO: Validation
-    abbr = address_data.pop("state_abbreviation")
+    abbr = address_data.pop("state")
     address_data.pop("country", None)
     state, created = State.objects.get_or_create(abbreviation=abbr,
-                                        defaults={'name': address_data.get("state", ""),
-                                                  'abbreviation': abbr})
+                                                 defaults={'name': address_data.get("state", ""),
+                                                           'abbreviation': abbr})
     if created:
         logger.debug(f"Created new state: {state}")
     # state.save()

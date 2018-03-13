@@ -20,8 +20,7 @@ class IncidentDataFaker:
                     'route': self.fake.street_name(),
                     'city': self.fake.city(),
                     'postal_code': self.fake.postalcode(),
-                    'state': self.fake.state(),
-                    'state_abbreviation': self.fake.state_abbr()}
+                    'state': self.fake.state_abbr()[:5]}
         return location
 
     def generate_beat(self) -> int:

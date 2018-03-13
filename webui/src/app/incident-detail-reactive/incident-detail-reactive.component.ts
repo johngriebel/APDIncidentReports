@@ -39,8 +39,7 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                  route: '',
                  city: '',
                  postal_code: '',
-                 state_abbreviation: '',
-                 country: '',
+                 state: ''
              }),
              report_datetime: this.formBuilder.group({
                  date: '',
@@ -217,7 +216,7 @@ export class IncidentDetailReactiveComponent implements OnChanges{
          console.log("save button clicked");
          this.incident = this.prepareSaveIncident();
          console.log("BADGER")
-         console.log(this.incident);
+         console.log(this.incident.location);
          if (this.incident.id != 0){
             this.incidentService.updateIncident(this.incident).subscribe();
          }

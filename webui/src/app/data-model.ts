@@ -3,12 +3,23 @@ export class Officer {
     officer_number: number;
     user: object;
 }
+
+export class State {
+    name: '';
+    abbreviation: '';
+}
+
+export class City {
+    name: '';
+    state: State
+}
+
 export class Address {
     street_number: "";
     route: "";
     city: "";
+    state: "";
     postal_code: "";
-    state_abbreviation: "";
 
 }
 

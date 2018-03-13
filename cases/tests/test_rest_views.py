@@ -4,7 +4,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
 from djmoney.money import Money
-from cases.tests.factories import OfficerFactory, OffenseFactory, IncidentFactory
+from cases.tests.factories import (OfficerFactory,
+                                   OffenseFactory,
+                                   IncidentFactory,
+                                   AddressFactory)
 from cases.tests.utils import IncidentDataFaker
 logger = logging.getLogger('cases')
 
@@ -45,17 +48,20 @@ class IncidentsTestCase(APITestCase):
         logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    """def test_update_incident(self):
-        location = _to_python(self.faker.generate_address())
+    def test_update_incident(self):
+        location = AddressFactory()
         offense = OffenseFactory()
         incident = IncidentFactory(location=location)
         incident.offenses.add(offense)
         url = reverse("incident-detail", kwargs={'pk': incident.id})
-        data = {'stolen_amount': 125.00,
-                'stolen_amount_currency': "USD"}
-        response = self.client.patch(url, data=data)
+        data = {'location': {'street_number': location.street_number,
+                             'route': location.route,
+                             'city': location.city.name,
+                             'state': "GA",
+                             'postal_code': location.postal_code}}
+        response = self.client.patch(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         incident.refresh_from_db()
-        self.assertEqual(incident.stolen_amount, Money(amount=125.00, currency="USD"))"""
+        self.assertEqual(incident.location.city.state.abbreviation, "GA")
 
 

@@ -31,7 +31,6 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
-    city = CitySerializer()
 
     """def to_internal_value(self, data):
         state = State(name=data.pop("state"),
@@ -45,6 +44,19 @@ class AddressSerializer(serializers.ModelSerializer):
         address.save()
         logger.debug(f"Address object: {address}")
         return address"""
+
+    city = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+
+    def get_city(self, obj):
+        if isinstance(obj, dict):
+            logger.debug(obj.keys())
+            return obj['city']['name']
+        else:
+            return obj.city.name
+
+    def get_state(self, obj):
+        return obj.city.state.abbreviation
 
     class Meta:
         model = Address
@@ -165,11 +177,9 @@ class IncidentSerializer(serializers.ModelSerializer):
             if offense not in instance.offenses.all():
                 instance.offenses.add(offense)
 
-        for field in validated_data.keys():
-            if "officer" in field or "supervisor" in field:
-                validated_data[field] = Officer.objects.get(id=validated_data[field])
+        updated_data = handle_incident_foreign_keys_for_creation(validated_data=validated_data)
 
-        for attr, value in validated_data.items():
+        for attr, value in updated_data.items():
             logger.debug(f"Updating attr: {attr} to value:{value}")
             setattr(instance, attr, value)
 

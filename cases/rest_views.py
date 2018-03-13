@@ -44,10 +44,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
         # dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
         if "id" in dirty_data:
             dirty_data.pop("id")
-        logger.debug(f"After cleaning: {dirty_data}")
+        logger.debug(f"After cleaning: {dirty_data['location']}")
         serializer = self.get_serializer(data=dirty_data)
         serializer.is_valid()
-        incident = serializer.create(validated_data=serializer.data)
+        incident = serializer.create(validated_data=dirty_data)
         return Response(status=status.HTTP_201_CREATED,
                         data=self.get_serializer_class()(instance=incident).data)
 
@@ -57,20 +57,18 @@ class IncidentViewSet(viewsets.ModelViewSet):
         dirty_data = {key: value for key, value in request.data.items()}
         for field in dirty_data:
             if "officer" in field or "supervisor" in field:
-                dirty_data[field] = dirty_data[field]['id']
+                dirty_data[field] = dirty_data[field]['officer_number']
             if "datetime" in field:
                 logger.debug(f"dirty_data[{field}]: {dirty_data[field]}")
                 dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
                                                                   f"{dirty_data[field]['time']}")
-        if "offenses" in dirty_data:
-            dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
 
         if "damaged_amount" in dirty_data and dirty_data['damaged_amount'] is None:
             dirty_data['damaged_amount'] = 0
 
         if "stolen_amount" in dirty_data and dirty_data['stolen_amount'] is None:
             dirty_data['stolen_amount'] = 0
-        logger.debug(f"Dirty Data after cleaning: {dirty_data}")
+        logger.debug(f"Dirty Data after cleaning: {dirty_data['location']}")
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
         if serializer.is_valid():
@@ -80,6 +78,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         else:
             resp_status = status.HTTP_400_BAD_REQUEST
             resp_data = serializer.errors
+            logger.debug(f"Errors: {resp_data}")
 
         return Response(status=resp_status,
                         data=resp_data)
