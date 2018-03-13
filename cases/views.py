@@ -2,16 +2,12 @@ import logging
 import json
 from collections import namedtuple
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .forms import (IncidentForm,
-                    IncidentInvolvedPartyForm,
-                    IncidentSearchForm,
-                    IncidentFileForm,
-                    init_incident_detail_context)
+from .forms import (IncidentSearchForm,
+                    IncidentFileForm)
 from .models import Incident, IncidentFile
-from .utils import (parse_and_compile_incident_input_data,
-                    handle_files)
+from .utils import handle_files
 from .search import get_search_results
 from .printing import IncidentReportPDFGenerator
 logger = logging.getLogger('cases')

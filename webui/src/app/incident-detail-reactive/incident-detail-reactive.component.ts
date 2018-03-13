@@ -22,16 +22,38 @@ export class IncidentDetailReactiveComponent implements OnChanges{
 
     incidentForm: FormGroup;
 
+    dateString: String;
+    timeString: String;
+
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
                 private incidentService: IncidentService,
                 private officerService: OfficerService,
                 private ngLocation: Location
             ) {
+                var today = new Date();
+                var day = today.getDate();
+                var month = today.getMonth() + 1;
+                var year = today.getFullYear();
+
+                var hours = today.getHours();
+                var minutes = today.getMinutes();
+                var timeString = hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
+
+                this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
+                this.timeString = timeString;
+                console.log(this.dateString);
                 this.createForm();
             }
 
      createForm() {
+        this.incidentService.getAllOffenses().subscribe(
+            (availableOffenses) => {
+                this.availableOffenses = availableOffenses;
+                console.log(this.availableOffenses);
+            }
+        );
+
          this.incidentForm = this.formBuilder.group({
              incident_number: 'Incident number',
              location: this.formBuilder.group({
@@ -42,8 +64,8 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                  state: ''
              }),
              report_datetime: this.formBuilder.group({
-                 date: '',
-                 time: ''
+                 date: this.dateString,
+                 time: this.timeString,
              }),
              reporting_officer: this.formBuilder.group({
                  id: '',
@@ -51,8 +73,8 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                  user: {}
              }),
              reviewed_datetime: this.formBuilder.group({
-                date: '',
-                time: ''
+                date: this.dateString,
+                time: this.timeString,
              }),
             reviewed_by_officer: this.formBuilder.group({
                 id: '',
@@ -75,22 +97,22 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                 user: {}
             }),
             approved_datetime: this.formBuilder.group({
-                date: '',
-                time: ''
+                date: this.dateString,
+                time: this.timeString,
              }),
              earliest_occurrence_datetime: this.formBuilder.group({
-                date: '',
-                time: ''
+                date: this.dateString,
+                time: this.timeString,
              }),
              latest_occurrence_datetime: this.formBuilder.group({
-                date: '',
-                time: ''
+                date: this.dateString,
+                time: this.timeString,
              }),
              beat: 0,
              shift: "",
              damaged_amount: 0.0,
              stolen_amount: 0.0,
-             offenses: [],
+             offenses: this.availableOffenses,
              narrative: "",
 
              victims: this.formBuilder.array([]),
@@ -120,8 +142,6 @@ export class IncidentDetailReactiveComponent implements OnChanges{
     }
 
      rebuildForm() {
-         console.log("ARMADILLO");
-         console.log(this.incident);
          if (this.incident !== undefined) {
             console.log("this.incident.reporting_officer")
             console.log(this.incident.reporting_officer);
@@ -133,12 +153,7 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                 }
             );
 
-            this.incidentService.getAllOffenses().subscribe(
-                (availableOffenses) => {
-                    this.availableOffenses = availableOffenses;
-                    console.log(this.availableOffenses);
-                }
-            );
+            
 
             this.incidentService.getVictims(this.incident.id).
             subscribe((victims) => {
@@ -182,11 +197,15 @@ export class IncidentDetailReactiveComponent implements OnChanges{
      }
 
      ngOnChanges(){
-         this.rebuildForm();
+         if (this.incident.id !== 0){
+            this.rebuildForm();
+         }
      }
 
      prepareSaveIncident(): Incident {
         const formModel = this.incidentForm.value;
+        console.log(this.incident.offenses);
+        console.log(formModel.offenses);
 
         const saveIncident: Incident = {
             id: this.incident.id,

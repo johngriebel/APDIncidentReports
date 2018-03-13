@@ -16,26 +16,24 @@
             <div class="form-group row">
                 <!-- TODO: Get the alignment of these right -->
                 <label class="col-sm-2 col-form-label">Building:</label>
-                <input class="form-control col-sm-1" formControlName="street_number">
+                <input class="form-control col-sm-2" formControlName="street_number">
                 <label class="col-sm-2 col-form-label">Street:</label>
-                <input class="form-control col-sm-3" formControlName="route">
+                <input class="form-control col-sm-6" formControlName="route">
             </div>
                 <div class="form-group row">
                 <label class="col-sm-2 col-form-label">City:</label>
                 <input class="form-control col-sm-2" formControlName="city">
                 <label class="col-sm-1 col-form-label">State:</label>
                 <input class="form-control col-sm-2" formControlName="state">
-            </div>
-            <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Zip:</label>
-                <input class="form-control col-sm-4" formControlName="postal_code">
+                <input class="form-control col-sm-3" formControlName="postal_code">
             </div>
         </div>
         <div formGroupName="report_datetime">
             <h4>Report Date & Time</h4>
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Date:</label>
-                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                 <label class="col-sm-2 col-form-label">Time:</label>
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
@@ -52,7 +50,7 @@
             <h4>Review Date & Time</h4>
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Date:</label>
-                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                 <label class="col-sm-2 col-form-label">Time:</label>
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
@@ -93,7 +91,7 @@
             <h4>Approval Date & Time</h4>
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Date:</label>
-                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                 <label class="col-sm-2 col-form-label">Time:</label>
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
@@ -103,7 +101,7 @@
         <div formGroupName="earliest_occurrence_datetime">
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Earliest Date:</label>
-                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                 <label class="col-sm-2 col-form-label">Time:</label>
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
@@ -111,7 +109,7 @@
         <div formGroupName="latest_occurrence_datetime">
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Latest Date:</label>
-                <input class="form-control col-sm-4" formControlName="date" type="date">
+                <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                 <label class="col-sm-2 col-form-label">Time:</label>
                 <input class="form-control col-sm-4" formControlName="time" type="time">
             </div>
