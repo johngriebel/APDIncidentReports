@@ -3,28 +3,18 @@ import pytz
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from address.models import _to_python, Address
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 from rest_framework.fields import empty
 from .models import (Officer, Incident,
                      Offense, IncidentInvolvedParty,
-                     IncidentFile)
+                     IncidentFile, Address)
 from .utils import convert_date_string_to_object
 User = get_user_model()
 logger = logging.getLogger('cases')
 
 
 class AddressSerializer(serializers.ModelSerializer):
-
-    def run_validation(self, data=empty):
-        if data != empty:
-            address_obj = _to_python(data)
-            return address_obj
-
-    def to_representation(self, instance):
-        return instance.as_dict()
-
     class Meta:
         model = Address
         fields = "__all__"
@@ -62,7 +52,7 @@ class OfficerSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
-                return Officer.objects.get(id=data)
+                return Officer.objects.get(officer_number=data)
             except Officer.DoesNotExist:
                 logger.debug(f"Tried to find officer with ID: {data}")
                 message = self.error_messages['invalid'].format(
@@ -124,7 +114,7 @@ class IncidentSerializer(serializers.ModelSerializer):
     latest_occurrence_datetime = DateTimeAsObjectField()
 
     def get_report_datetime(self, obj: Incident):
-        # TODO: Make the timezone a settingzz
+        # TODO: Make the timezone a setting
         local_datetime = timezone.localtime(obj.report_datetime,
                                             timezone=pytz.timezone("US/Eastern"))
         date_string = local_datetime.date().strftime("%Y-%m-%d")
@@ -139,7 +129,7 @@ class IncidentSerializer(serializers.ModelSerializer):
 
         for field in validated_data.keys():
             if "officer" in field or "supervisor" in field:
-                validated_data[field] = Officer.objects.get(id=validated_data[field])
+                validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
 
         incident = Incident.objects.create(**validated_data)
         offense_objects = Offense.objects.filter(id__in=offenses)
@@ -193,8 +183,9 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
         for addr in ["home_address", "employer_address"]:
             address_attrs = validated_data.get(addr)
             if address_attrs is not None:
-                address_obj = _to_python(validated_data.pop(addr))
-                validated_data[addr] = address_obj
+                # address_obj = _to_python(validated_data.pop(addr))
+                # validated_data[addr] = address_obj
+                pass
 
         validated_data['incident'] = Incident.objects.get(pk=validated_data['incident'])
         validated_data['officer_signed'] = Officer.objects.get(pk=validated_data['officer_signed'])

@@ -2,7 +2,8 @@ import factory
 from faker import Faker
 from django.contrib.auth import get_user_model
 from cases.models import (Officer, Offense,
-                          Incident, IncidentInvolvedParty)
+                          Incident, IncidentInvolvedParty,
+                          Address, State, City)
 from cases.constants import (SEX_CHOICES, RACE_CHOICES,
                              HAIR_COLOR_CHOICES,
                              EYE_COLOR_CHOICES)
@@ -17,6 +18,31 @@ class UserFactory(factory.DjangoModelFactory):
     email = factory.Faker("email")
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
+
+
+class StateFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = State
+
+    name = factory.Faker("state")
+    abbreviation = factory.Faker("state_abbr")
+
+
+class CityFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = City
+
+    name = factory.Faker("city")
+    state = factory.SubFactory(StateFactory)
+
+
+class AddressFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Address
+    street_number = factory.Faker("building_number")
+    route = factory.Faker("street_name")
+    city = factory.SubFactory(CityFactory)
+    postal_code = factory.Faker("postalcode")
 
 
 class OfficerFactory(factory.DjangoModelFactory):
@@ -54,7 +80,7 @@ class IncidentFactory(factory.DjangoModelFactory):
     approved_datetime = factory.Faker("date_time_this_month")
     earliest_occurrence_datetime = factory.Faker("date_time_this_month")
     latest_occurrence_datetime = factory.Faker("date_time_this_month")
-    location = None
+    location = factory.SubFactory(AddressFactory)
     beat = factory.Faker("random_int")
     shift = "E"
     damaged_amount = None
@@ -71,6 +97,36 @@ class VictimFactory(factory.DjangoModelFactory):
     incident = factory.SubFactory(IncidentFactory)
     officer_signed = factory.SubFactory(OfficerFactory)
     party_type = "VICTIM"
+    juvenile = factory.Faker("pybool")
+    home_address = None
+    date_of_birth = factory.Faker("date")
+    sex = factory.LazyFunction(lambda: Faker().random_element([c[0] for c in SEX_CHOICES]))
+    race = factory.LazyFunction(lambda: Faker().random_element([c[0] for c in RACE_CHOICES]))
+    height = factory.Faker("pyint")
+    weight = factory.Faker("pyint")
+    hair_color = factory.LazyFunction(lambda: Faker().random_element([c[0]
+                                                                      for c in HAIR_COLOR_CHOICES]))
+    eye_color = factory.LazyFunction(lambda: Faker().random_element([c[0]
+                                                                     for c in EYE_COLOR_CHOICES]))
+    drivers_license = None
+    drivers_license_state = None
+    employer = None
+    employer_address = None
+    build = factory.Faker("word")
+    tattoos = factory.Faker("word")
+    scars = factory.Faker("word")
+    hairstyle = factory.Faker("word")
+
+
+class SuspectFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = IncidentInvolvedParty
+
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
+    incident = factory.SubFactory(IncidentFactory)
+    officer_signed = factory.SubFactory(OfficerFactory)
+    party_type = "SUSPECT"
     juvenile = factory.Faker("pybool")
     home_address = None
     date_of_birth = factory.Faker("date")

@@ -1,12 +1,40 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from djmoney.models.fields import MoneyField
-from address.models import AddressField
 from .constants import (STATE_CHOICES, SHIFT_CHOICES,
                         PARTY_TYPE_CHOICES, SEX_CHOICES,
                         RACE_CHOICES, HAIR_COLOR_CHOICES,
                         EYE_COLOR_CHOICES)
 User = get_user_model()
+
+
+class State(models.Model):
+    """
+    'State' in this context represents the typical continental American idea of a 'state',
+    as applied to any top level geographical distinction of the given country.
+    In other words, Puerto Rico, Washington DC, the US Virgin Islands, etc. are all considered
+    states.
+    """
+    name = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=5, unique=True)
+
+    class Meta:
+        db_table = "abbreviation"
+
+
+class City(models.Model):
+    name = models.CharField(max_length=150)
+    state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
+
+
+class Address(models.Model):
+    street_number = models.CharField(max_length=25)
+    route = models.CharField(max_length=255)
+    city = models.ForeignKey(City, on_delete=models.DO_NOTHING)
+    postal_code = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = "address"
 
 
 class Officer(models.Model):
@@ -44,7 +72,7 @@ class Incident(models.Model):
     approved_datetime = models.DateTimeField(null=True, blank=True)
     earliest_occurrence_datetime = models.DateTimeField()
     latest_occurrence_datetime = models.DateTimeField()
-    location = AddressField(on_delete=models.SET_NULL, null=True)
+    location = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
     beat = models.IntegerField()
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES)
     damaged_amount = MoneyField(max_digits=12, decimal_places=2,
@@ -92,9 +120,9 @@ class IncidentInvolvedParty(models.Model):
     officer_signed = models.ForeignKey(Officer, null=True, on_delete=models.CASCADE)
     party_type = models.CharField(max_length=7, choices=PARTY_TYPE_CHOICES)
     juvenile = models.BooleanField(default=False)
-    home_address = AddressField(blank=True, null=True,
-                                related_name="incident_home_address",
-                                on_delete=models.SET_NULL)
+    home_address = models.ForeignKey(Address, blank=True, null=True,
+                                     related_name="party_home_address",
+                                     on_delete=models.SET_NULL)
     # THis is a todo field. I haven't arrived at a good solution for storing these safely yet.
     social_security_number = None
     date_of_birth = models.DateField(null=True, blank=True)
@@ -108,9 +136,9 @@ class IncidentInvolvedParty(models.Model):
     drivers_license_state = models.CharField(max_length=2, null=True,
                                              choices=STATE_CHOICES, blank=True)
     employer = models.CharField(max_length=200, null=True, blank=True)
-    employer_address = AddressField(blank=True, null=True,
-                                    related_name="incident_employer_address",
-                                    on_delete=models.SET_NULL)
+    employer_address = models.ForeignKey(Address, blank=True, null=True,
+                                         related_name="incident_employer_address",
+                                         on_delete=models.SET_NULL)
     build = models.CharField(max_length=25, null=True, blank=True)
     tattoos = models.TextField(null=True, blank=True)
     scars = models.TextField(null=True, blank=True)
