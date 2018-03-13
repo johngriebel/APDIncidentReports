@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
-from djmoney.money import Money
+from cases.models import Incident
 from cases.tests.factories import (OfficerFactory,
                                    OffenseFactory,
                                    IncidentFactory,
@@ -48,7 +48,7 @@ class IncidentsTestCase(APITestCase):
         logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_update_incident(self):
+    def test_partial_update_incident(self):
         location = AddressFactory()
         offense = OffenseFactory()
         incident = IncidentFactory(location=location)
@@ -63,5 +63,28 @@ class IncidentsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         incident.refresh_from_db()
         self.assertEqual(incident.location.city.state.abbreviation, "GA")
+
+    def test_put_update_incident_returns_not_allowed(self):
+        location = AddressFactory()
+        offense = OffenseFactory()
+        incident = IncidentFactory(location=location)
+        incident.offenses.add(offense)
+        url = reverse("incident-detail", kwargs={'pk': incident.id})
+        data = {'stolen_amount': 125.00}
+        reponse = self.client.post(url, data=data)
+        self.assertEqual(reponse.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_incident(self):
+        location = AddressFactory()
+        offense = OffenseFactory()
+        incident = IncidentFactory(location=location)
+        inc_number = incident.incident_number
+        incident.offenses.add(offense)
+        url = reverse("incident-detail", kwargs={'pk': incident.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        inc = Incident.objects.filter(incident_number=inc_number).first()
+        self.assertIsNone(inc)
+
 
 
