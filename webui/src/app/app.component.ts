@@ -10,6 +10,7 @@ export class AppComponent {
   title = 'APD';
   loggedIn: boolean = false;
   constructor(private router: Router) {
+      localStorage.setItem("loggedIn", "false")
       this.loggedIn = (localStorage.getItem('loggedIn') == "true");
       console.log("this.logged in");
       console.log(this.loggedIn);
@@ -22,5 +23,6 @@ export class AppComponent {
 
     logout(){
         console.log("logout button clicked")
+        localStorage.setItem("loggedIn", "false")
     }
 }

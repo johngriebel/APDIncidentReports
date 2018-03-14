@@ -19,12 +19,11 @@
         <button *ngIf="!selectedIncident" type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button>
 
         <div *ngIf="selectedIncident">
-            <h3 *ngIf="selectedIncident.id != 0; else newHeader">Editing: {{selectedIncident.incident_number}}</h3>
+            <!--h3 *ngIf="selectedIncident.id != 0; else newHeader">Editing: {{selectedIncident.incident_number}}</h3>
             <ng-template #newHeader>
                 <h3>Create a New Incident</h3>
-            </ng-template>
+            </ng-template-->
             <app-incident-detail-reactive [incident]="selectedIncident"></app-incident-detail-reactive>
-            <button class="btn btn-primary" (click)="getIncidents()">Back</button>
         </div>
     </div>
 </div>

@@ -38,48 +38,57 @@ export class IncidentService {
     }
 
     getAllOffenses(): Observable<Offense[]> {
-        return this.http.get<Offense[]>(this.offensesUrl).pipe(
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        return this.http.get<Offense[]>(this.offensesUrl, {headers: headers}).pipe(
             tap(offenses => this.log(`fetched offenses`)),
             catchError(this.handleError('getOffenses', []))
         );
     }
 
     getIncident(id: number): Observable<Incident> {
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
         const url = `${this.incidentsUrl}${id}`;
-        return this.http.get<Incident>(url).pipe(
+        return this.http.get<Incident>(url, {headers: headers}).pipe(
             tap(_ => this.log(`fetched incident id=${id}`)),
             catchError(this.handleError<Incident>(`getIncident id=${id}`))
           );
     }
 
     getVictims(id: number): Observable<Victim[]> {
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
         const url = `${this.incidentsUrl}${id}/victims/`;
-        return this.http.get<Victim[]>(url).pipe(
+        return this.http.get<Victim[]>(url, {headers: headers}).pipe(
             tap(victims => this.log(`fetched victims`)),
             catchError(this.handleError('getVictims', []))
           );
     }
 
     getSuspects(id: number): Observable<Suspect[]> {
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
         const url = `${this.incidentsUrl}${id}/suspects/`;
-        return this.http.get<Suspect[]>(url).pipe(
+        return this.http.get<Suspect[]>(url, {headers: headers}).pipe(
             tap(victims => this.log(`fetched suspects`)),
             catchError(this.handleError('getSuspects', []))
           );
     }
 
     updateIncident (incident: Incident): Observable<any> {
-        // console.log(incident.location);
-        console.log(incident.damaged_amount);
-        return this.http.patch(this.incidentsUrl + incident.id + "/", incident, httpOptions).pipe(
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                       'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        return this.http.patch(this.incidentsUrl + incident.id + "/", incident, {headers: headers}).pipe(
             tap(_ => this.log(`updated incident id=${incident.id}`)),
             catchError(this.handleError<any>('updateIncident'))
           );
     }
 
     addIncident (incident: Incident): Observable<Incident> {
-        //console.log(incident);
-        return this.http.post<Incident>(this.incidentsUrl, incident, httpOptions).pipe(
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        return this.http.post<Incident>(this.incidentsUrl, incident, {headers: headers}).pipe(
             tap((incident: Incident) => this.log(`added incident w/ id=${incident.id}`)),
             catchError(this.handleError<Incident>('addIncident'))
         );

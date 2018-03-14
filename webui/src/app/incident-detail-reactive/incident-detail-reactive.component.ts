@@ -245,4 +245,8 @@ export class IncidentDetailReactiveComponent implements OnChanges{
          this.rebuildForm();
      }
 
+     print(){
+         console.log("Print button clicked")
+     }
+
 }
