@@ -18,6 +18,7 @@ export class LoginComponent  {
     onLogin(): void {
         this.authService.login(this.user).then((user) => {
             localStorage.setItem('token', user.json().token);
+            localStorage.setItem('loggedIn', "true");
             this.router.navigateByUrl('');
         })
         .catch((err) => {

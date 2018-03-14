@@ -1,28 +1,30 @@
-<div class="col-sm-12">
-    <table *ngIf="!selectedIncident" class="incidents table">
-        <thead>
-            <tr>
-                <th>Incident Number</th>
-                <th>Report Datetime</th>
-                <th>Reporting Officer</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let incident of incidents">
-                <td><button type="button" class="btn btn-link" (click)="select(incident)">{{incident.incident_number}}</button></td>
-                <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
-                <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <button *ngIf="!selectedIncident" type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button>
+<div class="container">
+    <div class="col-sm-12">
+        <table *ngIf="!selectedIncident" class="incidents table">
+            <thead>
+                <tr>
+                    <th>Incident Number</th>
+                    <th>Report Datetime</th>
+                    <th>Reporting Officer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let incident of incidents">
+                    <td><button type="button" class="btn btn-link" (click)="select(incident)">{{incident.incident_number}}</button></td>
+                    <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
+                    <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <button *ngIf="!selectedIncident" type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button>
 
-    <div *ngIf="selectedIncident">
-        <h3 *ngIf="selectedIncident.id != 0; else newHeader">Editing: {{selectedIncident.incident_number}}</h3>
-        <ng-template #newHeader>
-            <h3>Create a New Incident</h3>
-        </ng-template>
-        <app-incident-detail-reactive [incident]="selectedIncident"></app-incident-detail-reactive>
-        <button class="btn btn-primary" (click)="getIncidents()">Back</button>
+        <div *ngIf="selectedIncident">
+            <h3 *ngIf="selectedIncident.id != 0; else newHeader">Editing: {{selectedIncident.incident_number}}</h3>
+            <ng-template #newHeader>
+                <h3>Create a New Incident</h3>
+            </ng-template>
+            <app-incident-detail-reactive [incident]="selectedIncident"></app-incident-detail-reactive>
+            <button class="btn btn-primary" (click)="getIncidents()">Back</button>
+        </div>
     </div>
 </div>

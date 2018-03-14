@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,11 +8,19 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'APD';
-  constructor() {
-      
+  loggedIn: boolean = false;
+  constructor(private router: Router) {
+      this.loggedIn = (localStorage.getItem('loggedIn') == "true");
+      console.log("this.logged in");
+      console.log(this.loggedIn);
   }
 
-  login(){
-      console.log("In login method");
-  }
+    login(){
+        console.log("In login method");
+        this.router.navigateByUrl("/login");
+    }
+
+    logout(){
+        console.log("logout button clicked")
+    }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Incident } from '../data-model';
 import { IncidentService } from '../incident.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-incidents',
@@ -11,10 +12,16 @@ export class IncidentsComponent implements OnInit {
 
     incidents: Incident[];
     selectedIncident: Incident;
-
-    constructor(private incidentService: IncidentService) {}
+    loggedIn: boolean = false;
+    constructor(private incidentService: IncidentService,
+                private router: Router) {
+        this.loggedIn = (localStorage.getItem('loggedIn') == "true");
+    }
 
     ngOnInit() {
+        if (!this.loggedIn){
+            this.router.navigateByUrl("/login");
+        }
         this.getIncidents();
     }
 
