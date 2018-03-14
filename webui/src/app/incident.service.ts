@@ -7,7 +7,8 @@ import { Incident, Victim, Suspect, Offense } from './data-model';
 import { MessageService } from './message.service';
 
 const httpOptions = {
-    headers: new HttpHeaders({'Content-Type': 'application/json'})
+    headers: new HttpHeaders({'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${localStorage.getItem('token')}`})
 }
 
 @Injectable()
@@ -16,14 +17,21 @@ export class IncidentService {
     private offensesUrl = 'http://127.0.0.1:8000/api/offenses/'
     
     constructor(private messageService: MessageService,
-                private http: HttpClient) { }
+                private http: HttpClient) { 
+                
+            }
 
     public log(message: string) {
         this.messageService.add('IncidentService: ' + message);
     }
 
     getIncidents(): Observable<Incident[]> {
-        return this.http.get<Incident[]>(this.incidentsUrl).pipe(
+        console.log("ARMADILLO");
+        console.log(localStorage.getItem('token'));
+        let headers = new HttpHeaders({'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`})
+        console.log(headers);
+        return this.http.get<Incident[]>(this.incidentsUrl, { headers: headers }).pipe(
             tap(incidents => this.log(`fetched incidents`)),
             catchError(this.handleError('getIncidents', []))
         );

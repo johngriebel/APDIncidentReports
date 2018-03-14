@@ -1,3 +1,8 @@
+export class User {
+    constructor(username?: string, password?: string) {}
+}
+
+
 export class Officer {
     id: number;
     officer_number: number;

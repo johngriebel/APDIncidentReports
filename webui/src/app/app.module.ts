@@ -4,26 +4,29 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { IncidentsComponent } from './incidents/incidents.component';
-import { IncidentDetailComponent } from './incident-detail/incident-detail.component';
 import { IncidentService } from './incident.service';
 import { MessageService } from './message.service';
 import { MessagesComponent } from './messages/messages.component';
+import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import { AppRoutingModule } from './/app-routing.module';
+import { AppRoutingModule } from './app-routing.module';
 import { OfficerService } from './officer.service';
 import { IncidentDetailReactiveComponent } from './incident-detail-reactive/incident-detail-reactive.component';
+import { LoginComponent } from './login/login.component';
+import { AuthService } from './services/auth.service';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     IncidentsComponent,
-    IncidentDetailComponent,
     MessagesComponent,
     IncidentDetailReactiveComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
+    HttpModule,
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
@@ -31,7 +34,8 @@ import { IncidentDetailReactiveComponent } from './incident-detail-reactive/inci
   ],
   providers: [IncidentService, 
               MessageService, 
-              OfficerService],
+              OfficerService,
+              AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

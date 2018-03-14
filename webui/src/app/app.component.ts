@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'APD';
+  constructor() {
+      
+  }
+
+  login(){
+      console.log("In login method");
+  }
 }
