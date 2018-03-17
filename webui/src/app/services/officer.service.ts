@@ -4,7 +4,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { MessageService } from './message.service';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { Officer } from './data-model';
+import { Officer } from '../data-model';
 
 @Injectable()
 export class OfficerService {

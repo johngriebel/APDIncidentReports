@@ -4,8 +4,8 @@ import { Location } from '@angular/common';
 
 import { Incident, Address, DateTime, Officer,
          Victim, Suspect, Offense } from '../data-model';
-import { IncidentService } from '../incident.service';
-import { OfficerService } from '../officer.service';
+import { IncidentService } from '../services/incident.service';
+import { OfficerService } from '../services/officer.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

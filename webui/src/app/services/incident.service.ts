@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { Incident, Victim, Suspect, Offense } from './data-model';
+import { Incident, Victim, Suspect, Offense } from '../data-model';
 import { MessageService } from './message.service';
 
 const httpOptions = {
