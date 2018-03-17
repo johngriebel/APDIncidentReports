@@ -12,7 +12,7 @@ from cases.constants import (SHIFT_CHOICES,
                              MALE, FEMALE, RACE_CHOICES,
                              HAIR_COLOR_CHOICES,
                              EYE_COLOR_CHOICES,
-                             STATES)
+                             STATE_CHOICES)
 logger = logging.getLogger('cases')
 User = get_user_model()
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -91,7 +91,8 @@ class IncidentDataFaker:
 
         drivers_license = self._maybe(to_return=self.fake.text(max_nb_chars=100))
         if drivers_license:
-            dl_state = random.choice([state for state in STATES])
+            logger.debug(f"State choices: {[s[0] for s in STATE_CHOICES]}")
+            dl_state = random.choice([s[0] for s in STATE_CHOICES])
             party_data['drivers_license'] = drivers_license
             party_data['drivers_license_state'] = dl_state
 

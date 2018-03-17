@@ -3,12 +3,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
-from cases.models import Incident
+from cases.models import Incident, IncidentInvolvedParty
 from cases.tests.factories import (OfficerFactory,
                                    OffenseFactory,
                                    IncidentFactory,
                                    AddressFactory,
-                                   UserFactory)
+                                   VictimFactory)
 from cases.tests.utils import IncidentDataFaker, generate_jwt_for_tests
 from cases.constants import (VICTIM, SUSPECT)
 logger = logging.getLogger('cases')
@@ -16,6 +16,9 @@ logger = logging.getLogger('cases')
 
 class IncidentsTestCase(APITestCase):
     def setUp(self):
+        self.user = OfficerFactory().user
+        token = generate_jwt_for_tests(self.user)
+        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
         self.faker = IncidentDataFaker(faker=Faker())
 
     def test_create_incident(self):
@@ -72,7 +75,7 @@ class IncidentsTestCase(APITestCase):
         incident.offenses.add(offense)
         url = reverse("incident-detail", kwargs={'pk': incident.id})
         data = {'stolen_amount': 125.00}
-        reponse = self.client.post(url, data=data)
+        reponse = self.client.put(url, data=data)
         self.assertEqual(reponse.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete_incident(self):
@@ -104,3 +107,39 @@ class VictimTestCase(APITestCase):
         response = self.client.post(url, data=data,
                                     format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        victims = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                       party_type=VICTIM)
+        self.assertEqual(victims.count(), 1)
+        self.assertEqual(victims.first().first_name, data['first_name'])
+        self.assertEqual(victims.first().last_name, data['last_name'])
+
+    def test_partial_update_victim_basic_happy_path(self):
+        victim = VictimFactory()
+        data = {'first_name': self.faker.fake.first_name()}
+        url = reverse("victim-detail", kwargs={'incidents_pk': victim.incident.id,
+                                               'pk': victim.id})
+        response = self.client.patch(url, data=data,
+                                     format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        victim.refresh_from_db()
+        self.assertEqual(victim.first_name, data['first_name'])
+
+    def test_put_update_not_allowed(self):
+        victim = VictimFactory()
+        data = {'first_name': self.faker.fake.first_name()}
+        url = reverse("victim-detail", kwargs={'incidents_pk': victim.incident.id,
+                                               'pk': victim.id})
+        response = self.client.put(url, data=data,
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_victim(self):
+        victim = VictimFactory()
+        incident = victim.incident
+        url = reverse("victim-detail", kwargs={'incidents_pk': victim.incident.id,
+                                               'pk': victim.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        victims = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                       party_type=VICTIM)
+        self.assertEqual(victims.count(), 0)

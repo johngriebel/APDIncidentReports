@@ -83,6 +83,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(status=resp_status,
                         data=resp_data)
 
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 class VictimViewSet(viewsets.ModelViewSet):
     queryset = IncidentInvolvedParty.objects.filter(party_type=VICTIM)
@@ -98,6 +101,13 @@ class VictimViewSet(viewsets.ModelViewSet):
         return create_incident_involved_party(request=request,
                                               serializer_class=self.get_serializer_class(),
                                               kwargs=kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if request.method == "PUT":
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        else:
+            return super(VictimViewSet, self).update(request,
+                                                     *args, **kwargs)
 
 
 class SuspectViewSet(viewsets.ModelViewSet):
