@@ -58,7 +58,8 @@ def build_reverse_lookups(key: str, params: dict):
         return {}
 
 
-def get_search_results(params: dict):
+def get_search_results(*, params: dict):
+    logger.info(f"Search parameters: {params}")
     filter_dict = {}
     for key in params:
         if isincident_field(key):
@@ -69,4 +70,5 @@ def get_search_results(params: dict):
             reverse_lookups = build_reverse_lookups(key, params)
             filter_dict.update(reverse_lookups)
     incidents = Incident.objects.filter(**filter_dict)
+    logger.info(f"Results: {incidents}")
     return incidents

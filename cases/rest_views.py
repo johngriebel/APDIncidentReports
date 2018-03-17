@@ -1,18 +1,20 @@
 import logging
-import json
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
-from .models import (Officer, Incident,
-                     IncidentInvolvedParty,
-                     IncidentFile, Offense)
-from .serializers import (OfficerSerializer, IncidentSerializer,
-                          IncidentInvolvedPartySerializer,
-                          IncidentFileSerializer,
-                          OffenseSerializer)
-from .utils import create_incident_involved_party, convert_date_string_to_object
-from .constants import VICTIM, SUSPECT
+from rest_framework.decorators import api_view
+from cases.models import (Officer, Incident,
+                          IncidentInvolvedParty,
+                          IncidentFile, Offense)
+from cases.serializers import (OfficerSerializer, IncidentSerializer,
+                               IncidentInvolvedPartySerializer,
+                               IncidentFileSerializer,
+                               OffenseSerializer)
+from cases.search import get_search_results
+from cases.utils import (create_incident_involved_party,
+                         convert_date_string_to_object)
+from cases.constants import VICTIM, SUSPECT
 from rest_framework import viewsets
 logger = logging.getLogger('cases')
 User = get_user_model()
@@ -151,6 +153,15 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
         data = self.get_serializer(created_files, many=True).data
         return Response(status=status.HTTP_201_CREATED,
                         data=data)
+
+
+@api_view(["POST"])
+def search(request, *args, **kwargs):
+    results = get_search_results(params=request.data)
+    serializer = IncidentSerializer(results, many=True)
+
+    return Response(status=status.HTTP_201_CREATED,
+                    data=serializer.data)
 
 
 def jwt_response_payload_handler(token, user=None, request=None):

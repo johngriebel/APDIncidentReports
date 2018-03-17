@@ -1,6 +1,7 @@
-import os
 import logging
 import shutil
+import pytz
+from datetime import datetime
 from pathlib import Path
 from django.urls import reverse
 from django.conf import settings
@@ -23,12 +24,15 @@ from cases.constants import (VICTIM, SUSPECT)
 logger = logging.getLogger('cases')
 
 
-class IncidentsTestCase(APITestCase):
+class JWTAuthAPIBaseTestCase(APITestCase):
     def setUp(self):
         self.user = OfficerFactory().user
         token = generate_jwt_for_tests(self.user)
         self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
         self.faker = IncidentDataFaker(faker=Faker())
+
+
+class IncidentsTestCase(JWTAuthAPIBaseTestCase):
 
     def test_create_incident(self):
         url = reverse("incident-list")
@@ -100,12 +104,7 @@ class IncidentsTestCase(APITestCase):
         self.assertIsNone(inc)
 
 
-class VictimTestCase(APITestCase):
-    def setUp(self):
-        self.user = OfficerFactory().user
-        token = generate_jwt_for_tests(self.user)
-        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
-        self.faker = IncidentDataFaker(faker=Faker())
+class VictimTestCase(JWTAuthAPIBaseTestCase):
 
     def test_create_victim(self):
         incident = IncidentFactory()
@@ -153,12 +152,7 @@ class VictimTestCase(APITestCase):
         self.assertEqual(victims.count(), 0)
 
 
-class SuspectTestCase(APITestCase):
-    def setUp(self):
-        self.user = OfficerFactory().user
-        token = generate_jwt_for_tests(self.user)
-        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
-        self.faker = IncidentDataFaker(faker=Faker())
+class SuspectTestCase(JWTAuthAPIBaseTestCase):
 
     def test_create_suspect(self):
         incident = IncidentFactory()
@@ -207,12 +201,9 @@ class SuspectTestCase(APITestCase):
 
 
 @override_settings(MEDIA_ROOT="/tmp/APD/")
-class IncidentFileTestCase(APITestCase):
+class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
     def setUp(self):
-        self.user = OfficerFactory().user
-        token = generate_jwt_for_tests(self.user)
-        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
-        self.faker = IncidentDataFaker(faker=Faker())
+        super(IncidentFileTestCase, self).setUp()
         self.incident = IncidentFactory()
 
     def tearDown(self):
@@ -242,3 +233,41 @@ class IncidentFileTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         inc_files = IncidentFile.objects.filter(incident=self.incident)
         self.assertEqual(inc_files.count(), 0)
+
+
+class SearchTestCase(JWTAuthAPIBaseTestCase):
+    def test_basic_incident_number_search(self):
+        incident = IncidentFactory()
+        url = reverse("search")
+        data = {'incident_number': incident.incident_number[:5]}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_report_date_time_search(self):
+        tzinfo = pytz.timezone(settings.TIME_ZONE)
+        first_date = datetime(year=2014,
+                              month=6,
+                              day=15,
+                              tzinfo=tzinfo)
+        second_date = datetime(year=2015,
+                               month=7,
+                               day=23,
+                               tzinfo=tzinfo)
+        first_incident = IncidentFactory(report_datetime=first_date)
+        second_incident = IncidentFactory(report_datetime=second_date)
+
+        divider_datetime = datetime(year=2015,
+                                    month=1,
+                                    day=1,
+                                    tzinfo=tzinfo)
+
+        url = reverse("search")
+        data = {'report_datetime_min': divider_datetime.strftime("%Y-%m-%d")}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], second_incident.id)
+
+
