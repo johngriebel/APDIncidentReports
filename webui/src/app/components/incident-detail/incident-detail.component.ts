@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { Incident, Address, DateTime, Officer,
-         Victim, Suspect, Offense } from '../data-model';
-import { IncidentService } from '../services/incident.service';
-import { OfficerService } from '../services/officer.service';
+         Victim, Suspect, Offense } from '../../data-model';
+import { IncidentService } from '../../services/incident.service';
+import { OfficerService } from '../../services/officer.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -13,6 +13,8 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './incident-detail.component.html',
   styleUrls: ['./incident-detail.component.css']
 })
+
+
 export class IncidentDetailComponent implements OnChanges{
     @Input() incident: Incident;
     availableOfficers: Officer[];
