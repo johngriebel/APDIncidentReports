@@ -7,8 +7,10 @@ from cases.models import Incident
 from cases.tests.factories import (OfficerFactory,
                                    OffenseFactory,
                                    IncidentFactory,
-                                   AddressFactory)
-from cases.tests.utils import IncidentDataFaker
+                                   AddressFactory,
+                                   UserFactory)
+from cases.tests.utils import IncidentDataFaker, generate_jwt_for_tests
+from cases.constants import (VICTIM, SUSPECT)
 logger = logging.getLogger('cases')
 
 
@@ -45,7 +47,6 @@ class IncidentsTestCase(APITestCase):
                 'offenses': offenses,
                 'narrative': self.faker.generate_narrative()}
         response = self.client.post(url, data=data, format="json")
-        logger.debug(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_partial_update_incident(self):
@@ -87,4 +88,19 @@ class IncidentsTestCase(APITestCase):
         self.assertIsNone(inc)
 
 
+class VictimTestCase(APITestCase):
+    def setUp(self):
+        self.user = OfficerFactory().user
+        token = generate_jwt_for_tests(self.user)
+        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
+        self.faker = IncidentDataFaker(faker=Faker())
 
+    def test_create_victim(self):
+        incident = IncidentFactory()
+        data = self.faker.generate_involved_party(party_type=VICTIM,
+                                                  incident=incident)
+        logger.debug(f"Victim data: {data}")
+        url = reverse("victim-list", kwargs={'incidents_pk': str(incident.pk)})
+        response = self.client.post(url, data=data,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

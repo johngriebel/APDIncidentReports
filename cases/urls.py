@@ -9,9 +9,12 @@ router.register("officers", rest_views.OfficerViewSet)
 router.register("incidents", rest_views.IncidentViewSet)
 router.register("offenses", rest_views.OffenseViewSet)
 
-incidents_router = routers.NestedSimpleRouter(router, "incidents", lookup="incidents")
-incidents_router.register("victims", rest_views.VictimViewSet)
-incidents_router.register("suspects", rest_views.SuspectViewSet)
+incidents_router = routers.NestedSimpleRouter(router, "incidents",
+                                              lookup="incidents")
+incidents_router.register("victims", rest_views.VictimViewSet,
+                          base_name="victim")
+incidents_router.register("suspects", rest_views.SuspectViewSet,
+                          base_name="suspect")
 incidents_router.register("files", rest_views.IncidentFileViewSet)
 
 urlpatterns = [

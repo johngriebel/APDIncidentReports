@@ -196,14 +196,12 @@ def isincidentparty_field(field_name: str) -> bool:
 def create_incident_involved_party(request, serializer_class,
                                    kwargs: Dict[str, Any]) -> Response:
     dirty_data = {key: value for key, value in request.data.items()}
+    logger.debug(f"Incident Involved Party Dirty Data: {dirty_data}")
     dirty_data['incident'] = kwargs.get('incidents_pk')
     dirty_data['party_type'] = kwargs['party_type']
 
-    for addr in ["home_address", "employer_address"]:
-        address_attrs = dirty_data.get(addr)
-        if address_attrs is not None:
-            dirty_data[addr] = json.loads(dirty_data[addr])
-    serializer = serializer_class(data=dirty_data)
+    serializer = serializer_class(data=dirty_data,
+                                  context={'request': request})
     valid = serializer.is_valid()
 
     if not valid:

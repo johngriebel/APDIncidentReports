@@ -11,7 +11,8 @@ from .models import (Officer, Incident,
                      IncidentFile, Address, State,
                      City)
 from cases.utils import (convert_date_string_to_object,
-                         handle_incident_foreign_keys_for_creation)
+                         handle_incident_foreign_keys_for_creation,
+                         parse_and_create_address)
 User = get_user_model()
 logger = logging.getLogger('cases')
 
@@ -205,27 +206,30 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 
 class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
-    officer_signed = OfficerSerializer()
-    home_address = AddressSerializer(required=False)
+    officer_signed = OfficerSerializer(read_only=True)
+    home_address = AddressSerializer(required=False, allow_null=True)
     employer_address = AddressSerializer(required=False)
 
     def create(self, validated_data):
-        for addr in ["home_address", "employer_address"]:
-            address_attrs = validated_data.get(addr)
-            if address_attrs is not None:
-                # address_obj = _to_python(validated_data.pop(addr))
-                # validated_data[addr] = address_obj
-                pass
+        home_addr_data = validated_data.get('home_address')
+        if home_addr_data is not None:
+            validated_data['home_address'] = parse_and_create_address(address_data=
+                                                                      home_addr_data)
+
+        employer_addr = validated_data.get('employer_address')
+        if employer_addr is not None:
+            validated_data['employer_address'] = parse_and_create_address(address_data=
+                                                                          employer_addr)
 
         validated_data['incident'] = Incident.objects.get(pk=validated_data['incident'])
-        validated_data['officer_signed'] = Officer.objects.get(pk=validated_data['officer_signed'])
+        validated_data['officer_signed'] = Officer.objects.get(user=self.context['request'].user)
 
         self.instance = IncidentInvolvedParty.objects.create(**validated_data)
 
     class Meta:
         model = IncidentInvolvedParty
         exclude = ("display_sequence",)
-        read_only_fields = ("id", "incident","party_type")
+        read_only_fields = ("id", "incident", "party_type")
 
 
 class IncidentFileSerializer(serializers.ModelSerializer):
