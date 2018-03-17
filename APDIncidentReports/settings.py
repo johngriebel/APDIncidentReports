@@ -46,7 +46,6 @@ INSTALLED_APPS = [
 
     'djmoney',
     'bootstrapform',
-    'address',
 
     'cases'
 ]
