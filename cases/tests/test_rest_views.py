@@ -8,7 +8,8 @@ from cases.tests.factories import (OfficerFactory,
                                    OffenseFactory,
                                    IncidentFactory,
                                    AddressFactory,
-                                   VictimFactory)
+                                   VictimFactory,
+                                   SuspectFactory)
 from cases.tests.utils import IncidentDataFaker, generate_jwt_for_tests
 from cases.constants import (VICTIM, SUSPECT)
 logger = logging.getLogger('cases')
@@ -102,7 +103,6 @@ class VictimTestCase(APITestCase):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=VICTIM,
                                                   incident=incident)
-        logger.debug(f"Victim data: {data}")
         url = reverse("victim-list", kwargs={'incidents_pk': str(incident.pk)})
         response = self.client.post(url, data=data,
                                     format="json")
@@ -143,3 +143,56 @@ class VictimTestCase(APITestCase):
         victims = IncidentInvolvedParty.objects.filter(incident=incident,
                                                        party_type=VICTIM)
         self.assertEqual(victims.count(), 0)
+
+
+class SuspectTestCase(APITestCase):
+    def setUp(self):
+        self.user = OfficerFactory().user
+        token = generate_jwt_for_tests(self.user)
+        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
+        self.faker = IncidentDataFaker(faker=Faker())
+
+    def test_create_suspect(self):
+        incident = IncidentFactory()
+        data = self.faker.generate_involved_party(party_type=SUSPECT,
+                                                  incident=incident)
+        url = reverse("suspect-list", kwargs={'incidents_pk': str(incident.pk)})
+        response = self.client.post(url, data=data,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        suspects = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                        party_type=SUSPECT)
+        self.assertEqual(suspects.count(), 1)
+        self.assertEqual(suspects.first().first_name, data['first_name'])
+        self.assertEqual(suspects.first().last_name, data['last_name'])
+
+    def test_partial_update_victim_basic_happy_path(self):
+        suspect = SuspectFactory()
+        data = {'first_name': self.faker.fake.first_name()}
+        url = reverse("suspect-detail", kwargs={'incidents_pk': suspect.incident.id,
+                                                'pk': suspect.id})
+        response = self.client.patch(url, data=data,
+                                     format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        suspect.refresh_from_db()
+        self.assertEqual(suspect.first_name, data['first_name'])
+
+    def test_put_update_not_allowed(self):
+        suspect = SuspectFactory()
+        data = {'first_name': self.faker.fake.first_name()}
+        url = reverse("suspect-detail", kwargs={'incidents_pk': suspect.incident.id,
+                                                'pk': suspect.id})
+        response = self.client.put(url, data=data,
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_suspect(self):
+        suspect = SuspectFactory()
+        incident = suspect.incident
+        url = reverse("suspect-detail", kwargs={'incidents_pk': suspect.incident.id,
+                                                'pk': suspect.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        suspects = IncidentInvolvedParty.objects.filter(incident=incident,
+                                                        party_type=SUSPECT)
+        self.assertEqual(suspects.count(), 0)

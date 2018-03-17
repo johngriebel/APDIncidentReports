@@ -125,6 +125,13 @@ class SuspectViewSet(viewsets.ModelViewSet):
                                               serializer_class=self.get_serializer_class(),
                                               kwargs=kwargs)
 
+    def update(self, request, *args, **kwargs):
+        if request.method == "PUT":
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        else:
+            return super(SuspectViewSet, self).update(request,
+                                                      *args, **kwargs)
+
 
 class IncidentFileViewSet(viewsets.ModelViewSet):
     queryset = IncidentFile.objects.all()
