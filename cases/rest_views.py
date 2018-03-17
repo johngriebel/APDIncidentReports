@@ -3,6 +3,7 @@ import json
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
 from .models import (Officer, Incident,
                      IncidentInvolvedParty,
                      IncidentFile, Offense)
@@ -136,6 +137,22 @@ class SuspectViewSet(viewsets.ModelViewSet):
 class IncidentFileViewSet(viewsets.ModelViewSet):
     queryset = IncidentFile.objects.all()
     serializer_class = IncidentFileSerializer
+    parser_classes = (MultiPartParser,)
+
+    def create(self, request, *args, **kwargs):
+        logger.debug(f"request.data: {request.data}")
+        logger.debug(f"request.FILES: {request.FILES}")
+        incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
+        created_files = []
+        for upload in request.FILES.getlist('files'):
+            logger.debug(f"Upload type: {type(upload)}")
+            incident_file = IncidentFile(incident=incident,
+                                         file=upload)
+            incident_file.save()
+            created_files.append(incident_file)
+        data = self.get_serializer(created_files, many=True).data
+        return Response(status=status.HTTP_201_CREATED,
+                        data=data)
 
 
 def jwt_response_payload_handler(token, user=None, request=None):

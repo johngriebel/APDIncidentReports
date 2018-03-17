@@ -1,4 +1,6 @@
+import os
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from djmoney.models.fields import MoneyField
 from .constants import (STATE_CHOICES, SHIFT_CHOICES,
@@ -104,6 +106,10 @@ class Incident(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse("cases.views.incident_detail", args=[str(self.id)])
+
+    @property
+    def upload_directory(self) -> str:
+        return os.path.join(settings.MEDIA_ROOT, self.incident_number)
 
     class Meta:
         db_table = "incident"

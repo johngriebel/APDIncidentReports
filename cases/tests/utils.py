@@ -1,6 +1,8 @@
+import os
 import random
 import logging
 from typing import Dict, Optional, Any
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework_jwt.settings import api_settings
 from faker import Faker
@@ -103,3 +105,20 @@ class IncidentDataFaker:
             party_data['employer_address'] = employer_address
 
         return party_data
+
+
+def generate_random_file_content(suffix: str,
+                                 num_kb: int=2,
+                                 base_path: str=None) -> SimpleUploadedFile:
+    fname = "test_file_" + str(suffix)
+    full_path = os.path.join(base_path or "/tmp/", fname)
+    if os.path.isfile(full_path):
+        os.remove(full_path)
+    fout = open(full_path, "wb")
+    fout.write(os.urandom(1024 * num_kb))
+    fout.close()
+    fin = open(full_path, "rb")
+    uploaded_file = SimpleUploadedFile(fname,
+                                       fin.read(),
+                                       content_type="multipart/form-data")
+    return uploaded_file

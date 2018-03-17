@@ -1,5 +1,9 @@
 import logging
+import shutil
+from pathlib import Path
 from django.urls import reverse
+from django.conf import settings
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
@@ -10,7 +14,9 @@ from cases.tests.factories import (OfficerFactory,
                                    AddressFactory,
                                    VictimFactory,
                                    SuspectFactory)
-from cases.tests.utils import IncidentDataFaker, generate_jwt_for_tests
+from cases.tests.utils import (IncidentDataFaker,
+                               generate_jwt_for_tests,
+                               generate_random_file_content)
 from cases.constants import (VICTIM, SUSPECT)
 logger = logging.getLogger('cases')
 
@@ -196,3 +202,29 @@ class SuspectTestCase(APITestCase):
         suspects = IncidentInvolvedParty.objects.filter(incident=incident,
                                                         party_type=SUSPECT)
         self.assertEqual(suspects.count(), 0)
+
+
+@override_settings(MEDIA_ROOT="/tmp/APD/")
+class IncidentFileTestCase(APITestCase):
+    def setUp(self):
+        self.user = OfficerFactory().user
+        token = generate_jwt_for_tests(self.user)
+        self.client = self.client_class(HTTP_AUTHORIZATION=f'Bearer {token}')
+        self.faker = IncidentDataFaker(faker=Faker())
+        self.incident = IncidentFactory()
+
+    def tearDown(self):
+        shutil.rmtree(self.incident.upload_directory)
+
+    def test_create_single_file_upload(self):
+        upload_file = generate_random_file_content(suffix="foo.txt")
+        data = {'files': [upload_file]}
+        url = reverse("incidentfile-list", kwargs={'incidents_pk':
+                                                   self.incident.pk})
+        response = self.client.post(url, data=data,
+                                    format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        expected_file = Path(f"{settings.MEDIA_ROOT}/"
+                             f"{self.incident.incident_number}"
+                             f"/test_file_foo.txt")
+        self.assertTrue(expected_file.is_file())
