@@ -1,8 +1,10 @@
+import logging
 from django.utils import timezone
 from .models import Incident
 from .utils import (isincident_field,
                     convert_date_string_to_object,
                     isincidentparty_field)
+logger = logging.getLogger('cases')
 
 
 def cleanse_filter_key(key: str) -> str:
@@ -28,7 +30,9 @@ def cleanse_filter_key(key: str) -> str:
 def cleanse_value(key: str, data: dict):
     if "date" in key:
         value = convert_date_string_to_object(data[key])
-        value = timezone.make_aware(value)
+        if not value.tzinfo:
+            logger.info(f"Converted value was not timezone aware. Making it so.")
+            value = timezone.make_aware(value)
     elif key == "offenses":
         value = data.getlist(key)
     elif key == "juvenile":

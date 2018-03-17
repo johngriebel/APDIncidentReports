@@ -1,20 +1,14 @@
 import re
 import logging
-import json
 import pytz
-from typing import Union, Tuple, Dict, List, Any
+from typing import Union, Dict, Any
 from datetime import datetime
 from django.conf import settings
 from django.utils import timezone
-from itertools import groupby
 from rest_framework import status
 from rest_framework.response import Response
-from address.models import to_python
-from cases.models import (Incident,
-                          IncidentInvolvedParty,
-                          Officer, IncidentFile,
-                          Address, City, State)
-from .constants import VICTIM, SUSPECT
+from cases.models import (Officer, Address,
+                          City, State)
 date_format = re.compile("\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
 
@@ -60,128 +54,6 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
             raise ValueError(f"Incorrectly formatted date string: {date_string}")
     else:
         return None
-
-
-def handle_address(party_data: Dict[str, Any], key: str) -> Dict:
-    address_dict = {addr_key.replace(f"{key}_", ""): party_data[addr_key]
-                    for addr_key in party_data if f"{key}_" in addr_key}
-    address_dict[f"raw"] = party_data[f"{key}_formatted"]
-    address_object = to_python(address_dict)
-    address_data = {f"{key}_raw": party_data[f"{key}_formatted"],
-                    key: address_object}
-    party_data.update(address_data)
-    party_data = {nkey: value for nkey, value in party_data.items()
-                  if f"{key}_" not in nkey}
-    return party_data
-
-
-def get_party_groups(data: dict) -> list:
-    groups = []
-    for k, g in groupby(data, lambda obj: obj.split("-")[:2]):
-        if not ('INITIAL_FORMS' in k or 'MAX_NUM_FORMS' in k
-                or 'MIN_NUM_FORMS' in k or 'TOTAL_FORMS' in k):
-            groups.append(list(g))
-    return groups
-
-
-def get_display_sequence_from_group(key_str):
-    return key_str.split("-")[1]
-
-
-def handle_files(incident: Incident, files: List) -> List[IncidentFile]:
-    inc_files = []
-    for upload in files:
-        incident_file = IncidentFile(incident=incident,
-                                     file=upload)
-        incident_file.save()
-        inc_files.append(incident_file)
-    return inc_files
-
-
-def handle_officer_signed(party_data: Dict[str, Any], cache) -> Dict:
-    officer_id = party_data['officer_signed']
-    if officer_id in cache:
-        party_data['officer_signed'] = cache[officer_id]
-    else:
-        officer = Officer.objects.get(id=officer_id)
-        party_data['officer_signed'] = cache[officer_id] = officer
-    return party_data
-
-
-def handle_height_and_weight(party_data: Dict[str, Any]) -> Dict:
-    if party_data['height'] == "":
-        party_data['height'] = None
-    if party_data['weight'] == "":
-        party_data['weight'] = None
-    return party_data
-
-
-def init_indiv_data(data: Dict, group: List) -> Dict:
-    display_seq = get_display_sequence_from_group(group[0])
-    # Indexing to 10 will be a problem if there are ever double digits victims or suspects
-    indiv_party_data = {key[10:].lstrip("-"): data[key] for key in group}
-    indiv_party_data['display_sequence'] = display_seq
-    return indiv_party_data
-
-
-def handle_group(incident: Incident, data: Dict, group: List, officers_cache: Dict) -> Dict:
-    indiv_party_data = init_indiv_data(data=data, group=group)
-    if indiv_party_data.get('officer_signed', "") == "":
-        # If we've gotten here, the form is valid, but a required field is missing, so this
-        # must be an empty form. Skip it. this is a temporary hack
-        return officers_cache
-
-    converted_date = convert_date_string_to_object(indiv_party_data['date_of_birth'])
-    indiv_party_data['date_of_birth'] = converted_date
-
-    indiv_party_data = handle_address(party_data=indiv_party_data,
-                                      key="home_address")
-    indiv_party_data = handle_address(party_data=indiv_party_data,
-                                      key="employer_address")
-    indiv_party_data = handle_officer_signed(party_data=indiv_party_data,
-                                             cache=officers_cache)
-    indiv_party_data = handle_height_and_weight(party_data=indiv_party_data)
-
-    party_type = SUSPECT if "suspect" in group[0].lower() else VICTIM
-
-    obj, _ = IncidentInvolvedParty.objects.update_or_create(
-        display_sequence=indiv_party_data['display_sequence'],
-        incident=incident,
-        party_type=party_type,
-        defaults=indiv_party_data)
-    obj.home_address = indiv_party_data['home_address']
-    obj.save()
-
-    return officers_cache
-
-
-def cleanse_incident_party_data_and_create(incident: Incident, data: dict, groups: list):
-    officers_cache = {}
-    for group in groups:
-        if len(group) > 1:
-            handle_group(incident=incident,
-                         data=data,
-                         group=group,
-                         officers_cache=officers_cache)
-
-
-def parse_and_compile_incident_input_data(post_data) -> Tuple[Dict, List, List, Dict]:
-    victim_data = [{key: post_data.get(key) for key in post_data if key.startswith("victims")}]
-    suspect_data = [{key: post_data.get(key) for key in post_data if key.startswith("suspects")}]
-    party_data = {}
-
-    # Always guaranteed to have at least one victim and one suspect
-    for vdata in victim_data:
-        party_data.update(vdata)
-    for sdata in suspect_data:
-        party_data.update(sdata)
-
-    incident_data = {key: post_data.get(key) for key in post_data
-                     if isincident_field(key)}
-    incident_data['offenses'] = post_data.getlist("offenses")
-    incident_data['report_datetime'] = post_data.getlist("report_datetime")[0]
-
-    return incident_data, victim_data, suspect_data, party_data
 
 
 def isincident_field(field_name: str) -> bool:

@@ -1,10 +1,16 @@
 import random
+import logging
+import pytz
 from datetime import datetime
+from django.conf import settings
 from django.test import TestCase
 from cases.utils import convert_date_string_to_object
+logger = logging.getLogger('cases')
 
 
 class UtilsTestCase(TestCase):
+
+    maxDiff = None
 
     def test_dashed_date_no_time(self):
         year = random.randint(1900, 2018)
@@ -14,7 +20,8 @@ class UtilsTestCase(TestCase):
         converted = convert_date_string_to_object(date_string=date_string)
         expected = datetime(year=year,
                             month=month,
-                            day=day)
+                            day=day,
+                            tzinfo=pytz.timezone(settings.TIME_ZONE))
         self.assertEqual(converted, expected)
 
     def test_slashed_date_no_time(self):
@@ -25,7 +32,10 @@ class UtilsTestCase(TestCase):
         converted = convert_date_string_to_object(date_string=date_string)
         expected = datetime(year=year,
                             month=month,
-                            day=day)
+                            day=day,
+                            tzinfo=pytz.timezone(settings.TIME_ZONE))
+        logger.debug(f"Converted: {converted}")
+        logger.debug(f"Expected: {expected}")
         self.assertEqual(converted, expected)
 
     def test_dashed_date_with_time(self):
@@ -40,5 +50,6 @@ class UtilsTestCase(TestCase):
                             month=month,
                             day=day,
                             hour=hour,
-                            minute=minute)
+                            minute=minute,
+                            tzinfo=pytz.timezone(settings.TIME_ZONE))
         self.assertEqual(converted, expected)
