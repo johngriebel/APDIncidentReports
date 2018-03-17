@@ -1,6 +1,5 @@
 import logging
 from django import forms
-from address.forms import AddressField
 from .models import Offense
 
 from .constants import (SHIFT_CHOICES,
@@ -19,7 +18,7 @@ class IncidentSearchForm(forms.Form):
     earliest_occurrence_datetime = forms.DateTimeField(required=False)
     latest_occurrence_datetime = forms.DateTimeField(required=False)
 
-    location = AddressField(required=False)
+    # location = AddressField(required=False)
 
     beat = forms.IntegerField(required=False)
     shift = forms.ChoiceField(required=False, choices=SHIFT_CHOICES)
