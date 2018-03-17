@@ -17,8 +17,13 @@ export class LoginComponent  {
 
     onLogin(): void {
         this.authService.login(this.user).then((user) => {
+            var officerObject = user.json().officer;
+            console.log("INITIAL OFFICER OBJECT");
+            console.log(officerObject)
             localStorage.setItem('token', user.json().token);
             localStorage.setItem('loggedIn', "true");
+            localStorage.setItem('officer', JSON.stringify(officerObject));
+            console.log(user.json());
             this.router.navigateByUrl('');
         })
         .catch((err) => {

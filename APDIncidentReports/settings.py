@@ -151,4 +151,5 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': "cases.rest_views.jwt_response_payload_handler"
 }

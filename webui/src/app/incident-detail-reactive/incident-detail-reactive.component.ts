@@ -24,6 +24,7 @@ export class IncidentDetailReactiveComponent implements OnChanges{
 
     dateString: String;
     timeString: String;
+    myOfficer: Officer;
 
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
@@ -44,6 +45,9 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                 this.timeString = timeString;
                 console.log(this.dateString);
                 this.createForm();
+                this.myOfficer = JSON.parse(localStorage.getItem("officer"));
+                console.log("MY OFFICER NUMBER");
+                console.log(this.myOfficer);
             }
 
      createForm() {
@@ -68,8 +72,8 @@ export class IncidentDetailReactiveComponent implements OnChanges{
                  time: this.timeString,
              }),
              reporting_officer: this.formBuilder.group({
-                 id: '',
-                 officer_number: '',
+                 id: "",
+                 officer_number: this.myOfficer.officer_number,
                  user: {}
              }),
              reviewed_datetime: this.formBuilder.group({

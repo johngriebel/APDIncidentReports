@@ -119,3 +119,12 @@ class SuspectViewSet(viewsets.ModelViewSet):
 class IncidentFileViewSet(viewsets.ModelViewSet):
     queryset = IncidentFile.objects.all()
     serializer_class = IncidentFileSerializer
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    logger.debug(f"Token: {token}")
+    logger.debug(f"User: {user}")
+    officer = Officer.objects.get(user=user)
+    serialized = OfficerSerializer(officer)
+    return {'token': token,
+            'officer': serialized.data}
