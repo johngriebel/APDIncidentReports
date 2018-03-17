@@ -1,3 +1,4 @@
+import os
 import logging
 import shutil
 from pathlib import Path
@@ -7,7 +8,8 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 from faker import Faker
-from cases.models import Incident, IncidentInvolvedParty
+from cases.models import (Incident, IncidentInvolvedParty,
+                          IncidentFile)
 from cases.tests.factories import (OfficerFactory,
                                    OffenseFactory,
                                    IncidentFactory,
@@ -228,3 +230,15 @@ class IncidentFileTestCase(APITestCase):
                              f"{self.incident.incident_number}"
                              f"/test_file_foo.txt")
         self.assertTrue(expected_file.is_file())
+
+    def test_delete_incident_file_removes_from_db_and_disk(self):
+        upload_file = generate_random_file_content(suffix="foo.txt")
+        inc_file = IncidentFile(incident=self.incident,
+                                file=upload_file)
+        inc_file.save()
+        url = reverse("incidentfile-detail", kwargs={'incidents_pk': self.incident.pk,
+                                                     'pk': inc_file.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        inc_files = IncidentFile.objects.filter(incident=self.incident)
+        self.assertEqual(inc_files.count(), 0)
