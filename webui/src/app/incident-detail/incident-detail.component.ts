@@ -9,11 +9,11 @@ import { OfficerService } from '../services/officer.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-incident-detail-reactive',
-  templateUrl: './incident-detail-reactive.component.html',
-  styleUrls: ['./incident-detail-reactive.component.css']
+  selector: 'app-incident-detail',
+  templateUrl: './incident-detail.component.html',
+  styleUrls: ['./incident-detail.component.css']
 })
-export class IncidentDetailReactiveComponent implements OnChanges{
+export class IncidentDetailComponent implements OnChanges{
     @Input() incident: Incident;
     availableOfficers: Officer[];
     availableOffenses: Offense[];

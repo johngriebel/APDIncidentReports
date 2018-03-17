@@ -11,7 +11,7 @@ import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { OfficerService } from './services/officer.service';
-import { IncidentDetailReactiveComponent } from './incident-detail-reactive/incident-detail-reactive.component';
+import { IncidentDetailComponent } from './incident-detail/incident-detail.component';
 import { LoginComponent } from './login/login.component';
 import { AuthService } from './services/auth.service';
 
@@ -21,7 +21,7 @@ import { AuthService } from './services/auth.service';
     AppComponent,
     IncidentsComponent,
     MessagesComponent,
-    IncidentDetailReactiveComponent,
+    IncidentDetailComponent,
     LoginComponent,
   ],
   imports: [
