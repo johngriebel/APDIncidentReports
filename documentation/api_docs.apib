@@ -1,0 +1,308 @@
+FORMAT: 1A
+
+# APD Case Reporting
+
+Allows CRUD operations and detailed searching of Atlanta Police Department Case Reports.
+
+# Group Incidents
+Group of all incident-related resources.
+
+## Incidents [/incidents]
+
+### List All Incidents [GET]
+
++ Response 200 (application/json)
+
+
+        [
+            {
+                "id": 3,
+                "offenses": [],
+                "reporting_officer": {
+                    "id": 12,
+                    "officer_number": 11,
+                    "supervisor": null,
+                    "user": {
+                        "id": 12,
+                        "first_name": "Todd",
+                        "last_name": "Phillips",
+                        "email": "rpena@gmail.com",
+                        "username": "user_10"
+                    }
+                },
+                "reviewed_by_officer": {
+                    "id": 13,
+                    "officer_number": 12,
+                    "supervisor": null,
+                    "user": {
+                        "id": 13,
+                        "first_name": "Tiffany",
+                        "last_name": "Cole",
+                        "email": "brooksrobin@yahoo.com",
+                        "username": "user_11"
+                    }
+                },
+                "investigating_officer": {
+                    "id": 14,
+                    "officer_number": 13,
+                    "supervisor": null,
+                    "user": {
+                        "id": 14,
+                        "first_name": "Jessica",
+                        "last_name": "Sanders",
+                        "email": "sandersdavid@nguyen-hensley.com",
+                        "username": "user_12"
+                    }
+                },
+                "officer_making_report": {
+                    "id": 15,
+                    "officer_number": 14,
+                    "supervisor": null,
+                    "user": {
+                        "id": 15,
+                        "first_name": "Nathaniel",
+                        "last_name": "Holloway",
+                        "email": "ynelson@hayes-johnson.info",
+                        "username": "user_13"
+                    }
+                },
+                "supervisor": {
+                    "id": 16,
+                    "officer_number": 15,
+                    "supervisor": null,
+                    "user": {
+                        "id": 16,
+                        "first_name": "Margaret",
+                        "last_name": "Johnson",
+                        "email": "bradleypage@robinson-davis.net",
+                        "username": "user_14"
+                    }
+                },
+                "location": {
+                    "id": 3,
+                    "city": "Millermouth",
+                    "state": "SD",
+                    "street_number": "93987",
+                    "route": "Robert Orchard",
+                    "postal_code": "94438"
+                },
+                "report_datetime": {
+                    "date": "2018-03-14",
+                    "time": "17:08"
+                },
+                "approved_datetime": {
+                    "date": "2018-03-13",
+                    "time": "16:27"
+                },
+                "reviewed_datetime": {
+                    "date": "2018-03-04",
+                    "time": "07:19"
+                },
+                "earliest_occurrence_datetime": {
+                    "date": "2018-03-14",
+                    "time": "11:25"
+                },
+                "latest_occurrence_datetime": {
+                    "date": "2018-03-01",
+                    "time": "17:24"
+                },
+                "incident_number": "incident_2",
+                "beat": 80,
+                "shift": "E",
+                "damaged_amount_currency": "USD",
+                "damaged_amount": null,
+                "stolen_amount_currency": "USD",
+                "stolen_amount": null,
+                "narrative": "It all very serious author institution. People plant he have."
+            },
+            {
+                "id": 5,
+                "offenses": [],
+                "reporting_officer": {
+                    "id": 22,
+                    "officer_number": 21,
+                    "supervisor": null,
+                    "user": {
+                        "id": 22,
+                        "first_name": "Melissa",
+                        "last_name": "Woods",
+                        "email": "william04@downs.com",
+                        "username": "user_20"
+                    }
+                },
+                "reviewed_by_officer": {
+                    "id": 23,
+                    "officer_number": 22,
+                    "supervisor": null,
+                    "user": {
+                        "id": 23,
+                        "first_name": "Isaac",
+                        "last_name": "Barron",
+                        "email": "christopher41@zamora-cobb.com",
+                        "username": "user_21"
+                    }
+                },
+                "investigating_officer": {
+                    "id": 24,
+                    "officer_number": 23,
+                    "supervisor": null,
+                    "user": {
+                        "id": 24,
+                        "first_name": "Teresa",
+                        "last_name": "Gordon",
+                        "email": "torresdaniel@hernandez-carter.info",
+                        "username": "user_22"
+                    }
+                },
+                "officer_making_report": {
+                    "id": 25,
+                    "officer_number": 24,
+                    "supervisor": null,
+                    "user": {
+                        "id": 25,
+                        "first_name": "John",
+                        "last_name": "Johnson",
+                        "email": "romerochelsea@carter.org",
+                        "username": "user_23"
+                    }
+                },
+                "supervisor": {
+                    "id": 26,
+                    "officer_number": 25,
+                    "supervisor": null,
+                    "user": {
+                        "id": 26,
+                        "first_name": "Andrea",
+                        "last_name": "Acosta",
+                        "email": "vanessa30@weaver-lane.biz",
+                        "username": "user_24"
+                    }
+                },
+                "location": {
+                    "id": 5,
+                    "city": "West Michael",
+                    "state": "PW",
+                    "street_number": "8481",
+                    "route": "Miller Island",
+                    "postal_code": "92445"
+                },
+                "report_datetime": {
+                    "date": "2018-03-09",
+                    "time": "17:58"
+                },
+                "approved_datetime": {
+                    "date": "2018-03-14",
+                    "time": "00:04"
+                },
+                "reviewed_datetime": {
+                    "date": "2018-03-12",
+                    "time": "22:25"
+                },
+                "earliest_occurrence_datetime": {
+                    "date": "2018-03-10",
+                    "time": "07:34"
+                },
+                "latest_occurrence_datetime": {
+                    "date": "2018-03-02",
+                    "time": "18:29"
+                },
+                "incident_number": "incident_4",
+                "beat": 5749,
+                "shift": "E",
+                "damaged_amount_currency": "USD",
+                "damaged_amount": null,
+                "stolen_amount_currency": "USD",
+                "stolen_amount": null,
+                "narrative": "True central contain forget stay trip everyone. Home husband manage Congress. Media some success."
+            },
+        ]
+
+### Create a new Incident [POST]
+
++ Request (application/json)
+    + Attributes (Incident)
+
++ Response 201 (application/json)
+    + Attributes (Incident)
+
+## Incident [/incidents/{incident_id}]
+
+### Retrieve Incident Details [GET]
+
++ Parameters
+    + incident_id (number) - ID of the Incident in the form of an integer.
+
++ Response 200 (application/json)
+    + Attributes (Incident)
+
+### Update an Incident [PATCH]
+
++ Request (application/json)
+    + Attributes (Incident)
+
++ Response 200
+    + Attributes (Incident)
+
+### Delete an Incident [DELETE]
+
++ Response 204
+
+
+## Data Structures
+
+### DateTime
++ date: `2018-03-17` (string, required)
++ time: `14:24` (string, required)
+
+### User
++ first_name: Joe (string)
++ last_name: Smith (string)
++ email: `joesmith@apd.org` (string)
+
+### Officer
++ officer_number: 323 (number, required) - The officer number assigned by APD.
++ supervisor (Officer, nullable) - The given officer's supervisor. May be blank.
++ user (User, required) - User record associated with the Officer.
+
+## State
++ name: Georgia (string, required) - Name of the state
++ abbreviation: GA (string, required) - Abbreviation of the state's name
+
+## City
++ name: Atlanta (string, required) - Name of the city
++ state (State, required)
+
+### Address
++ street_number: 9292 A (string) - The building number
++ route: Peachtree St NE (string, required) - Street or route
++ city (City, required)
++ postal_code: 30303 - Zip code
+
+### Offense
++ ucr_name_classification: ROBBERY (string) - The top level grouping defined by the UCR
++ ucr_subclass_description: COMMERCIAL  GUN (string) - Sub-category defined by UCR
++ gcic_code: 1201 (string)
++ ucr_code: 0312 (string)
++ ucr_rank: 3 (number) - Rank Assigned by the UCR
++ code_group: 03 (number)
++ ucr_alpha: R (string) - The alphabetical abbreciation assigned by the UCR
+
+### Incident
++ incident_number: incident123 (string, required) - Unique identification string assigned to the incident.
++ report_datetime (DateTime, required)
++ reporting_officer (Officer, required) - Officer filling out the report in question.
++ reviewed_by_officer (Officer, required) - Officer that reviewed the report.
++ supervisor (Officer, required) - ???
++ approved_datetime (DateTime)
++ earliest_occurrence_datetime (DateTime, required) - The earliest possible date and time the incident could have occurred according to the victim(s)
++ latest_occurrence_datetime (DateTime, required) - The latest possible date and time the incident could have occurred according to the victim(s)
++ location (Address, required) - The Address (perhaps approximate) of the incident.
++ beat: 512 (number, required) - Beat that the incident occurred on.
++ shift: D (enum[string], required) - Shift during which the incident occurred.
+    + D (string) - Day shift
+    + E (string) - Evening shift
+    + N (string) - Night shift
++ damaged_amount: 125.00 (number) - The value, in US dollars, of any property damaged as part of the incident.
++ stolen_amount: 55.75 (number) - The value, in US dollars, of any property stolen as part of the incident.
++ narrative: A crime occurred (string, required) - Narrative provided by the victim(s)
++ offenses (array[number]) - List of the IDs associated with the Offense types involved with the incident.

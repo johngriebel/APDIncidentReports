@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import datetime
 import dj_database_url
 from pathlib import Path
 from APDIncidentReports import BASE_DIR
@@ -150,5 +151,7 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-    'JWT_RESPONSE_PAYLOAD_HANDLER': "cases.rest_views.jwt_response_payload_handler"
+    'JWT_RESPONSE_PAYLOAD_HANDLER': "cases.rest_views.jwt_response_payload_handler",
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=30),
+    'JWT_ALLOW_REFRESH': True
 }
