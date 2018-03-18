@@ -10,3 +10,4 @@ case_file_uploads/
 htmlcov/
 .editorconfig
 webui/node_modules
+documentation/api_docs.html
