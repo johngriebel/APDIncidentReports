@@ -237,15 +237,46 @@ Group of all incident-related resources.
 
 ### Update an Incident [PATCH]
 
++ Parameters
+    + incident_id (number) - ID of the Incident in the form of an integer.
+
 + Request (application/json)
     + Attributes (Incident)
 
-+ Response 200
++ Response 200 (application/json)
     + Attributes (Incident)
 
 ### Delete an Incident [DELETE]
 
++ Parameters
+    + incident_id (number) - ID of the Incident in the form of an integer.
+
 + Response 204
+
+## Victim [/incidents/{incident_id}/victims/]
+
+### List Victims of Incident [GET]
+
++ Parameters
+    + incident_id (number) - ID of the Incident in the form of an integer.
+
++ Response 200 (application/json)
+    + Attributes (IncidentInvolvedParty)
+
+### Create New Victim for Incident [POST]
+
++ Parameters
+    + incident_id (number) - ID of the Incident in the form of an integer.
+
++ Response 200
+
+# Group Suspects
+
+# Group Officers
+
+# Group Offenses
+
+# Group IncidentFile
 
 
 ## Data Structures
@@ -306,3 +337,41 @@ Group of all incident-related resources.
 + stolen_amount: 55.75 (number) - The value, in US dollars, of any property stolen as part of the incident.
 + narrative: A crime occurred (string, required) - Narrative provided by the victim(s)
 + offenses (array[number]) - List of the IDs associated with the Offense types involved with the incident.
+
+### IncidentInvolvedParty
++ officer_signed (Officer, required)
++ first_name: James (string, nullable)
++ last_name: Doe (string, nullable)
++ party_type: VICTIM (enum[string], required) Denotes whether the involved party is a victim or suspect.
+    + VICTIM (string)
+    + SUSPECT (string)
++ juvenile: false (boolean)
++ home_address (Address, nullable)
++ date_of_birth: `1990-01-01` (string, nullable)
++ sex: M (enum[string], nullable)
+    + M (string)
+    + F (string)
++ race: NATIVE (enum[string], nullable)
+    + ASIAN (string)
+    + BLACK (string)
+    + NATIVE (string)
+    + `HAWAIIAN/PACIFIC_ISLANDER` (string)
+    + WHITE (string)
+    + OTHER (string)
++ height: 72 (number, nullable) - Height, in inches
++ weight: 200 (number, nullable) - Weight in pounds
++ hair_color: BRO (enum[string], nullable)
+    + BLD (string) - Bald
+    + BLK (string) - Black
+    + BLN (string) - Blonde
+    + BLU (string) - Blue
+    + BRO (string) - Brown
+    + GRY (string) - Gray or Partially Gray
+    + GRN (string) - Green
+    + ONG (string) - Orange
+    + PNK (string) - Pink
+    + PLE (string) - Purple
+    + RED (string) - Red
+    + SDY (string) - Sandy
+    + WHI (string) - White
+    + XXX (string) - Unknown
