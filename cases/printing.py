@@ -230,7 +230,8 @@ class IncidentReportPDFGenerator:
                          color="red")
         if party.party_type == SUSPECT:
             self._draw_label("Date and Time Last Updated:")
-        self._draw_label("Name:")
+        self._draw_label("Name:",
+                         data=party.name)
         self._draw_label(label="Juvenile?",
                          data=str(party.juvenile))
         self._draw_label(label="Home Address:",
