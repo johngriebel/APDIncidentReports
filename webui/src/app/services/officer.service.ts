@@ -17,8 +17,7 @@ export class OfficerService {
     }
 
     getOfficers(): Observable<Officer[]> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.get<Officer[]>(this.officersUrl, {headers: headers}).pipe(
             tap(officers => this.log(`fetched officers`)),
             catchError(this.handleError('getOfficers', []))

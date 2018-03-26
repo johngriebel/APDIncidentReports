@@ -28,8 +28,7 @@ export class IncidentService {
     getIncidents(): Observable<Incident[]> {
         console.log("ARMADILLO");
         console.log(localStorage.getItem('token'));
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`})
+        let headers = new HttpHeaders({'Content-Type': 'application/json'})
         console.log(headers);
         return this.http.get<Incident[]>(this.incidentsUrl, { headers: headers }).pipe(
             tap(incidents => this.log(`fetched incidents`)),
@@ -38,8 +37,7 @@ export class IncidentService {
     }
 
     getAllOffenses(): Observable<Offense[]> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.get<Offense[]>(this.offensesUrl, {headers: headers}).pipe(
             tap(offenses => this.log(`fetched offenses`)),
             catchError(this.handleError('getOffenses', []))
@@ -47,8 +45,7 @@ export class IncidentService {
     }
 
     getIncident(id: number): Observable<Incident> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         const url = `${this.incidentsUrl}${id}`;
         return this.http.get<Incident>(url, {headers: headers}).pipe(
             tap(_ => this.log(`fetched incident id=${id}`)),
@@ -57,8 +54,7 @@ export class IncidentService {
     }
 
     getVictims(id: number): Observable<Victim[]> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         const url = `${this.incidentsUrl}${id}/victims/`;
         return this.http.get<Victim[]>(url, {headers: headers}).pipe(
             tap(victims => this.log(`fetched victims`)),
@@ -67,8 +63,7 @@ export class IncidentService {
     }
 
     getSuspects(id: number): Observable<Suspect[]> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         const url = `${this.incidentsUrl}${id}/suspects/`;
         return this.http.get<Suspect[]>(url, {headers: headers}).pipe(
             tap(victims => this.log(`fetched suspects`)),
@@ -77,8 +72,7 @@ export class IncidentService {
     }
 
     updateIncident (incident: Incident): Observable<any> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                       'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.patch(this.incidentsUrl + incident.id + "/", incident, {headers: headers}).pipe(
             tap(_ => this.log(`updated incident id=${incident.id}`)),
             catchError(this.handleError<any>('updateIncident'))
@@ -86,8 +80,7 @@ export class IncidentService {
     }
 
     addIncident (incident: Incident): Observable<Incident> {
-        let headers = new HttpHeaders({'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${localStorage.getItem('token')}`});
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.post<Incident>(this.incidentsUrl, incident, {headers: headers}).pipe(
             tap((incident: Incident) => this.log(`added incident w/ id=${incident.id}`)),
             catchError(this.handleError<Incident>('addIncident'))

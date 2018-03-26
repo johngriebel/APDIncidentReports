@@ -12,8 +12,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { OfficerService } from './services/officer.service';
 import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
-import { LoginComponent } from './components/login/login.component';
-import { AuthService } from './services/auth.service';
 
 
 @NgModule({
@@ -22,7 +20,6 @@ import { AuthService } from './services/auth.service';
     IncidentsComponent,
     MessagesComponent,
     IncidentDetailComponent,
-    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -34,8 +31,7 @@ import { AuthService } from './services/auth.service';
   ],
   providers: [IncidentService, 
               MessageService, 
-              OfficerService,
-              AuthService],
+              OfficerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
