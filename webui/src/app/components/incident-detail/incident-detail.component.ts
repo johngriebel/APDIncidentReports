@@ -1,11 +1,10 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { Incident, Address, DateTime, Officer,
          Victim, Suspect, Offense } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
-import { OfficerService } from '../../services/officer.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -15,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 
 
-export class IncidentDetailComponent implements OnChanges{
+export class IncidentDetailComponent implements OnInit {
     @Input() incident: Incident;
     availableOfficers: Officer[];
     availableOffenses: Offense[];
@@ -24,35 +23,66 @@ export class IncidentDetailComponent implements OnChanges{
 
     incidentForm: FormGroup;
 
-    dateString: String;
-    timeString: String;
-    myOfficer: Officer;
+    dateString: string;
+    timeString: string;
 
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
                 private incidentService: IncidentService,
-                private officerService: OfficerService,
                 private ngLocation: Location
             ) {
-                var today = new Date();
-                var day = today.getDate();
-                var month = today.getMonth() + 1;
-                var year = today.getFullYear();
+    
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
 
-                var hours = today.getHours();
-                var minutes = today.getMinutes();
-                var timeString = hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
+        var hours = today.getHours();
+        var minutes = today.getMinutes();
+        var timeString = hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
 
-                this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
-                this.timeString = timeString;
-                console.log(this.dateString);
-                this.createForm();
-                this.myOfficer = JSON.parse(localStorage.getItem("officer"));
-                console.log("MY OFFICER NUMBER");
-                console.log(this.myOfficer);
+        this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
+        this.timeString = timeString;
+        console.log(this.dateString);
+    }
+    
+    ngOnInit() {
+        this.getIncident();
+    }
+
+    getIncident(): void {
+        const id = +this.route.snapshot.paramMap.get("id");
+        console.log("incident id");
+        console.log(id);
+        if (id !== 0) {
+            this.incidentService.getIncident(id).subscribe(
+                incident => {
+                    this.incident = incident;
+                    this.createForm();
+                }
+            );
+        }
+        else {
+            console.log("We must be creating a new incident");
+            var now: DateTime = {
+                date: this.dateString,
+                time: this.timeString
             }
+            this.incident = new Incident();
+            this.incident.location = new Address();
+            this.incident.report_datetime = now;
+            this.incident.reporting_officer = new Officer();
+            this.incident.reviewed_datetime = now;
+            this.incident.approved_datetime = now;
+            this.incident.reviewed_by_officer = new Officer();
+            this.incident.investigating_officer = new Officer();
+            this.incident.officer_making_report = new Officer();
+            this.incident.supervisor = new Officer();
+            this.incident.earliest_occurrence_datetime = now;
+            this.incident.latest_occurrence_datetime = now;
+            this.createForm();
+        }
 
-     createForm() {
         this.incidentService.getAllOffenses().subscribe(
             (availableOffenses) => {
                 this.availableOffenses = availableOffenses;
@@ -60,66 +90,91 @@ export class IncidentDetailComponent implements OnChanges{
             }
         );
 
+        this.incidentService.getAllOfficers().subscribe(
+            officers => {
+                this.availableOfficers = officers;
+                console.log("Got officers");
+                console.log(this.availableOfficers);
+            }
+        );
+    }
+
+    get dataIsReady(): boolean {
+        return (this.incident !== undefined && this.availableOfficers !== undefined && this.availableOffenses !== undefined);
+    }
+
+
+    private getLocation(): Address {
+        if (this.incident !== undefined){
+            return this.incident.location;
+        }
+        else {
+            return new Address();
+        }
+    }
+
+     createForm() {
+
          this.incidentForm = this.formBuilder.group({
-             incident_number: 'Incident number',
+             incident_number: this.incident.incident_number,
              location: this.formBuilder.group({
-                 street_number: '',
-                 route: '',
-                 city: '',
-                 postal_code: '',
-                 state: ''
+                 street_number: this.incident.location.street_number,
+                 route: this.incident.location.route,
+                 city: this.incident.location.city,
+                 postal_code: this.incident.location.postal_code,
+                 state: this.incident.location.state
              }),
              report_datetime: this.formBuilder.group({
-                 date: this.dateString,
-                 time: this.timeString,
+                 date: this.incident.report_datetime.date,
+                 time: this.incident.report_datetime.time,
              }),
              reporting_officer: this.formBuilder.group({
-                 id: "",
-                 officer_number: this.myOfficer.officer_number,
-                 user: {}
+                 id: this.incident.reporting_officer.id,
+                 officer_number: this.incident.reporting_officer.officer_number,
+                 user: this.incident.reporting_officer.user
              }),
              reviewed_datetime: this.formBuilder.group({
-                date: this.dateString,
-                time: this.timeString,
+                date: this.incident.reviewed_datetime.date,
+                time: this.incident.reviewed_datetime.time,
              }),
             reviewed_by_officer: this.formBuilder.group({
-                id: '',
-                officer_number: '',
-                user: {}
+                id: this.incident.reviewed_by_officer.id,
+                 officer_number: this.incident.reviewed_by_officer.officer_number,
+                 user: this.incident.reviewed_by_officer.user
             }),
             investigating_officer: this.formBuilder.group({
-                id: '',
-                officer_number: '',
-                user: {}
+                id: this.incident.investigating_officer.id,
+                 officer_number: this.incident.investigating_officer.officer_number,
+                 user: this.incident.investigating_officer.user
             }),
             officer_making_report: this.formBuilder.group({
-                id: '',
-                officer_number: '',
-                user: {}
+                id: this.incident.officer_making_report.id,
+                 officer_number: this.incident.officer_making_report.officer_number,
+                 user: this.incident.officer_making_report.user
             }),
             supervisor: this.formBuilder.group({
-                id: '',
-                officer_number: '',
-                user: {}
+                id: this.incident.supervisor.id,
+                 officer_number: this.incident.supervisor.officer_number,
+                 user: this.incident.supervisor.user
             }),
             approved_datetime: this.formBuilder.group({
-                date: this.dateString,
-                time: this.timeString,
+                date: this.incident.approved_datetime.date,
+                time: this.incident.approved_datetime.time,
              }),
              earliest_occurrence_datetime: this.formBuilder.group({
-                date: this.dateString,
-                time: this.timeString,
+                date: this.incident.earliest_occurrence_datetime.date,
+                time: this.incident.earliest_occurrence_datetime.time,
              }),
              latest_occurrence_datetime: this.formBuilder.group({
-                date: this.dateString,
-                time: this.timeString,
+                date: this.incident.latest_occurrence_datetime.date,
+                time: this.incident.latest_occurrence_datetime.time,
              }),
-             beat: 0,
-             shift: "",
-             damaged_amount: 0.0,
-             stolen_amount: 0.0,
+             beat: this.incident.beat,
+             shift: this.incident.shift,
+             damaged_amount: this.incident.damaged_amount,
+             stolen_amount: this.incident.stolen_amount,
              offenses: this.availableOffenses,
-             narrative: "",
+             narrative: this.incident.narrative,
 
              victims: this.formBuilder.array([]),
              suspects: this.formBuilder.array([]),
@@ -148,64 +203,49 @@ export class IncidentDetailComponent implements OnChanges{
     }
 
      rebuildForm() {
-         if (this.incident !== undefined) {
-            console.log("this.incident.reporting_officer")
-            console.log(this.incident.reporting_officer);
+        console.log("this.incident.reporting_officer")
+        console.log(this.incident.reporting_officer);
+        
 
-            this.officerService.getOfficers().subscribe(
-                (availableOfficers) => {
-                    this.availableOfficers = availableOfficers;
-                    console.log(this.availableOfficers);
-                }
-            );
+        this.incidentService.getVictims(this.incident.id).
+        subscribe((victims) => {
+            this.incidentVictims = victims;
+            console.log(this.incidentVictims);
+            this.setVictims(this.incidentVictims);
+        });
 
-            
-
-            this.incidentService.getVictims(this.incident.id).
-            subscribe((victims) => {
-                this.incidentVictims = victims;
-                console.log(this.incidentVictims);
-                this.setVictims(this.incidentVictims);
-            });
-
-            this.incidentService.getSuspects(this.incident.id).
-            subscribe((suspects) => {
-                this.incidentSuspects = suspects;
-                console.log(this.incidentSuspects);
-                this.setSuspects(this.incidentSuspects);
-            });
-            
-            this.incidentForm.reset({
-                incident_number: this.incident.incident_number,
-                location: this.incident.location,
-                report_datetime: this.incident.report_datetime,
-                reporting_officer: this.incident.reporting_officer,
-                reviewed_datetime: this.incident.reviewed_datetime,
-                reviewed_by_officer: this.incident.reviewed_by_officer,
-                investigating_officer: this.incident.investigating_officer,
-                officer_making_report: this.incident.officer_making_report,
-                supervisor: this.incident.supervisor,
-                approved_datetime: this.incident.approved_datetime,
-                earliest_occurrence_datetime: this.incident.earliest_occurrence_datetime,
-                latest_occurrence_datetime: this.incident.latest_occurrence_datetime,
-                beat: this.incident.beat,
-                shift: this.incident.shift,
-                offenses: this.incident.offenses,
-                narrative: this.incident.narrative,
-                damaged_amount: this.incident.damaged_amount || 0.0,
-                stolen_amount: this.incident.stolen_amount || 0.0
-            });
-        }
+        this.incidentService.getSuspects(this.incident.id).
+        subscribe((suspects) => {
+            this.incidentSuspects = suspects;
+            console.log(this.incidentSuspects);
+            this.setSuspects(this.incidentSuspects);
+        });
+        
+        this.incidentForm.reset({
+            incident_number: this.incident.incident_number,
+            location: this.incident.location,
+            report_datetime: this.incident.report_datetime,
+            reporting_officer: this.incident.reporting_officer,
+            reviewed_datetime: this.incident.reviewed_datetime,
+            reviewed_by_officer: this.incident.reviewed_by_officer,
+            investigating_officer: this.incident.investigating_officer,
+            officer_making_report: this.incident.officer_making_report,
+            supervisor: this.incident.supervisor,
+            approved_datetime: this.incident.approved_datetime,
+            earliest_occurrence_datetime: this.incident.earliest_occurrence_datetime,
+            latest_occurrence_datetime: this.incident.latest_occurrence_datetime,
+            beat: this.incident.beat,
+            shift: this.incident.shift,
+            offenses: this.incident.offenses,
+            narrative: this.incident.narrative,
+            damaged_amount: this.incident.damaged_amount || 0.0,
+            stolen_amount: this.incident.stolen_amount || 0.0
+        });
+        
      }
 
      addVictim() {
          this.victims.push(this.formBuilder.group(new Victim()));
-     }
-
-     ngOnChanges(){
-         if (this.incident.id !== 0){
-            this.rebuildForm();
-         }
      }
 
      prepareSaveIncident(): Incident {
@@ -238,9 +278,7 @@ export class IncidentDetailComponent implements OnChanges{
      }
 
      onSubmit() {
-         console.log("save button clicked");
          this.incident = this.prepareSaveIncident();
-         console.log("BADGER")
          console.log(this.incident.location);
          if (this.incident.id != 0){
             this.incidentService.updateIncident(this.incident).subscribe();

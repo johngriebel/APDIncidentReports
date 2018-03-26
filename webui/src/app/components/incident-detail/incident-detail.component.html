@@ -1,7 +1,7 @@
-<div class="container">
+<div class="container" *ngIf="incident">
         <div class="row">
-            <div *ngIf="incident.id !=0" class="btn-group mb-3" role="group">
-                <button class="btn btn-primary" (click)="getIncidents()">Back</button>
+            <div class="btn-group mb-3" role="group">
+                <button class="btn btn-primary mr-2" (click)="getIncidents()">Back</button>
                 <button class="btn btn-primary" (click)="print()">Print</button>
             </div>
         </div>
@@ -290,6 +290,10 @@
             </div>
         </div>
     </form>
+</div>
+
+<div class="container" *ngIf="!incident">
+    <p>Fetching incident...</p>
 </div>
 
 <!--p>Form value: {{ incidentForm.value | json }}</p-->

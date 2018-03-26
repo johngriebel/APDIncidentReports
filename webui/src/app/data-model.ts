@@ -52,8 +52,8 @@ export class Incident {
 }
 
 export class DateTime {
-    date: "";
-    time: "";
+    date: string;
+    time: string;
 }
 
 // TODO: Can Suspect and Victim be merged?

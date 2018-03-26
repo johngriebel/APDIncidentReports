@@ -1,6 +1,7 @@
 <div class="container">
     <div class="col-sm-12">
-        <table *ngIf="!selectedIncident" class="incidents table">
+        <h3>APD Incidents</h3>
+        <table *ngIf="incidents" class="incidents table">
             <thead>
                 <tr>
                     <th>Incident Number</th>
@@ -10,20 +11,12 @@
             </thead>
             <tbody>
                 <tr *ngFor="let incident of incidents">
-                    <td><button type="button" class="btn btn-link" (click)="select(incident)">{{incident.incident_number}}</button></td>
+                    <td><a routerLink="/incidents/{{incident.id}}">{{incident.incident_number}}</a></td>
                     <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
                     <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
                 </tr>
             </tbody>
         </table>
-        <button *ngIf="!selectedIncident" type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button>
-
-        <div *ngIf="selectedIncident">
-            <!--h3 *ngIf="selectedIncident.id != 0; else newHeader">Editing: {{selectedIncident.incident_number}}</h3>
-            <ng-template #newHeader>
-                <h3>Create a New Incident</h3>
-            </ng-template-->
-            <app-incident-detail [incident]="selectedIncident"></app-incident-detail>
-        </div>
+        <button type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button>
     </div>
 </div>

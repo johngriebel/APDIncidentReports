@@ -1,10 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes, CanActivate } from '@angular/router';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { IncidentsComponent } from './components/incidents/incidents.component';
-import { LoginComponent } from './components/login/login.component';
+import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
 
 const routes: Routes = [
-    {path: '', component: IncidentsComponent},
+    {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
+    {path: 'dashboard', component: LandingPageComponent},
+    {path: 'incidents', component: IncidentsComponent},
+    {path: 'incidents/:id', component: IncidentDetailComponent},
+    {path: 'create-incident', component: IncidentDetailComponent}
 ];
 
 

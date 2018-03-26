@@ -3,33 +3,31 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { Incident, Victim, Suspect, Offense } from '../data-model';
-import { MessageService } from './message.service';
+import { Incident, Victim, Suspect, Offense, Officer } from '../data-model';
+import { environment } from '../../environments/environment';
 
-const httpOptions = {
-    headers: new HttpHeaders({'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${localStorage.getItem('token')}`})
-}
 
 @Injectable()
 export class IncidentService {
-    private incidentsUrl = 'http://127.0.0.1:8000/api/incidents/'
-    private offensesUrl = 'http://127.0.0.1:8000/api/offenses/'
+    private incidentsUrl = `${environment.baseURL}/incidents/`;
+    private offensesUrl = `${environment.baseURL}/offenses/`
+    private officersUrl = `${environment.baseURL}/officers/`
     
-    constructor(private messageService: MessageService,
-                private http: HttpClient) { 
+    constructor(private http: HttpClient) { 
                 
             }
 
     public log(message: string) {
-        this.messageService.add('IncidentService: ' + message);
+        console.log('IncidentService: ' + message);
+    }
+
+    private getHeaders(): HttpHeaders {
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
+        return headers;
     }
 
     getIncidents(): Observable<Incident[]> {
-        console.log("ARMADILLO");
-        console.log(localStorage.getItem('token'));
-        let headers = new HttpHeaders({'Content-Type': 'application/json'})
-        console.log(headers);
+        let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.get<Incident[]>(this.incidentsUrl, { headers: headers }).pipe(
             tap(incidents => this.log(`fetched incidents`)),
             catchError(this.handleError('getIncidents', []))
@@ -39,6 +37,13 @@ export class IncidentService {
     getAllOffenses(): Observable<Offense[]> {
         let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return this.http.get<Offense[]>(this.offensesUrl, {headers: headers}).pipe(
+            tap(offenses => this.log(`fetched offenses`)),
+            catchError(this.handleError('getOffenses', []))
+        );
+    }
+
+    getAllOfficers(): Observable<Officer[]> {
+        return this.http.get<Officer[]>(this.officersUrl, {headers: this.getHeaders()}).pipe(
             tap(offenses => this.log(`fetched offenses`)),
             catchError(this.handleError('getOffenses', []))
         );

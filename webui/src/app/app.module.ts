@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { OfficerService } from './services/officer.service';
 import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { IncidentDetailComponent } from './components/incident-detail/incident-d
     IncidentsComponent,
     MessagesComponent,
     IncidentDetailComponent,
+    LandingPageComponent,
   ],
   imports: [
     BrowserModule,

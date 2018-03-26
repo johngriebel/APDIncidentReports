@@ -11,33 +11,19 @@ import { Router } from '@angular/router';
 export class IncidentsComponent implements OnInit {
 
     incidents: Incident[];
-    selectedIncident: Incident;
-    loggedIn: boolean = false;
-    constructor(private incidentService: IncidentService,
-                private router: Router) {
-        this.loggedIn = (localStorage.getItem('loggedIn') == "true");
+    constructor(private incidentService: IncidentService) {
     }
 
     ngOnInit() {
-        if (!this.loggedIn){
-            this.router.navigateByUrl("/login");
-        }
         this.getIncidents();
     }
 
     getIncidents(): void {
-        this.incidentService.getIncidents().subscribe(incidents => this.incidents = incidents);
-        this.selectedIncident = undefined;
-    }
-
-    select(incident: Incident) {
-        this.selectedIncident = incident;
-        console.log(this.selectedIncident);
+        this.incidentService.getIncidents().subscribe(incidents => 
+            this.incidents = incidents);
     }
 
     newIncident() {
-        this.selectedIncident = new Incident();
-        console.log(this.selectedIncident);
     }
 
 }
