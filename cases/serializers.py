@@ -37,14 +37,13 @@ class AddressSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
 
     def to_internal_value(self, data):
-        logger.debug(f"address data: {data}")
         state_abbr = data.pop("state")
         state, created = State.objects.get_or_create(abbreviation=state_abbr)
 
         if created:
             logger.debug(f"Created a new state: {state}")
 
-        city_name = data.pop("locality")
+        city_name = data.pop("city")
         city, created = City.objects.get_or_create(name=city_name, state=state)
 
         if created:
@@ -111,6 +110,7 @@ class OfficerSerializer(serializers.ModelSerializer):
                     api_settings.NON_FIELD_ERRORS_KEY: [message]
                 }, code='invalid')
         else:
+            print("ARMADILLO")
             return super(OfficerSerializer, self).to_internal_value(data=data)
 
     class Meta:
@@ -127,7 +127,6 @@ class OfficerSerializer(serializers.ModelSerializer):
 
 
 class OffenseSerializer(serializers.ModelSerializer):
-
     def to_internal_value(self, data):
         if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
@@ -150,11 +149,11 @@ class OffenseSerializer(serializers.ModelSerializer):
 
 class IncidentSerializer(serializers.ModelSerializer):
     offenses = OffenseSerializer(many=True)
-    reporting_officer = OfficerSerializer()
-    reviewed_by_officer = OfficerSerializer()
-    investigating_officer = OfficerSerializer()
-    officer_making_report = OfficerSerializer()
-    supervisor = OfficerSerializer()
+    reporting_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
+    reviewed_by_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
+    investigating_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
+    officer_making_report = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
+    supervisor = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
     location = AddressSerializer()
     report_datetime = DateTimeSerializer()
     approved_datetime = DateTimeSerializer(required=False, allow_null=True)
@@ -163,15 +162,9 @@ class IncidentSerializer(serializers.ModelSerializer):
     latest_occurrence_datetime = DateTimeSerializer()
 
     def create(self, validated_data):
-        logger.debug(f"Validated data: {validated_data}")
-
         offenses = validated_data.pop("offenses")
-        updated_data = handle_incident_foreign_keys_for_creation(validated_data=validated_data)
-        logger.debug(f"Updated Data: {updated_data}")
-
-        incident = Incident.objects.create(**updated_data)
-        offense_objects = Offense.objects.filter(id__in=offenses)
-        for offense in offense_objects:
+        incident = Incident.objects.create(**validated_data)
+        for offense in offenses:
             incident.offenses.add(offense)
         return incident
 
@@ -202,8 +195,8 @@ class IncidentSerializer(serializers.ModelSerializer):
             if value != self.instance.incident_number:
                     raise serializers.ValidationError("An Incident with that incident "
                                                       "number already exists")
-            else:
-                return value
+        else:
+            return value
 
     class Meta:
         model = Incident

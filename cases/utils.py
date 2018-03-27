@@ -113,6 +113,6 @@ def handle_incident_foreign_keys_for_creation(*, validated_data):
     for field in validated_data.keys():
         if "officer" in field or "supervisor" in field:
             validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
-    validated_data['location'] = parse_and_create_address(address_data=validated_data['location'])
+    # validated_data['location'] = parse_and_create_address(address_data=validated_data['location'])
 
     return validated_data

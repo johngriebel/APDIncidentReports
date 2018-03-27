@@ -48,20 +48,23 @@ class IncidentViewSet(viewsets.ModelViewSet):
         dirty_data = {key: value for key, value in request.data.items()}
         logger.debug(f"Dirty data: {dirty_data}")
         for field in dirty_data:
-            if "officer" in field or "supervisor" in field:
-                dirty_data[field] = dirty_data[field]['officer_number']
             if "datetime" in field:
                 dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
                                                                   f"{dirty_data[field]['time']}")
-        # dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
+
         if "id" in dirty_data:
             dirty_data.pop("id")
         logger.debug(f"After cleaning: {dirty_data['location']}")
         serializer = self.get_serializer(data=dirty_data)
-        serializer.is_valid()
-        incident = serializer.create(validated_data=dirty_data)
-        return Response(status=status.HTTP_201_CREATED,
-                        data=self.get_serializer_class()(instance=incident).data)
+        if serializer.is_valid():
+            incident = serializer.create(validated_data=serializer.validated_data)
+            resp_status = status.HTTP_201_CREATED
+            resp_data = self.get_serializer_class()(instance=incident).data
+        else:
+            resp_status = status.HTTP_400_BAD_REQUEST
+            resp_data = serializer.errors
+        return Response(status=resp_status,
+                        data=resp_data)
 
     def partial_update(self, request, *args, **kwargs):
         incident = Incident.objects.get(id=kwargs['pk'])
