@@ -6,10 +6,10 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 from rest_framework.fields import empty
-from .models import (Officer, Incident,
-                     Offense, IncidentInvolvedParty,
-                     IncidentFile, Address, State,
-                     City)
+from cases.models import (Officer, Incident,
+                          Offense, IncidentInvolvedParty,
+                          IncidentFile, Address, State,
+                          City)
 from cases.utils import (convert_date_string_to_object,
                          handle_incident_foreign_keys_for_creation,
                          parse_and_create_address)
@@ -35,6 +35,24 @@ class AddressSerializer(serializers.ModelSerializer):
 
     city = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
+
+    def to_internal_value(self, data):
+        logger.debug(f"address data: {data}")
+        state_abbr = data.pop("state")
+        state, created = State.objects.get_or_create(abbreviation=state_abbr)
+
+        if created:
+            logger.debug(f"Created a new state: {state}")
+
+        city_name = data.pop("locality")
+        city, created = City.objects.get_or_create(name=city_name, state=state)
+
+        if created:
+            logger.debug(f"Created a new city: {city}")
+
+        address = Address(**data, city=city)
+        address.save()
+        return address
 
     def get_city(self, obj):
         if isinstance(obj, dict):
@@ -200,8 +218,8 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         logger.debug(f"Validated data: {validated_data}")
         logger.debug(f"instance.ID: {instance.id}")
-        home_address = validated_data.pop("home_address", None)
-        employer_address = validated_data.pop("employer_address", None)
+        # home_address = validated_data.pop("home_address", None)
+        # employer_address = validated_data.pop("employer_address", None)
 
         for attr in validated_data:
             setattr(instance, attr, validated_data[attr])

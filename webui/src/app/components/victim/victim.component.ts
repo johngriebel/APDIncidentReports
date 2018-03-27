@@ -56,8 +56,7 @@ export class VictimComponent implements OnInit, OnChanges {
                                                   route: '',
                                                   locality: '',
                                                   postal_code: '',
-                                                  state: '',
-                                                  country: ''}),
+                                                  state: ''}),
             juvenile: victim.juvenile,
             date_of_birth: victim.date_of_birth,
             sex: victim.sex,
@@ -72,8 +71,7 @@ export class VictimComponent implements OnInit, OnChanges {
                                                       route: '',
                                                       locality: '',
                                                       postal_code: '',
-                                                      state: '',
-                                                      country: ''
+                                                      state: ''
                                                 }),
             build: victim.build,
             tattoos: victim.tattoos,
