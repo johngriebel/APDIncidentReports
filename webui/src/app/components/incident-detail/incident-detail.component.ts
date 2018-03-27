@@ -26,6 +26,8 @@ export class IncidentDetailComponent implements OnInit {
     dateString: string;
     timeString: string;
 
+    showSuccessAlert: boolean;
+
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
                 private incidentService: IncidentService,
@@ -43,7 +45,7 @@ export class IncidentDetailComponent implements OnInit {
 
         this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
         this.timeString = timeString;
-        console.log(this.dateString);
+        this.showSuccessAlert = false;
     }
     
     ngOnInit() {
@@ -282,9 +284,13 @@ export class IncidentDetailComponent implements OnInit {
          console.log(this.incident.location);
          if (this.incident.id != 0){
             this.incidentService.updateIncident(this.incident).subscribe();
+            this.showSuccessAlert = true;
          }
          else {
-             this.incidentService.addIncident(this.incident).subscribe();
+             this.incidentService.addIncident(this.incident).subscribe(incident => {
+                 console.log(incident);
+                 this.showSuccessAlert = true;
+             });
          }
          this.rebuildForm();
      }
