@@ -13,6 +13,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { OfficerService } from './services/officer.service';
 import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { VictimComponent } from './components/victim/victim.component';
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
     MessagesComponent,
     IncidentDetailComponent,
     LandingPageComponent,
+    VictimComponent,
   ],
   imports: [
     BrowserModule,
