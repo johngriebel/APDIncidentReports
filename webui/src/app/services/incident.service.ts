@@ -21,7 +21,7 @@ export class IncidentService {
         console.log('IncidentService: ' + message);
     }
 
-    private getHeaders(): HttpHeaders {
+    public getHeaders(): HttpHeaders {
         let headers = new HttpHeaders({'Content-Type': 'application/json'});
         return headers;
     }
@@ -90,6 +90,12 @@ export class IncidentService {
             tap((incident: Incident) => this.log(`added incident w/ id=${incident.id}`)),
             catchError(this.handleError<Incident>('addIncident'))
         );
+    }
+
+    printIncident(incident: Incident): Observable<Incident> {
+        const printURL = `${this.incidentsUrl}print/${incident.id}/`
+        console.log(printURL);
+        return this.http.get<Incident>(printURL, {headers: this.getHeaders()});
     }
 
     private handleError<T> (operation = 'operation', result?: T) {

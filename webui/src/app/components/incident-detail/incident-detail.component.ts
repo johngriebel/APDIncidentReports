@@ -6,6 +6,8 @@ import { Incident, Address, DateTime, Officer,
          Victim, Suspect, Offense } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-incident-detail',
@@ -27,6 +29,9 @@ export class IncidentDetailComponent implements OnInit {
     timeString: string;
 
     showSuccessAlert: boolean;
+    now: DateTime;
+    baseURL = environment.baseURL
+    printURL: string;
 
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
@@ -46,42 +51,41 @@ export class IncidentDetailComponent implements OnInit {
         this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
         this.timeString = timeString;
         this.showSuccessAlert = false;
+        var now: DateTime = {
+                    date: this.dateString,
+                    time: this.timeString
+                    };
+        this.now = now;
     }
     
     ngOnInit() {
         this.getIncident();
     }
-
     getIncident(): void {
         const id = +this.route.snapshot.paramMap.get("id");
-        console.log("incident id");
-        console.log(id);
         if (id !== 0) {
             this.incidentService.getIncident(id).subscribe(
                 incident => {
                     this.incident = incident;
+                    this.printURL = `${this.baseURL}/incidents/print/${this.incident.id}/`
                     this.createForm();
                 }
             );
         }
         else {
             console.log("We must be creating a new incident");
-            var now: DateTime = {
-                date: this.dateString,
-                time: this.timeString
-            }
             this.incident = new Incident();
             this.incident.location = new Address();
-            this.incident.report_datetime = now;
+            this.incident.report_datetime = this.now;
             this.incident.reporting_officer = new Officer();
-            this.incident.reviewed_datetime = now;
-            this.incident.approved_datetime = now;
+            this.incident.reviewed_datetime = this.now;
+            this.incident.approved_datetime = this.now;
             this.incident.reviewed_by_officer = new Officer();
             this.incident.investigating_officer = new Officer();
             this.incident.officer_making_report = new Officer();
             this.incident.supervisor = new Officer();
-            this.incident.earliest_occurrence_datetime = now;
-            this.incident.latest_occurrence_datetime = now;
+            this.incident.earliest_occurrence_datetime = this.now;
+            this.incident.latest_occurrence_datetime = this.now;
             this.createForm();
         }
 
@@ -100,11 +104,6 @@ export class IncidentDetailComponent implements OnInit {
             }
         );
     }
-
-    get dataIsReady(): boolean {
-        return (this.incident !== undefined && this.availableOfficers !== undefined && this.availableOffenses !== undefined);
-    }
-
 
     private getLocation(): Address {
         if (this.incident !== undefined){
@@ -177,16 +176,40 @@ export class IncidentDetailComponent implements OnInit {
              stolen_amount: this.incident.stolen_amount,
              offenses: this.availableOffenses,
              narrative: this.incident.narrative,
-
-             victims: this.formBuilder.array([]),
-             suspects: this.formBuilder.array([]),
-
-         })
+         });
      }
-
+     /*
      setVictims(victims: Victim[]) {
+         console.log("victims passed in ");
+         console.log(victims);
+         if (victims.length == 0 ){
+             victims = [{first_name: '',
+                         last_name: '',
+                         officer_signed: new Officer(),
+                         juvenile: false,
+                         date_of_birth: this.now,
+                         sex: "M",
+                         race: '',
+                         height: 0,
+                         weight: 0,
+                         home_address: new Address(),
+                         employer: '',
+                         employer_address: new Address(),
+                         hair_color: '',
+                         eye_color: '',
+                         drivers_license: '',
+                         drivers_license_state: '',
+                         build: '',
+                         tattoos: '',
+                         scars: '',
+                         hairstyle: ''}];
+         }
+         console.log("victims after if statement");
+         console.log(victims);
         const victimFormGroups = victims.map(victim => this.formBuilder.group(victim));
         const victimFormArray = this.formBuilder.array(victimFormGroups);
+        console.log("victimFormArray");
+        console.log(victimFormArray);
         this.incidentForm.setControl('victims', victimFormArray);
      }
 
@@ -203,26 +226,11 @@ export class IncidentDetailComponent implements OnInit {
      get suspects(): FormArray {
         return this.incidentForm.get('suspects') as FormArray;
     }
-
+    */
      rebuildForm() {
         console.log("this.incident.reporting_officer")
         console.log(this.incident.reporting_officer);
-        
-
-        this.incidentService.getVictims(this.incident.id).
-        subscribe((victims) => {
-            this.incidentVictims = victims;
-            console.log(this.incidentVictims);
-            this.setVictims(this.incidentVictims);
-        });
-
-        this.incidentService.getSuspects(this.incident.id).
-        subscribe((suspects) => {
-            this.incidentSuspects = suspects;
-            console.log(this.incidentSuspects);
-            this.setSuspects(this.incidentSuspects);
-        });
-        
+                
         this.incidentForm.reset({
             incident_number: this.incident.incident_number,
             location: this.incident.location,
@@ -241,14 +249,29 @@ export class IncidentDetailComponent implements OnInit {
             offenses: this.incident.offenses,
             narrative: this.incident.narrative,
             damaged_amount: this.incident.damaged_amount || 0.0,
-            stolen_amount: this.incident.stolen_amount || 0.0
+            stolen_amount: this.incident.stolen_amount || 0.0,
         });
-        
-     }
+        /*
+        this.incidentService.getVictims(this.incident.id).
+        subscribe((victims) => {
+            this.incidentVictims = victims;
+            console.log(this.incidentVictims);
+            this.setVictims(this.incidentVictims);
+        });
 
+        this.incidentService.getSuspects(this.incident.id).
+        subscribe((suspects) => {
+            this.incidentSuspects = suspects;
+            console.log(this.incidentSuspects);
+            this.setSuspects(this.incidentSuspects);
+        });
+        */
+     }
+     /*
      addVictim() {
          this.victims.push(this.formBuilder.group(new Victim()));
      }
+     */
 
      prepareSaveIncident(): Incident {
         const formModel = this.incidentForm.value;
@@ -296,7 +319,9 @@ export class IncidentDetailComponent implements OnInit {
      }
 
      print(){
-         console.log("Print button clicked")
+        console.log("Print button clicked");
+        const printURL = `${this.baseURL}/incidents/print/${this.incident.id}/`
+        window.location.href = printURL;
      }
 
 }

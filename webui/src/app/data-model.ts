@@ -81,26 +81,26 @@ export class Suspect {
 }
 
 export class Victim {
-    first_name: '';
-    last_name: '';
+    first_name: string;
+    last_name: string;
     officer_signed: Officer;
     juvenile: false;
     home_address: Address;
-    date_of_birth: '';
-    sex: '';
-    race: '';
-    height: 0;
-    weight: 0;
-    hair_color: '';
-    eye_color: '';
-    drivers_license: '';
-    drivers_license_state: '';
-    employer: '';
+    date_of_birth: DateTime;
+    sex: string;
+    race: string;
+    height: number;
+    weight: number;
+    hair_color: string;
+    eye_color: string;
+    drivers_license: string;
+    drivers_license_state: string;
+    employer: string;
     employer_address: Address;
-    build: '';
-    tattoos: '';
-    scars: '';
-    hairstyle: '';
+    build: string;
+    tattoos: string;
+    scars: string;
+    hairstyle: string;
 }
 
 export class Offense {

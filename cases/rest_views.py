@@ -1,21 +1,30 @@
 import logging
+
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view
+from rest_framework import viewsets
+
 from cases.models import (Officer, Incident,
                           IncidentInvolvedParty,
                           IncidentFile, Offense)
+
 from cases.serializers import (OfficerSerializer, IncidentSerializer,
                                IncidentInvolvedPartySerializer,
                                IncidentFileSerializer,
                                OffenseSerializer)
+
 from cases.search import get_search_results
+
 from cases.utils import (create_incident_involved_party,
                          convert_date_string_to_object)
+
 from cases.constants import VICTIM, SUSPECT
-from rest_framework import viewsets
+from cases.printing import IncidentReportPDFGenerator
+
 logger = logging.getLogger('cases')
 User = get_user_model()
 
@@ -167,6 +176,16 @@ def search(request, *args, **kwargs):
 
     return Response(status=status.HTTP_201_CREATED,
                     data=serializer.data)
+
+
+@api_view(['GET'])
+def print_report(request, *args, **kwargs):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="somefilename.pdf"'
+
+    pdf_generator = IncidentReportPDFGenerator(response, kwargs.get('incident_id'))
+    pdf_generator.generate()
+    return response
 
 
 def jwt_response_payload_handler(token, user=None, request=None):
