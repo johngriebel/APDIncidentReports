@@ -33,19 +33,6 @@ class CitySerializer(serializers.ModelSerializer):
 
 class AddressSerializer(serializers.ModelSerializer):
 
-    """def to_internal_value(self, data):
-        state = State(name=data.pop("state"),
-                      abbreviation=data.pop("state_abbreviation"))
-        state.save()
-        city = City(name=data.pop("city"),
-                    state=state)
-        city.save()
-        data['city'] = city
-        address = Address(**data)
-        address.save()
-        logger.debug(f"Address object: {address}")
-        return address"""
-
     city = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
 
@@ -208,7 +195,19 @@ class IncidentSerializer(serializers.ModelSerializer):
 class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
     officer_signed = OfficerSerializer(read_only=True)
     home_address = AddressSerializer(required=False, allow_null=True)
-    employer_address = AddressSerializer(required=False)
+    employer_address = AddressSerializer(required=False, allow_null=True)
+
+    def update(self, instance, validated_data):
+        logger.debug(f"Validated data: {validated_data}")
+        logger.debug(f"instance.ID: {instance.id}")
+        home_address = validated_data.pop("home_address", None)
+        employer_address = validated_data.pop("employer_address", None)
+
+        for attr in validated_data:
+            setattr(instance, attr, validated_data[attr])
+
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         home_addr_data = validated_data.get('home_address')

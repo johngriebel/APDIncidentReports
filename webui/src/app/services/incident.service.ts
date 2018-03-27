@@ -67,6 +67,14 @@ export class IncidentService {
           );
     }
 
+    updateVictim(incidentId: number, victim: Victim): Observable<any> {
+        const fullURL = `${this.incidentsUrl}${incidentId}/victims/${victim.id}/`
+        return this.http.patch(fullURL, victim, {headers: this.getHeaders()}).pipe(
+            tap(_ => this.log(`updated victim id=${victim.id}`)),
+            catchError(this.handleError<Victim>('updateVictim'))
+        );
+    }
+
     getSuspects(id: number): Observable<Suspect[]> {
         let headers = new HttpHeaders({'Content-Type': 'application/json'});
         const url = `${this.incidentsUrl}${id}/suspects/`;

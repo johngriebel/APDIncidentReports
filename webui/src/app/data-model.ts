@@ -81,6 +81,7 @@ export class Suspect {
 }
 
 export class Victim {
+    id: number;
     first_name: string;
     last_name: string;
     officer_signed: Officer;

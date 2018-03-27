@@ -39,10 +39,10 @@ class City(models.Model):
 
 
 class Address(models.Model):
-    street_number = models.CharField(max_length=25)
-    route = models.CharField(max_length=255)
+    street_number = models.CharField(max_length=25, null=True, blank=True)
+    route = models.CharField(max_length=255, null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.DO_NOTHING)
-    postal_code = models.CharField(max_length=10)
+    postal_code = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
         return f"{self.street_number} {self.route} {self.city} {self.postal_code}"

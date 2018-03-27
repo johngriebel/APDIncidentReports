@@ -32,6 +32,7 @@ export class IncidentDetailComponent implements OnInit {
     now: DateTime;
     baseURL = environment.baseURL
     printURL: string;
+    activeTab: string;
 
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
@@ -56,12 +57,14 @@ export class IncidentDetailComponent implements OnInit {
                     time: this.timeString
                     };
         this.now = now;
+        this.activeTab = "incident";
     }
     
     ngOnInit() {
         this.getIncident();
     }
     getIncident(): void {
+        console.log(this.route.snapshot);
         const id = +this.route.snapshot.paramMap.get("id");
         if (id !== 0) {
             this.incidentService.getIncident(id).subscribe(
@@ -115,6 +118,12 @@ export class IncidentDetailComponent implements OnInit {
     }
 
      createForm() {
+
+        this.incidentService.getVictims(this.incident.id).
+            subscribe((victims) => {
+                this.incidentVictims = victims;
+                console.log(this.incidentVictims);
+            });
 
          this.incidentForm = this.formBuilder.group({
              incident_number: this.incident.incident_number,
@@ -251,21 +260,17 @@ export class IncidentDetailComponent implements OnInit {
             damaged_amount: this.incident.damaged_amount || 0.0,
             stolen_amount: this.incident.stolen_amount || 0.0,
         });
-        /*
         this.incidentService.getVictims(this.incident.id).
         subscribe((victims) => {
             this.incidentVictims = victims;
             console.log(this.incidentVictims);
-            this.setVictims(this.incidentVictims);
         });
 
         this.incidentService.getSuspects(this.incident.id).
         subscribe((suspects) => {
             this.incidentSuspects = suspects;
             console.log(this.incidentSuspects);
-            this.setSuspects(this.incidentSuspects);
         });
-        */
      }
      /*
      addVictim() {
@@ -322,6 +327,11 @@ export class IncidentDetailComponent implements OnInit {
         console.log("Print button clicked");
         const printURL = `${this.baseURL}/incidents/print/${this.incident.id}/`
         window.location.href = printURL;
+     }
+
+     goToVictims() {
+         console.log("In go to victims");
+        this.activeTab = "victims";
      }
 
 }

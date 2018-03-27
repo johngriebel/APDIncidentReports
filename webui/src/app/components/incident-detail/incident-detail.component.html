@@ -9,23 +9,23 @@
     
     <ul class="nav nav-tabs nav-fill mb-3">
         <li class="nav-item">
-            <a class="nav-link active" href="#">Incident</a>
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'incident'}" href="javascript:void(0)">Incident</a>
+        </li>
+        <li class="nav-item" (click)="goToVictims()">
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'victims'}" href="javascript:void(0)">Victims</a>
+       </li>
+        <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)">Suspects</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" routerLink="/incidents/{{incident.id}}/victims">Victims</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Suspects</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Files</a>
+            <a class="nav-link" href="javascript:void(0)">Files</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{printURL}}">Print</a>
         </li>
     </ul>
     
-    <div class="row">
+    <div class="row" *ngIf="activeTab === 'incident'">
         <div class="col-sm-12">
             <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
                 <div class="form-group row">
@@ -168,144 +168,7 @@
                     <label class="col-sm-2 col-form-label">Narrative:</label>
                     <textarea class="form-control col-sm-10" formControlName="narrative"></textarea>
                 </div>
-                <!--div formArrayName="victims" class="well well-lg mt-5">
-                    <h4>Victims</h4>
-                    <div *ngFor="let victim of victims.controls; let i=index" [formGroupName]="i">
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">First Name:</label>
-                            <input class="form-control col-sm-4" formControlName="first_name">
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Last Name:</label>
-                            <input class="form-control col-sm-4" formControlName="last_name">
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Officer Signed:</label>
-                            <select class="form-control col-sm-10" formControlName="officer_signed">
-                                <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
-                            </select>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Juvenile:</label>
-                            <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
-                        </div>
-                        <div formGroupName="home_address">
-                            <h4>Home Address</h4>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Building:</label>
-                                <input class="form-control col-sm-1" formControlName="street_number">
-                                <label class="col-sm-2 col-form-label">Street:</label>
-                                <input class="form-control col-sm-3" formControlName="route">
-                                <label class="col-sm-2 col-form-label">City:</label>
-                                <input class="form-control col-sm-2" formControlName="locality">
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Zip:</label>
-                                <input class="form-control col-sm-4" formControlName="postal_code">
-                                <label class="col-sm-1 col-form-label">State:</label>
-                                <input class="form-control col-sm-2" formControlName="state">
-                                <label class="col-sm-1 col-form-label">Country:</label>
-                                <input class="form-control col-sm-2" formControlName="country">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Date of Birth:</label>
-                            <input class="form-control col-sm-10" formControlName="date_of_birth" type="date">
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Sex:</label>
-                            <select class="form-control col-sm-4" formControlName="sex">
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                            </select>
-                            <label class="col-sm-2 col-form-label">Race:</label>
-                            <select class="form-control col-sm-4" formControlName="race">
-                                <option value="ASIAN">Asian</option>
-                                <option value="BLACK">Black African American</option>
-                                <option value="NATIVE">Native American</option>
-                                <option value="HAWAIIAN/PACIFIC_ISLANADER">Native Hawaiian/Pacific Islander</option>
-                                <option value="WHITE">White</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-2 col-form-label">Height:</label>
-                            <input class="form-control col-sm-4" formControlName="height" type="number">
-                            <label class="col-sm-2 col-form-label">Weight:</label>
-                            <input class="form-control col-sm-4" formControlName="weight" type="number">
-                        </div>
-                    </div>
-                    <button (click)="addVictim()" type="button" class="btn btn-primary">Add Victim</button>
-                </div>
-                <div formArrayName="suspects" class="well well-lg mb-5 mt-5">
-                        <h4>Suspects</h4>
-                        <div *ngFor="let suspect of suspects.controls; let i=index" [formGroupName]="i">
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">First Name:</label>
-                                <input class="form-control col-sm-4" formControlName="first_name">
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Last Name:</label>
-                                <input class="form-control col-sm-4" formControlName="last_name">
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Officer Signed:</label>
-                                <select class="form-control col-sm-10" formControlName="officer_signed">
-                                    <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
-                                </select>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Juvenile:</label>
-                                <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
-                            </div>
-                            <div formGroupName="home_address">
-                                <h4>Home Address</h4>
-                                <div class="form-group row">
-                                    <label class="col-sm-2 col-form-label">Building:</label>
-                                    <input class="form-control col-sm-1" formControlName="street_number">
-                                    <label class="col-sm-2 col-form-label">Street:</label>
-                                    <input class="form-control col-sm-3" formControlName="route">
-                                    <label class="col-sm-2 col-form-label">City:</label>
-                                    <input class="form-control col-sm-2" formControlName="locality">
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-2 col-form-label">Zip:</label>
-                                    <input class="form-control col-sm-4" formControlName="postal_code">
-                                    <label class="col-sm-1 col-form-label">State:</label>
-                                    <input class="form-control col-sm-2" formControlName="state">
-                                    <label class="col-sm-1 col-form-label">Country:</label>
-                                    <input class="form-control col-sm-2" formControlName="country">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Date of Birth:</label>
-                                <input class="form-control col-sm-10" formControlName="date_of_birth" type="date">
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Sex:</label>
-                                <select class="form-control col-sm-4" formControlName="sex">
-                                    <option value="M">Male</option>
-                                    <option value="F">Female</option>
-                                </select>
-                                <label class="col-sm-2 col-form-label">Race:</label>
-                                <select class="form-control col-sm-4" formControlName="race">
-                                    <option value="ASIAN">Asian</option>
-                                    <option value="BLACK">Black African American</option>
-                                    <option value="NATIVE">Native American</option>
-                                    <option value="HAWAIIAN/PACIFIC_ISLANADER">Native Hawaiian/Pacific Islander</option>
-                                    <option value="WHITE">White</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Height:</label>
-                                <input class="form-control col-sm-4" formControlName="height" type="number">
-                                <label class="col-sm-2 col-form-label">Weight:</label>
-                                <input class="form-control col-sm-4" formControlName="weight" type="number">
-                            </div>
-                        </div>
-                        <button (click)="addVictim()" type="button" class="btn btn-primary">Add Victim</button>
-                    </div-->
+                
                 <div class="row justify-content-end mb-5">
                     <div class="btn-group" role="group">
                         <button class="btn btn-success" type="submit">Save</button>
@@ -313,6 +176,10 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <div class="row" *ngIf="activeTab === 'victims'">
+        <app-victim [victims]="incidentVictims" [availableOfficers]="availableOfficers"></app-victim>
     </div>
 </div>
 
