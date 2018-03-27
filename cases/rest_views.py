@@ -71,7 +71,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
         if "stolen_amount" in dirty_data and dirty_data['stolen_amount'] is None:
             dirty_data['stolen_amount'] = 0
-        logger.debug(f"Dirty Data after cleaning: {dirty_data['location']}")
+
+        # dirty_data['offenses'] = [offense['id'] for offense in dirty_data['offenses']]
+        if "offenses" in dirty_data and isinstance(dirty_data['offenses'], dict):
+            offenses = dirty_data.pop("offenses")
+            dirty_data['offenses'] = [offenses['id']]
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
         if serializer.is_valid():
@@ -79,6 +83,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             resp_status = status.HTTP_200_OK
             resp_data = serializer.data
         else:
+            logger.debug(f"Data: {dirty_data}")
             resp_status = status.HTTP_400_BAD_REQUEST
             resp_data = serializer.errors
             logger.debug(f"Errors: {resp_data}")
