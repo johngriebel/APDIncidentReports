@@ -170,15 +170,12 @@ class IncidentSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         offenses = validated_data.pop("offenses", [])
-        offense_objects = Offense.objects.filter(id__in=offenses)
 
-        for offense in offense_objects:
+        for offense in offenses:
             if offense not in instance.offenses.all():
                 instance.offenses.add(offense)
 
-        updated_data = handle_incident_foreign_keys_for_creation(validated_data=validated_data)
-
-        for attr, value in updated_data.items():
+        for attr, value in validated_data.items():
             logger.debug(f"Updating attr: {attr} to value:{value}")
             setattr(instance, attr, value)
 
@@ -204,7 +201,8 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 
 class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
-    officer_signed = OfficerSerializer(read_only=True)
+    incident = serializers.PrimaryKeyRelatedField(queryset=Incident.objects.all())
+    officer_signed = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
     home_address = AddressSerializer(required=False, allow_null=True)
     employer_address = AddressSerializer(required=False, allow_null=True)
 
@@ -220,21 +218,8 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def create(self, validated_data):
-        home_addr_data = validated_data.get('home_address')
-        if home_addr_data is not None:
-            validated_data['home_address'] = parse_and_create_address(address_data=
-                                                                      home_addr_data)
-
-        employer_addr = validated_data.get('employer_address')
-        if employer_addr is not None:
-            validated_data['employer_address'] = parse_and_create_address(address_data=
-                                                                          employer_addr)
-
-        validated_data['incident'] = Incident.objects.get(pk=validated_data['incident'])
-        validated_data['officer_signed'] = Officer.objects.get(user=self.context['request'].user)
-
-        self.instance = IncidentInvolvedParty.objects.create(**validated_data)
+    def create(self, validated_data, party_type):
+        self.instance = IncidentInvolvedParty.objects.create(**validated_data, party_type=party_type)
 
     class Meta:
         model = IncidentInvolvedParty

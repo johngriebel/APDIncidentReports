@@ -70,7 +70,6 @@ def create_incident_involved_party(request, serializer_class,
     dirty_data = {key: value for key, value in request.data.items()}
     logger.debug(f"Incident Involved Party Dirty Data: {dirty_data}")
     dirty_data['incident'] = kwargs.get('incidents_pk')
-    dirty_data['party_type'] = kwargs['party_type']
 
     serializer = serializer_class(data=dirty_data,
                                   context={'request': request})
@@ -81,7 +80,7 @@ def create_incident_involved_party(request, serializer_class,
         resp_status = status.HTTP_400_BAD_REQUEST
         resp_data = serializer.errors
     else:
-        serializer.create(validated_data=dirty_data)
+        serializer.create(validated_data=serializer.validated_data, party_type=kwargs.get('party_type'))
         resp_status = status.HTTP_201_CREATED
         resp_data = serializer.data
 

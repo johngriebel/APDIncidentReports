@@ -63,6 +63,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         else:
             resp_status = status.HTTP_400_BAD_REQUEST
             resp_data = serializer.errors
+
         return Response(status=resp_status,
                         data=resp_data)
 
@@ -71,8 +72,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
         logger.debug(f"Request.data: {request.data}")
         dirty_data = {key: value for key, value in request.data.items()}
         for field in dirty_data:
-            if "officer" in field or "supervisor" in field:
-                dirty_data[field] = dirty_data[field]['officer_number']
             if "datetime" in field:
                 logger.debug(f"dirty_data[{field}]: {dirty_data[field]}")
                 dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
@@ -91,14 +90,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
         if serializer.is_valid():
-            serializer.update(instance=incident, validated_data=dirty_data)
+            serializer.update(instance=incident, validated_data=serializer.validated_data)
             resp_status = status.HTTP_200_OK
             resp_data = serializer.data
         else:
             logger.debug(f"Data: {dirty_data}")
             resp_status = status.HTTP_400_BAD_REQUEST
             resp_data = serializer.errors
-            logger.debug(f"Errors: {resp_data}")
+            print(f"Errors: {resp_data}")
 
         return Response(status=resp_status,
                         data=resp_data)
