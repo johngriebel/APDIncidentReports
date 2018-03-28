@@ -1,0 +1,8 @@
+<div class="col-sm-12" *ngIf="fileUploadForm">
+    <form [formGroup]="fileUploadForm">
+        <div class="form-group row">
+            <input id="fileUpload" type="file" class="custom-file-input col" formControlName="files" (change)="fileChange($event)" multiple>
+            <label class="custom-file-label col" for="fileUpload">Choose file</label>
+        </div>
+    </form>
+</div>

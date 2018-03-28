@@ -17,8 +17,8 @@
         <li class="nav-item" (click)="goToSuspects()">
             <a class="nav-link" [ngClass]="{'active': activeTab === 'suspects'}" href="javascript:void(0)">Suspects</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="javascript:void(0)">Files</a>
+        <li class="nav-item" (click)="goToFiles()">
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'files'}" href="javascript:void(0)">Files</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{printURL}}">Print</a>
@@ -185,6 +185,9 @@
     </div>
     <div class="row" *ngIf="activeTab === 'suspects'">
         <app-suspect [suspects]="incidentSuspects" [availableOfficers]="availableOfficers"></app-suspect>
+    </div>
+    <div class="row" *ngIf="activeTab === 'files'">
+        <app-file-upload [incident]="incident" ></app-file-upload>
     </div>
 </div>
 

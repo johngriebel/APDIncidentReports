@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { Incident, Victim, Suspect, Offense, Officer } from '../data-model';
 import { environment } from '../../environments/environment';
+import { RequestOptions } from '@angular/http';
 
 
 @Injectable()
@@ -128,6 +129,26 @@ export class IncidentService {
         const printURL = `${this.incidentsUrl}print/${incident.id}/`
         console.log(printURL);
         return this.http.get<Incident>(printURL, {headers: this.getHeaders()});
+    }
+
+    uploadFile(incident, fileList) {
+        if(fileList.length > 0) {
+            console.log(fileList);
+            let formData:FormData = new FormData();
+            for (var i = 0; i < fileList.length; i++){
+                formData.append('uploadFile', fileList[i], fileList[i].name);
+            }
+            let headers = new HttpHeaders();
+            /** No need to include Content-Type in Angular 4 */
+            headers.append('Content-Type', 'multipart/form-data');
+            headers.append('Accept', 'application/json');
+            const fullURL = `${this.incidentsUrl}${incident.id}/files/`
+            this.http.post(`${fullURL}`, formData, {headers: headers})
+                .subscribe(
+                    data => console.log(data),
+                    error => console.log(error)
+                );
+        }
     }
 
     private handleError<T> (operation = 'operation', result?: T) {

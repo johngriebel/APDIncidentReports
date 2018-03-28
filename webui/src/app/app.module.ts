@@ -15,6 +15,7 @@ import { IncidentDetailComponent } from './components/incident-detail/incident-d
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { VictimComponent } from './components/victim/victim.component';
 import { SuspectComponent } from './components/suspect/suspect.component';
+import { FileUploadComponent } from './components/file-upload/file-upload.component';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { SuspectComponent } from './components/suspect/suspect.component';
     LandingPageComponent,
     VictimComponent,
     SuspectComponent,
+    FileUploadComponent,
   ],
   imports: [
     BrowserModule,

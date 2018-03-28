@@ -161,6 +161,7 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
         created_files = []
+        logger.debug(f"request.data: {request.data}")
         for upload in request.FILES.getlist('files'):
             incident_file = IncidentFile(incident=incident,
                                          file=upload)

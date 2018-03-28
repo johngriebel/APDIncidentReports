@@ -378,6 +378,10 @@ export class IncidentDetailComponent implements OnInit {
         this.activeTab = "suspects";
      }
 
+     goToFiles() {
+        this.activeTab = "files";
+     }
+
      goToIncident() {
        this.activeTab = "incident";
     }
