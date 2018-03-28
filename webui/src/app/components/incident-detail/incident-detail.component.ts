@@ -187,55 +187,7 @@ export class IncidentDetailComponent implements OnInit {
              narrative: this.incident.narrative,
          });
      }
-     /*
-     setVictims(victims: Victim[]) {
-         console.log("victims passed in ");
-         console.log(victims);
-         if (victims.length == 0 ){
-             victims = [{first_name: '',
-                         last_name: '',
-                         officer_signed: new Officer(),
-                         juvenile: false,
-                         date_of_birth: this.now,
-                         sex: "M",
-                         race: '',
-                         height: 0,
-                         weight: 0,
-                         home_address: new Address(),
-                         employer: '',
-                         employer_address: new Address(),
-                         hair_color: '',
-                         eye_color: '',
-                         drivers_license: '',
-                         drivers_license_state: '',
-                         build: '',
-                         tattoos: '',
-                         scars: '',
-                         hairstyle: ''}];
-         }
-         console.log("victims after if statement");
-         console.log(victims);
-        const victimFormGroups = victims.map(victim => this.formBuilder.group(victim));
-        const victimFormArray = this.formBuilder.array(victimFormGroups);
-        console.log("victimFormArray");
-        console.log(victimFormArray);
-        this.incidentForm.setControl('victims', victimFormArray);
-     }
 
-     setSuspects(suspects: Suspect[]) {
-        const suspectFormGroups = suspects.map(suspect => this.formBuilder.group(suspect));
-        const suspectFormArray = this.formBuilder.array(suspectFormGroups);
-        this.incidentForm.setControl('suspects', suspectFormArray);
-     }
-
-     get victims(): FormArray {
-         return this.incidentForm.get('victims') as FormArray;
-     }
-
-     get suspects(): FormArray {
-        return this.incidentForm.get('suspects') as FormArray;
-    }
-    */
      rebuildForm() {
         console.log("this.incident.reporting_officer")
         console.log(this.incident.reporting_officer);
@@ -280,20 +232,20 @@ export class IncidentDetailComponent implements OnInit {
 
      prepareSaveIncident(): Incident {
         const formModel = this.incidentForm.value;
-        console.log(this.incident.offenses);
-        console.log(formModel.offenses);
+        console.log("formModel.reporting_officer");
+        console.log(formModel.reporting_officer);
 
         const saveIncident: Incident = {
             id: this.incident.id,
             incident_number: formModel.incident_number as string,
             location: formModel.location as Address,
             report_datetime: formModel.report_datetime as DateTime,
-            reporting_officer: formModel.reporting_officer as Officer,
+            reporting_officer: formModel.reporting_officer.id,
             reviewed_datetime: formModel.reviewed_datetime as DateTime,
-            reviewed_by_officer: formModel.reviewed_by_officer as Officer,
-            investigating_officer: formModel.investigating_officer as Officer,
-            officer_making_report: formModel.officer_making_report as Officer,
-            supervisor: formModel.supervisor as Officer,
+            reviewed_by_officer: formModel.reviewed_by_officer.id,
+            investigating_officer: formModel.investigating_officer.id,
+            officer_making_report: formModel.officer_making_report.id,
+            supervisor: formModel.supervisor.id,
             approved_datetime: formModel.approved_datetime as DateTime,
             earliest_occurrence_datetime: formModel.earliest_occurrence_datetime as DateTime,
             latest_occurrence_datetime: formModel.latest_occurrence_datetime as DateTime,

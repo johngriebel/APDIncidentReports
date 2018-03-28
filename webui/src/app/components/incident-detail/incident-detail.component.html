@@ -62,8 +62,8 @@
                 <div formGroupName="reporting_officer">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Reporting Officer:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        <select class="form-control col-sm-10" formControlName="id">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
                         </select>
                     </div>
                 </div>
@@ -79,32 +79,32 @@
                 <div formGroupName="reviewed_by_officer">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Reviewed By:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        <select class="form-control col-sm-10" formControlName="id">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
                         </select>
                     </div>
                 </div>
                 <div formGroupName="investigating_officer">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Investigated By:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        <select class="form-control col-sm-10" formControlName="id">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
                         </select>
                     </div>
                 </div>
                 <div formGroupName="officer_making_report">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Officer Making Report:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        <select class="form-control col-sm-10" formControlName="id">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
                         </select>
                     </div>
                 </div>
                 <div formGroupName="supervisor">
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Supervisor:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                        <select class="form-control col-sm-10" formControlName="id">
+                            <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
                         </select>
                     </div>
                 </div>

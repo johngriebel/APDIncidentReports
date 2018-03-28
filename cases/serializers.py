@@ -100,7 +100,7 @@ class OfficerSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if isinstance(data, int) or (isinstance(data, str) and data.isdigit()):
             try:
-                return Officer.objects.get(officer_number=data)
+                return Officer.objects.get(id=data)
             except Officer.DoesNotExist:
                 logger.debug(f"Tried to find officer with ID: {data}")
                 message = self.error_messages['invalid'].format(
@@ -110,7 +110,6 @@ class OfficerSerializer(serializers.ModelSerializer):
                     api_settings.NON_FIELD_ERRORS_KEY: [message]
                 }, code='invalid')
         else:
-            print("ARMADILLO")
             return super(OfficerSerializer, self).to_internal_value(data=data)
 
     class Meta:
@@ -149,11 +148,11 @@ class OffenseSerializer(serializers.ModelSerializer):
 
 class IncidentSerializer(serializers.ModelSerializer):
     offenses = OffenseSerializer(many=True)
-    reporting_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
-    reviewed_by_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
-    investigating_officer = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
-    officer_making_report = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
-    supervisor = serializers.PrimaryKeyRelatedField(queryset=Officer.objects.all())
+    reporting_officer = OfficerSerializer()
+    reviewed_by_officer = OfficerSerializer()
+    investigating_officer = OfficerSerializer()
+    officer_making_report = OfficerSerializer()
+    supervisor = OfficerSerializer()
     location = AddressSerializer()
     report_datetime = DateTimeSerializer()
     approved_datetime = DateTimeSerializer(required=False, allow_null=True)

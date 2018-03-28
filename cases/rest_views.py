@@ -63,6 +63,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         else:
             resp_status = status.HTTP_400_BAD_REQUEST
             resp_data = serializer.errors
+            logger.debug(f"serializers.errors: {serializer.errors}")
 
         return Response(status=resp_status,
                         data=resp_data)
