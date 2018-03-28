@@ -97,15 +97,12 @@ export class IncidentDetailComponent implements OnInit {
         this.incidentService.getAllOffenses().subscribe(
             (availableOffenses) => {
                 this.availableOffenses = availableOffenses;
-                console.log(this.availableOffenses);
             }
         );
 
         this.incidentService.getAllOfficers().subscribe(
             officers => {
                 this.availableOfficers = officers;
-                console.log("Got officers");
-                console.log(this.availableOfficers);
             }
         );
     }
@@ -119,8 +116,7 @@ export class IncidentDetailComponent implements OnInit {
         }
     }
 
-     createForm() {
-
+    getMyVictims() {
         this.incidentService.getVictims(this.incident.id).
             subscribe((victims) => {
                 if (victims.length === 0){
@@ -166,6 +162,57 @@ export class IncidentDetailComponent implements OnInit {
                 }
                 console.log(this.incidentVictims);
             });
+    }
+
+    getMySuspects() {
+        this.incidentService.getSuspects(this.incident.id).
+            subscribe((suspects) => {
+                if (suspects.length === 0){
+                    console.log("length  was 0");
+                    var fakeSuspects = new Array<Suspect>();
+                    fakeSuspects.push({id: 0,
+                        first_name: '',
+                        last_name: '',
+                        officer_signed: {id: 0,
+                                         officer_number: 0,
+                                         user: {}},
+                        juvenile: false,
+                        home_address: {street_number: '',
+                                       route: '',
+                                       city: '',
+                                       state: '',
+                                       postal_code: ''},
+                        date_of_birth: new DateTime(),
+                        sex: '',
+                        race: '',
+                        height: 0,
+                        weight: 0,
+                        hair_color: '',
+                        eye_color: '',
+                        drivers_license: '',
+                        drivers_license_state: '',
+                        employer: '',
+                        employer_address: {street_number: '',
+                                           route: '',
+                                           city: '',
+                                           state: '',
+                                           postal_code: ''},
+                        build: '',
+                        tattoos: '',
+                        scars: '',
+                        hairstyle: ''});
+                    this.incidentSuspects = fakeSuspects;
+                }
+                else {
+                    this.incidentSuspects = suspects;
+                }
+            });
+    }
+
+     createForm() {
+        
+        this.getMyVictims();
+        this.getMySuspects();
 
          this.incidentForm = this.formBuilder.group({
              incident_number: this.incident.incident_number,
@@ -325,6 +372,10 @@ export class IncidentDetailComponent implements OnInit {
 
      goToVictims() {
         this.activeTab = "victims";
+     }
+
+     goToSuspects() {
+        this.activeTab = "suspects";
      }
 
      goToIncident() {

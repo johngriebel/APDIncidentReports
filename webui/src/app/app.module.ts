@@ -14,6 +14,7 @@ import { OfficerService } from './services/officer.service';
 import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { VictimComponent } from './components/victim/victim.component';
+import { SuspectComponent } from './components/suspect/suspect.component';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { VictimComponent } from './components/victim/victim.component';
     IncidentDetailComponent,
     LandingPageComponent,
     VictimComponent,
+    SuspectComponent,
   ],
   imports: [
     BrowserModule,

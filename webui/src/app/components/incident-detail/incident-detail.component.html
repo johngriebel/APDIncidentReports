@@ -14,8 +14,8 @@
         <li class="nav-item" (click)="goToVictims()">
             <a class="nav-link" [ngClass]="{'active': activeTab === 'victims'}" href="javascript:void(0)">Victims</a>
        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="javascript:void(0)">Suspects</a>
+        <li class="nav-item" (click)="goToSuspects()">
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'suspects'}" href="javascript:void(0)">Suspects</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="javascript:void(0)">Files</a>
@@ -182,6 +182,9 @@
 
     <div class="row" *ngIf="activeTab === 'victims'">
         <app-victim [victims]="incidentVictims" [availableOfficers]="availableOfficers"></app-victim>
+    </div>
+    <div class="row" *ngIf="activeTab === 'suspects'">
+        <app-suspect [suspects]="incidentSuspects" [availableOfficers]="availableOfficers"></app-suspect>
     </div>
 </div>
 
