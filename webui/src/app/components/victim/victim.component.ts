@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
+import * as $ from 'jquery';
 import { Incident, Victim, Officer, Address, DateTime,
          states } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
@@ -63,9 +63,6 @@ export class VictimComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        console.log(this.victims);
-        console.log("available officers");
-        console.log(this.availableOfficers);
     }
 
     ngOnChanges() {
@@ -142,14 +139,9 @@ export class VictimComponent implements OnInit, OnChanges {
     }
 
     onSubmit(){
-        console.log("submit button clicked");
         this.victims = this.prepareSaveVictims();
         var count = 0;
         this.victims.forEach(victim => {
-            console.log("Updating victim:");
-            console.log(victim.id);
-            console.log("victimsArray[i]");
-            console.log(this.victimForm.value);
             count += 1;
             if (victim.id === 0){
                 console.log("in the create block");
@@ -160,9 +152,10 @@ export class VictimComponent implements OnInit, OnChanges {
                     });
             }
             else {
-            this.incidentService.updateVictim(this.incidentId, victim).subscribe(
-                victim => {
-                    console.log("Successfully updated victim");
+                console.log("would be updating here");
+                this.incidentService.updateVictim(this.incidentId, victim).subscribe(
+                    victim => {
+                        console.log(`Successfully updated victim: ${victim}`);
                     });
                 }
         });
@@ -173,6 +166,38 @@ export class VictimComponent implements OnInit, OnChanges {
         this.victims.push(this.createEmptyVictim());
         console.log(this.victimsArray);
         this.rebuildForm();
+    }
+
+    getFeet(victim): number {
+        var height = 0;
+        if (victim.value !== undefined) {
+            height = victim.value.height;
+        }
+        else {
+            height = victim.height
+        }
+        return Math.floor(height / 12);
+    }
+
+    getInches(victim): number {
+        console.log("in get Inches");
+        var height = 0;
+        if (victim.value !== undefined) {
+            height = victim.value.height;
+        }
+        else {
+            height = victim.height;
+        }
+        return height % 12;
+    }
+
+    updateHeight(victim, event) {
+        const count = $(event.target).data("count");
+        var feet = parseInt($(`#heightFeet${count}`)[0].value);
+        var inches = parseInt($(`#heightInches${count}`)[0].value);
+        const newHeight = (feet * 12) + inches;
+        victim.value.height = newHeight;
+
     }
 
 

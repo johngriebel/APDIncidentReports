@@ -18,7 +18,7 @@ export class IncidentService {
             }
 
     public log(message: string) {
-        console.log('IncidentService: ' + message);
+        // console.log('IncidentService: ' + message);
     }
 
     public getHeaders(): HttpHeaders {
