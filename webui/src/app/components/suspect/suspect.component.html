@@ -2,7 +2,7 @@
     <form [formGroup]="suspectForm">
         <div formArrayName="suspectsArray">
             <div *ngFor="let suspect of suspectsArray.controls; let i=index" [formGroupName]="i">
-                <h3>Victim {{i + 1}}</h3>
+                <h3>Suspect {{i + 1}}</h3>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">First Name:</label>
                     <input class="form-control col-sm-4" formControlName="first_name">
@@ -121,7 +121,7 @@
     </form>
     <div class="row justify-content-between mb-2">
         <button type="button" class="btn btn-danger ml-2">Cancel</button>
-        <button (click)="addVictim()" type="button" class="btn btn-dark ml-2">Add a Victim</button>
+        <button (click)="addSuspect()" type="button" class="btn btn-dark ml-2">Add a Suspect</button>
         <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Save</button>
     </div>
 </div>
