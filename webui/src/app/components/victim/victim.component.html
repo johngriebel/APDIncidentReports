@@ -113,8 +113,9 @@
         </div>
     </form>
     <div class="row justify-content-between mb-2">
-        <button type="button" (click)="onSubmit()" class="btn btn-success mr-auto">Save</button>
-        <button type="button" class="btn btn-danger">Cancel</button>
+        <button type="button" class="btn btn-danger ml-2">Cancel</button>
+        <button (click)="addVictim()" type="button" class="btn btn-dark ml-2">Add a Victim</button>
+        <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Save</button>
     </div>
 </div>
 <div class="col-sm-12" *ngIf="!victimForm">

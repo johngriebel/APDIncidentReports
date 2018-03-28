@@ -61,7 +61,7 @@ STATES = {
     "WI": "Wisconsin",
     "WY": "Wyoming"
 }
-STATE_CHOICES = [(abbrev, full) for abbrev, full in STATES]
+STATE_CHOICES = [(abbrev, full) for abbrev, full in STATES.items()]
 
 DAY = "D"
 EVENING = "E"

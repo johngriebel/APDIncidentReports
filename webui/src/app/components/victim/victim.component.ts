@@ -28,6 +28,40 @@ export class VictimComponent implements OnInit, OnChanges {
         this.createForm();
     }
 
+    private createEmptyVictim() {
+        return {id: 0,
+            first_name: '',
+            last_name: '',
+            officer_signed: {id: 0,
+                             officer_number: 0,
+                             user: {}},
+            juvenile: false,
+            home_address: {street_number: '',
+                           route: '',
+                           city: '',
+                           state: '',
+                           postal_code: ''},
+            date_of_birth: new DateTime(),
+            sex: '',
+            race: '',
+            height: 0,
+            weight: 0,
+            hair_color: '',
+            eye_color: '',
+            drivers_license: '',
+            drivers_license_state: '',
+            employer: '',
+            employer_address: {street_number: '',
+                               route: '',
+                               city: '',
+                               state: '',
+                               postal_code: ''},
+            build: '',
+            tattoos: '',
+            scars: '',
+            hairstyle: ''};
+    }
+
     ngOnInit() {
         console.log(this.victims);
         console.log("available officers");
@@ -132,6 +166,12 @@ export class VictimComponent implements OnInit, OnChanges {
                     });
                 }
         });
+        this.rebuildForm();
+    }
+
+    addVictim() {
+        this.victims.push(this.createEmptyVictim());
+        console.log(this.victimsArray);
         this.rebuildForm();
     }
 

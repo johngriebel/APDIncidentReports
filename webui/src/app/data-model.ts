@@ -20,11 +20,11 @@ export class City {
 }
 
 export class Address {
-    street_number: "";
-    route: "";
-    city: "";
-    state: "";
-    postal_code: "";
+    street_number: string;
+    route: string;
+    city: string;
+    state: string;
+    postal_code: string;
 
 }
 
@@ -85,7 +85,7 @@ export class Victim {
     first_name: string;
     last_name: string;
     officer_signed: Officer;
-    juvenile: false;
+    juvenile: boolean;
     home_address: Address;
     date_of_birth: DateTime;
     sex: string;

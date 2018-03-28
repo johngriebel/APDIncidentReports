@@ -38,16 +38,18 @@
                         <!-- TODO: Get the alignment of these right -->
                         <label class="col-sm-2 col-form-label">Building:</label>
                         <input class="form-control col-sm-2" formControlName="street_number">
-                        <label class="col-sm-2 col-form-label">Street:</label>
-                        <input class="form-control col-sm-6" formControlName="route">
+                        <label class="col-sm-1 col-form-label">Street:</label>
+                        <input class="form-control col-sm-7" formControlName="route">
                     </div>
                         <div class="form-group row">
                         <label class="col-sm-2 col-form-label">City:</label>
-                        <input class="form-control col-sm-2" formControlName="city">
+                        <input class="form-control col-sm-4" formControlName="city">
                         <label class="col-sm-1 col-form-label">State:</label>
-                        <input class="form-control col-sm-2" formControlName="state">
-                        <label class="col-sm-2 col-form-label">Zip:</label>
-                        <input class="form-control col-sm-3" formControlName="postal_code">
+                        <select class="form-control col-sm-2" formControlName="state">
+                            <option *ngFor="let state of states" [value]="state">{{state}}</option>
+                        </select>
+                        <label class="col-sm-1 col-form-label">Zip:</label>
+                        <input class="form-control col-sm-2" formControlName="postal_code">
                     </div>
                 </div>
                 <div formGroupName="report_datetime">

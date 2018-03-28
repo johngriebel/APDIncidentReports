@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { Incident, Address, DateTime, Officer,
-         Victim, Suspect, Offense } from '../../data-model';
+         Victim, Suspect, Offense, states } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -33,6 +33,8 @@ export class IncidentDetailComponent implements OnInit {
     baseURL = environment.baseURL
     printURL: string;
     activeTab: string;
+
+    states = states;
 
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
