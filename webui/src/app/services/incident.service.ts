@@ -67,6 +67,14 @@ export class IncidentService {
           );
     }
 
+    addVictim (incidentId: number, victim: Victim): Observable<Victim> {
+        const fullURL = `${this.incidentsUrl}${incidentId}/victims/`;
+        return this.http.post<Victim>(fullURL, victim, {headers: this.getHeaders()}).pipe(
+            tap((victim: Victim) => this.log(`added victim w/ id=${victim.id}`)),
+            catchError(this.handleError<Victim>('addIncident'))
+        );
+    }
+
     updateVictim(incidentId: number, victim: Victim): Observable<any> {
         const fullURL = `${this.incidentsUrl}${incidentId}/victims/${victim.id}/`
         return this.http.patch(fullURL, victim, {headers: this.getHeaders()}).pipe(

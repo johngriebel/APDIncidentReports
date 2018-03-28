@@ -13,13 +13,11 @@
                     <label class="col-sm-2 col-form-label">Juvenile:</label>
                     <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
                 </div>
-                <div formGroupName="officer_signed">
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">Officer Signed:</label>
-                        <select class="form-control col-sm-10" formControlName="officer_number">
-                            <option *ngFor="let officer of availableOfficers" [value]="officer.officer_number">{{officer.officer_number}} - {{officer.user.last_name}}</option>
-                        </select>
-                    </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Officer Signed:</label>
+                    <select class="form-control col-sm-10" formControlName="officer_signed">
+                        <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                    </select>
                 </div>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">Date of Birth:</label>

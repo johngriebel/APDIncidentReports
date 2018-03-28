@@ -121,7 +121,47 @@ export class IncidentDetailComponent implements OnInit {
 
         this.incidentService.getVictims(this.incident.id).
             subscribe((victims) => {
-                this.incidentVictims = victims;
+                if (victims.length === 0){
+                    console.log("length  was 0");
+                    var fakeVictims = new Array<Victim>();
+                    fakeVictims.push({id: 0,
+                        first_name: '',
+                        last_name: '',
+                        officer_signed: {id: 0,
+                                         officer_number: 0,
+                                         user: {}},
+                        juvenile: false,
+                        home_address: {street_number: '',
+                                       route: '',
+                                       city: '',
+                                       state: '',
+                                       postal_code: ''},
+                        date_of_birth: new DateTime(),
+                        sex: '',
+                        race: '',
+                        height: 0,
+                        weight: 0,
+                        hair_color: '',
+                        eye_color: '',
+                        drivers_license: '',
+                        drivers_license_state: '',
+                        employer: '',
+                        employer_address: {street_number: '',
+                                           route: '',
+                                           city: '',
+                                           state: '',
+                                           postal_code: ''},
+                        build: '',
+                        tattoos: '',
+                        scars: '',
+                        hairstyle: ''});
+                    console.log("fake victims");
+                    console.log(fakeVictims);
+                    this.incidentVictims = fakeVictims;
+                }
+                else {
+                    this.incidentVictims = victims;
+                }
                 console.log(this.incidentVictims);
             });
 

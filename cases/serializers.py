@@ -189,10 +189,9 @@ class IncidentSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("An Incident with that incident "
                                                   "number already exists")
             if value != self.instance.incident_number:
-                    raise serializers.ValidationError("An Incident with that incident "
+                raise serializers.ValidationError("An Incident with that incident "
                                                       "number already exists")
-        else:
-            return value
+        return value
 
     class Meta:
         model = Incident

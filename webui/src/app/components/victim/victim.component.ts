@@ -50,7 +50,7 @@ export class VictimComponent implements OnInit, OnChanges {
             id: victim.id,
             first_name: victim.first_name,
             last_name: victim.last_name,
-            officer_signed: this.formBuilder.group(victim.officer_signed),
+            officer_signed: victim.officer_signed.id || victim.officer_signed,
             home_address: this.formBuilder.group(victim.home_address || 
                                                 { street_number: '',
                                                   route: '',
@@ -92,6 +92,7 @@ export class VictimComponent implements OnInit, OnChanges {
             incident_id: this.incidentId,
             victimsArray: this.formBuilder.array([]),
         });
+        console.log("form created");
     }
 
     prepareSaveVictims(): Victim[] {
@@ -109,14 +110,27 @@ export class VictimComponent implements OnInit, OnChanges {
     onSubmit(){
         console.log("submit button clicked");
         this.victims = this.prepareSaveVictims();
+        var count = 0;
         this.victims.forEach(victim => {
             console.log("Updating victim:");
             console.log(victim.id);
+            console.log("victimsArray[i]");
+            console.log(this.victimForm.value);
+            count += 1;
+            if (victim.id === 0){
+                console.log("in the create block");
+                this.incidentService.addVictim(this.incidentId, victim).subscribe(
+                    victim => {
+                        console.log("Created a new victim");
+                        this.victims.push(victim);
+                    });
+            }
+            else {
             this.incidentService.updateVictim(this.incidentId, victim).subscribe(
                 victim => {
                     console.log("Successfully updated victim");
+                    });
                 }
-            );
         });
         this.rebuildForm();
     }
