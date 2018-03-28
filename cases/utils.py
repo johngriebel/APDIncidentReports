@@ -46,9 +46,8 @@ def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
                                    month=month,
                                    day=day,
                                    hour=hours,
-                                   minute=minutes)
-            date_object = timezone.make_aware(date_object,
-                                              timezone=pytz.timezone(settings.TIME_ZONE))
+                                   minute=minutes,
+                                   tzinfo=pytz.timezone(settings.TIME_ZONE))
             return date_object
         else:
             raise ValueError(f"Incorrectly formatted date string: {date_string}")

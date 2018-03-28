@@ -8,7 +8,7 @@
     </div>
     
     <ul class="nav nav-tabs nav-fill mb-3">
-        <li class="nav-item">
+        <li class="nav-item" (click)="goToIncident()">
             <a class="nav-link" [ngClass]="{'active': activeTab === 'incident'}" href="javascript:void(0)">Incident</a>
         </li>
         <li class="nav-item" (click)="goToVictims()">

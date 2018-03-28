@@ -322,8 +322,11 @@ export class IncidentDetailComponent implements OnInit {
      }
 
      goToVictims() {
-         console.log("In go to victims");
         this.activeTab = "victims";
      }
+
+     goToIncident() {
+       this.activeTab = "incident";
+    }
 
 }

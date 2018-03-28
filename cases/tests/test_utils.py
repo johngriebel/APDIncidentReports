@@ -16,13 +16,16 @@ class UtilsTestCase(TestCase):
         year = random.randint(1900, 2018)
         month = random.randint(1, 12)
         day = random.randint(1, 28)
+
         date_string = f"{year}-{month}-{day}"
         converted = convert_date_string_to_object(date_string=date_string)
         expected = datetime(year=year,
                             month=month,
                             day=day,
                             tzinfo=pytz.timezone(settings.TIME_ZONE))
-        self.assertEqual(converted, expected)
+        self.assertEqual(converted.year, expected.year)
+        self.assertEqual(converted.month, expected.month)
+        self.assertEqual(converted.day, expected.day)
 
     def test_slashed_date_no_time(self):
         year = random.randint(1900, 2018)
@@ -34,9 +37,9 @@ class UtilsTestCase(TestCase):
                             month=month,
                             day=day,
                             tzinfo=pytz.timezone(settings.TIME_ZONE))
-        logger.debug(f"Converted: {converted}")
-        logger.debug(f"Expected: {expected}")
-        self.assertEqual(converted, expected)
+        self.assertEqual(converted.year, expected.year)
+        self.assertEqual(converted.month, expected.month)
+        self.assertEqual(converted.day, expected.day)
 
     def test_dashed_date_with_time(self):
         year = random.randint(1900, 2018)

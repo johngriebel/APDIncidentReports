@@ -1,4 +1,6 @@
 import random
+import pytz
+from django.conf import settings
 from datetime import datetime
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
@@ -63,8 +65,8 @@ class SearchTestCase(TestCase):
                             month=month,
                             day=day,
                             hour=hour,
-                            minute=minute)
-        expected = timezone.make_aware(expected)
+                            minute=minute,
+                            tzinfo=pytz.timezone(settings.TIME_ZONE))
         result = cleanse_value(key, data)
         self.assertEqual(result, expected)
 
