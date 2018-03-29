@@ -1,5 +1,6 @@
 import logging
 from django.utils import timezone
+from typing import Dict
 from .models import Incident
 from .utils import (isincident_field,
                     convert_date_string_to_object,
@@ -12,8 +13,8 @@ def cleanse_filter_key(key: str) -> str:
         filter_key = key.replace("_min", "__gte")
     elif "_max" in key:
         filter_key = key.replace("_max", "__lte")
-    elif key == "reporting_officer":
-        filter_key = key + "__user__last_name__iexact"
+    elif "officer" in key or key == "supervisor":
+        filter_key = key + "__user__last_name__icontains"
     elif "earliest_" in key:
         filter_key = key + "__gte"
     elif "latest" in key:
@@ -21,7 +22,7 @@ def cleanse_filter_key(key: str) -> str:
     elif "location" in key:
         filter_key = key.replace("location_", "location__") + "__icontains"
     elif key == "offenses":
-        filter_key = key + "__in"
+        filter_key = key + "__id__in"
     else:
         filter_key = key + "__icontains"
     return filter_key
@@ -35,27 +36,35 @@ def cleanse_value(key: str, data: dict):
             value = timezone.make_aware(value)
     elif key == "offenses":
         value = data.getlist(key)
-    elif key == "juvenile":
-        value = {'2': True, '3': False}[data[key]]
     else:
         value = data[key]
     return value
 
 
-def build_reverse_lookups(key: str, params: dict):
-    if params[key]:
-        if "juvenile" in key:
-            if params[key] == "1":
-                # A value of "1" here corresponds to either "I don't know" or either
-                return {}
-        party_type = key.split("_")[0]
-        filter_key = key.replace(party_type, "incidentinvolvedparty_")
-        filter_key_parts = filter_key.split("__")
-        filter_key = filter_key_parts[0] + "__" + cleanse_filter_key(filter_key_parts[1])
-        value = cleanse_value(key, data=params)
-        return {filter_key: value, 'incidentinvolvedparty__party_type': party_type.upper()}
-    else:
-        return {}
+def build_reverse_lookups(party_type: str, params: dict) -> Dict:
+    involved_party_lookups = {'incidentinvolvedparty__party_type': party_type.upper()}
+    for key in params:
+        if params[key]:
+            cleaned_sub_key = cleanse_filter_key(key)
+            filter_key = f"incidentinvolvedparty__{cleaned_sub_key}"
+            value = cleanse_value(key, data=params)
+            involved_party_lookups[filter_key] = value
+    return involved_party_lookups
+
+
+def handle_location_filtering(location_data: Dict) -> Dict:
+    location_filters = {}
+    for key in ["street_number", "route", "postal_code"]:
+        if key in location_data:
+            location_filters[f"location__{key}__icontains"] = location_data[key]
+
+    if "city" in location_data:
+        location_filters[f"location__city__name__icontains"] = location_data['city']
+
+    if "state" in location_data:
+        location_filters[f"location__city__state__abbreviation"] = location_data['state']
+
+    return location_filters
 
 
 def get_search_results(*, params: dict):
@@ -63,11 +72,15 @@ def get_search_results(*, params: dict):
     filter_dict = {}
     for key in params:
         if isincident_field(key):
-            filter_key = cleanse_filter_key(key)
-            if params[key]:
-                filter_dict[filter_key] = cleanse_value(key, params)
-        elif isincidentparty_field(key):
-            reverse_lookups = build_reverse_lookups(key, params)
+            if key == "location":
+                location_filters = handle_location_filtering(location_data=params[key])
+                filter_dict.update(location_filters)
+            else:
+                filter_key = cleanse_filter_key(key)
+                if params[key]:
+                    filter_dict[filter_key] = cleanse_value(key, params)
+        elif "victim" == key or "suspect" == key:
+            reverse_lookups = build_reverse_lookups(key, params[key])
             filter_dict.update(reverse_lookups)
     incidents = Incident.objects.filter(**filter_dict)
     logger.info(f"Results: {incidents}")

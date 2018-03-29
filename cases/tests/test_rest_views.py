@@ -1,7 +1,7 @@
 import logging
 import shutil
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from pathlib import Path
 from django.urls import reverse
 from django.conf import settings
@@ -284,5 +284,120 @@ class SearchTestCase(JWTAuthAPIBaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], second_incident.id)
+
+    def test_reporting_officer_search(self):
+        incident = IncidentFactory()
+        reporting_officer = incident.reporting_officer
+        url = reverse("search")
+        data = {'reporting_officer': reporting_officer.user.last_name[:4]}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_occurrence_range(self):
+        tzinfo = pytz.timezone(settings.TIME_ZONE)
+        first_date = datetime(year=2014,
+                              month=6,
+                              day=15,
+                              tzinfo=tzinfo)
+        second_date = datetime(year=2015,
+                               month=7,
+                               day=23,
+                               tzinfo=tzinfo)
+        third_date = datetime(year=2016,
+                              month=10,
+                              day=11,
+                              tzinfo=tzinfo)
+        IncidentFactory(earliest_occurrence_datetime=first_date - timedelta(days=1),
+                        latest_occurrence_datetime=first_date + timedelta(days=1))
+        expected_incident = IncidentFactory(earliest_occurrence_datetime=second_date - timedelta(days=1),
+                                            latest_occurrence_datetime=second_date + timedelta(days=1))
+        IncidentFactory(earliest_occurrence_datetime=third_date - timedelta(days=1),
+                        latest_occurrence_datetime=third_date + timedelta(days=1))
+
+        url = reverse("search")
+        data = {'earliest_occurrence_datetime': (second_date -
+                                                 timedelta(days=7)).strftime("%Y-%m-%d"),
+                'latest_occurrence_datetime': (second_date +
+                                               timedelta(days=7)).strftime("%Y-%m-%d")}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], expected_incident.id)
+
+    def test_location_route_search(self):
+        incident = IncidentFactory()
+        route = incident.location.route
+        url = reverse("search")
+        data = {'location': {'route': route}}
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_location_city_name_search(self):
+        incident = IncidentFactory()
+        city_name = incident.location.city.name
+        url = reverse("search")
+        data = {'location': {'city': city_name}}
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_location_state_search(self):
+        incident = IncidentFactory()
+        state_abbr = incident.location.city.state.abbreviation
+        url = reverse("search")
+        data = {'location': {'state': state_abbr}}
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_offenses_lookup(self):
+        incident = IncidentFactory()
+        offenses = OffenseFactory.create_batch(4)
+
+        for off in offenses:
+            incident.offenses.add(off)
+
+        url = reverse("search")
+        data = {'offenses': [offenses[0].id, offenses[2].id]}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_involved_party_juvenile_lookup(self):
+        incident = IncidentFactory()
+        VictimFactory(incident=incident,
+                      juvenile=True)
+        url = reverse("search")
+        data = {'victim': {'juvenile': True}}
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], incident.id)
+
+    def test_involved_party_date_of_birth_range(self):
+        exp_incident = IncidentFactory()
+        one_dob = date(year=1980,
+                       month=6,
+                       day=15)
+        suspect_one = SuspectFactory(incident=exp_incident,
+                                     date_of_birth=one_dob)
+
+        other_inc = IncidentFactory()
+        two_dob = date(year=1990,
+                       month=4,
+                       day=22)
+        suspect_two = SuspectFactory(incident=other_inc,
+                                     date_of_birth=two_dob)
+        url = reverse("search")
+        data = {'suspect': {'date_of_birth_min': (one_dob -
+                                                  timedelta(days=365)).strftime("%Y-%m-%d"),
+                            'date_of_birth_max': (one_dob +
+                                                  timedelta(days=365)).strftime("%Y-%m-%d")
+                            }
+                }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data[0]['id'], exp_incident.id)
 
 

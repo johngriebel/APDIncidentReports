@@ -36,7 +36,7 @@ class SearchTestCase(TestCase):
 
     def test_cleanse_filter_key_offenses(self):
         key = "offenses"
-        expected = "offenses__in"
+        expected = "offenses__id__in"
         result = cleanse_filter_key(key)
         self.assertEqual(result, expected)
 
@@ -48,7 +48,7 @@ class SearchTestCase(TestCase):
 
     def test_cleanse_filter_key_reporting_officer(self):
         key = "reporting_officer"
-        expected = "reporting_officer__user__last_name__iexact"
+        expected = "reporting_officer__user__last_name__icontains"
         result = cleanse_filter_key(key)
         self.assertEqual(result, expected)
 
@@ -76,12 +76,6 @@ class SearchTestCase(TestCase):
         key = "offenses"
         result = cleanse_value(key, data)
         self.assertListEqual(result, expected)
-
-    def test_cleanse_value_juvenile(self):
-        data = {'juvenile': "3"}
-        key = "juvenile"
-        result = cleanse_value(key, data)
-        self.assertFalse(result)
 
     def test_cleans_value_generic(self):
         data = {'my_key': 14}
