@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { Incident, Address, DateTime, Officer,
-         Victim, Suspect, Offense, states } from '../../data-model';
+         Victim, Suspect, Offense, states, IncidentFile } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -22,6 +22,7 @@ export class IncidentDetailComponent implements OnInit {
     availableOffenses: Offense[];
     incidentVictims: Victim[];
     incidentSuspects: Suspect[];
+    incidentFiles: IncidentFile[];
 
     incidentForm: FormGroup;
 
@@ -213,6 +214,9 @@ export class IncidentDetailComponent implements OnInit {
         
         this.getMyVictims();
         this.getMySuspects();
+        this.incidentService.getFiles(this.incident).subscribe((files) => {
+            this.incidentFiles = files;
+        });
 
          this.incidentForm = this.formBuilder.group({
              incident_number: this.incident.incident_number,

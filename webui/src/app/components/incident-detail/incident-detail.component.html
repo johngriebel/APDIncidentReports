@@ -187,7 +187,7 @@
         <app-suspect [suspects]="incidentSuspects" [availableOfficers]="availableOfficers"></app-suspect>
     </div>
     <div class="row" *ngIf="activeTab === 'files'">
-        <app-file-upload [incident]="incident" ></app-file-upload>
+        <app-file-upload class="col" [incident]="incident" [existingFiles]="incidentFiles"></app-file-upload>
     </div>
 </div>
 

@@ -226,6 +226,17 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
 
 
 class IncidentFileSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+
+    def get_file_name(self, obj):
+        logger.debug(f"obj: {obj}")
+        parts = obj.file.name.split("/")
+        if len(parts) > 1 and parts[0] == obj.incident.incident_number:
+            return obj.file.name.replace(f"{obj.incident.incident_number}/",
+                                         "")
+        else:
+            return obj.file.name
+
     class Meta:
         model = IncidentFile
-        fields = ("incident", "file",)
+        fields = ("incident", "file", "file_name")

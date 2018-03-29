@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { RequestOptions } from '@angular/http';
 import * as $ from 'jquery';
-import { Incident } from '../../data-model';
+import { Incident, IncidentFile } from '../../data-model';
 import {IncidentService} from '../../services/incident.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
@@ -12,6 +12,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 })
 export class FileUploadComponent implements OnInit, OnChanges {
     @Input() incident: Incident;
+    @Input() existingFiles: IncidentFile[];
     fileUploadForm: FormGroup;
     files: FileList;
     constructor(private incidentService: IncidentService,
@@ -20,6 +21,8 @@ export class FileUploadComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
+        console.log("existingFiles");
+        console.log(this.existingFiles);
     }
 
     ngOnChanges() {
@@ -44,7 +47,14 @@ export class FileUploadComponent implements OnInit, OnChanges {
         console.log("event");
         console.log($(event.target));
         let fileList: FileList = $(event.target)[0].files;
-        this.incidentService.uploadFile(this.incident, fileList);
+        console.log(fileList);
+        // this.incidentService.uploadFile(this.incident, fileList);
+    }
+
+    deleteFiles(){
+        console.log("delete files button clicked");
+        var deleteCheckboxes = $('.delete-file-check').toArray();
+        console.log(deleteCheckboxes);
     }
 
 }

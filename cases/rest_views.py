@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -161,8 +162,10 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
         created_files = []
-        logger.debug(f"request.data: {request.data}")
-        for upload in request.FILES.getlist('files'):
+        logger.debug(f"request.data: {request.data.getlist('uploadFile')}")
+        for upload in request.data.getlist('uploadFile'):
+            logger.debug(f"type(upload): {type(upload)}")
+            # content_file = ContentFile(upload)
             incident_file = IncidentFile(incident=incident,
                                          file=upload)
             incident_file.save()

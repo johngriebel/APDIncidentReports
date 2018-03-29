@@ -1,8 +1,42 @@
-<div class="col-sm-12" *ngIf="fileUploadForm">
-    <form [formGroup]="fileUploadForm">
-        <div class="form-group row">
-            <input id="fileUpload" type="file" class="custom-file-input col" formControlName="files" (change)="fileChange($event)" multiple>
-            <label class="custom-file-label col" for="fileUpload">Choose file</label>
-        </div>
-    </form>
+<div class="row">
+    <div *ngIf="existingFiles" class="col">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th>File</th>
+                    <th>Delete?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let file of existingFiles">
+                    <td>{{file.file_name}}</td>
+                    <td align="center"><input class="delete-file-check" id="deleteCheck{{file.id}}" type="checkbox"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="center"><button class="btn btn-danger" type="button" (click)="deleteFiles()">
+                                            Delete
+                                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<div class="row">
+    <div *ngIf="fileUploadForm" class="col">
+        <form [formGroup]="fileUploadForm">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <button class="btn btn-dark" type="button">Upload</button>
+                </div>
+                <div class="custom-file">
+                    <input id="fileUpload" type="file" class="custom-file-input col" formControlName="files" multiple>
+                    <label class="custom-file-label col" for="fileUpload">Choose file</label>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- (change)="fileChange($event)" -->

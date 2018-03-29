@@ -3,7 +3,8 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import { Incident, Victim, Suspect, Offense, Officer } from '../data-model';
+import { Incident, Victim, Suspect, 
+         Offense, Officer, IncidentFile } from '../data-model';
 import { environment } from '../../environments/environment';
 import { RequestOptions } from '@angular/http';
 
@@ -126,9 +127,16 @@ export class IncidentService {
     }
 
     printIncident(incident: Incident): Observable<Incident> {
-        const printURL = `${this.incidentsUrl}print/${incident.id}/`
-        console.log(printURL);
+        const printURL = `${this.incidentsUrl}print/${incident.id}/`;
         return this.http.get<Incident>(printURL, {headers: this.getHeaders()});
+    }
+
+    getFiles(incident): Observable<IncidentFile[]> {
+        const filesURL = `${this.incidentsUrl}${incident.id}/files/`;
+        return this.http.get<IncidentFile[]>(filesURL, {headers: this.getHeaders()}).pipe(
+            tap(files => this.log("Fetched files")),
+            catchError(this.handleError('getFiles', []))
+        );
     }
 
     uploadFile(incident, fileList) {
@@ -149,6 +157,14 @@ export class IncidentService {
                     error => console.log(error)
                 );
         }
+    }
+
+    deleteFile(incident, fileId) {
+        const fileURL = `${this.incidentsUrl}${incident.id}/files/${fileId}`;
+        return this.http.delete(fileURL, {headers: this.getHeaders()}).pipe(
+            tap(data => console.log("deleted the file")),
+            catchError(this.handleError('delete file'))
+        );
     }
 
     private handleError<T> (operation = 'operation', result?: T) {

@@ -116,6 +116,12 @@ export class Offense {
     ucr_alpha: '';
 }
 
+export class IncidentFile {
+    incident: number;
+    file: string;
+    file_name: string;
+}
+
 export const states = [
     "AL",
     "AK",
