@@ -34,6 +34,8 @@ class JWTAuthAPIBaseTestCase(APITestCase):
 
 class IncidentsTestCase(JWTAuthAPIBaseTestCase):
 
+    fixtures = ["states.json"]
+
     def test_create_incident(self):
         url = reverse("incident-list")
         report_dt = self.faker.generate_date_time_dict()
@@ -106,6 +108,8 @@ class IncidentsTestCase(JWTAuthAPIBaseTestCase):
 
 class VictimTestCase(JWTAuthAPIBaseTestCase):
 
+    fixtures = ["states.json"]
+
     def test_create_victim(self):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=VICTIM,
@@ -153,6 +157,8 @@ class VictimTestCase(JWTAuthAPIBaseTestCase):
 
 
 class SuspectTestCase(JWTAuthAPIBaseTestCase):
+
+    fixtures = ["states.json"]
 
     def test_create_suspect(self):
         incident = IncidentFactory()
@@ -202,6 +208,9 @@ class SuspectTestCase(JWTAuthAPIBaseTestCase):
 
 @override_settings(MEDIA_ROOT="/tmp/APD/")
 class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
+
+    fixtures = ["states.json"]
+
     def setUp(self):
         super(IncidentFileTestCase, self).setUp()
         self.incident = IncidentFactory()
@@ -239,6 +248,9 @@ class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
 
 
 class SearchTestCase(JWTAuthAPIBaseTestCase):
+
+    fixtures = ["states.json"]
+
     def test_basic_incident_number_search(self):
         incident = IncidentFactory()
         url = reverse("search")

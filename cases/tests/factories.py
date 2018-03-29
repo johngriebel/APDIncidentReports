@@ -1,4 +1,6 @@
 import factory
+import random
+
 from pytz import timezone
 from faker import Faker
 from django.conf import settings
@@ -11,6 +13,14 @@ from cases.constants import (SEX_CHOICES, RACE_CHOICES,
                              EYE_COLOR_CHOICES)
 User = get_user_model()
 this_timezone = timezone(settings.TIME_ZONE)
+
+
+def get_random_state():
+    state_ids = State.objects.all().values_list('id', flat=True)
+    if not state_ids:
+        return StateFactory()
+    id_to_use = random.choice(state_ids)
+    return State.objects.get(id=id_to_use)
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -36,7 +46,7 @@ class CityFactory(factory.DjangoModelFactory):
         model = City
 
     name = factory.Faker("city")
-    state = factory.SubFactory(StateFactory)
+    state = factory.LazyFunction(get_random_state)
 
 
 class AddressFactory(factory.DjangoModelFactory):
