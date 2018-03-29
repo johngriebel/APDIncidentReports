@@ -227,12 +227,15 @@ class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
         inc_file = IncidentFile(incident=self.incident,
                                 file=upload_file)
         inc_file.save()
+        file_path = inc_file.file.path
         url = reverse("file-detail", kwargs={'incidents_pk': self.incident.pk,
                                                      'pk': inc_file.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         inc_files = IncidentFile.objects.filter(incident=self.incident)
         self.assertEqual(inc_files.count(), 0)
+        deleted_file = Path(file_path)
+        self.assertFalse(deleted_file.is_file())
 
 
 class SearchTestCase(JWTAuthAPIBaseTestCase):
