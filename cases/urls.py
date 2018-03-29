@@ -16,7 +16,7 @@ incidents_router.register("victims", rest_views.VictimViewSet,
 incidents_router.register("suspects", rest_views.SuspectViewSet,
                           base_name="suspect")
 incidents_router.register("files", rest_views.IncidentFileViewSet,
-                          base_name="files")
+                          base_name="file")
 
 urlpatterns = [
     path('api/', include(router.urls)),
