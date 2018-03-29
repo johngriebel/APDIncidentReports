@@ -14,7 +14,7 @@ export class FileUploadComponent implements OnInit, OnChanges {
     @Input() incident: Incident;
     @Input() existingFiles: IncidentFile[];
     fileUploadForm: FormGroup;
-    files: FileList;
+    files: IncidentFile[];
     constructor(private incidentService: IncidentService,
                 private formBuilder: FormBuilder) {
         this.createForm();
@@ -43,18 +43,40 @@ export class FileUploadComponent implements OnInit, OnChanges {
     }
 
     fileChange(event) {
-        console.log("in file change methd");
-        console.log("event");
-        console.log($(event.target));
+        console.log("Uploading files.");
         let fileList: FileList = $(event.target)[0].files;
-        console.log(fileList);
-        // this.incidentService.uploadFile(this.incident, fileList);
+        this.incidentService.uploadFile(this.incident, fileList).subscribe(files => {
+            files.forEach(file => {
+                this.existingFiles.push(file);
+            });
+            console.log("Successfully uploaded all files");
+            console.log(this.existingFiles);
+        });
+    }
+
+    private updateFilesAfterDelete(){
+        this.incidentService.getFiles(this.incident).subscribe(existingFiles => {
+            this.existingFiles = existingFiles;
+            this.files = this.existingFiles;
+
+        });
     }
 
     deleteFiles(){
         console.log("delete files button clicked");
         var deleteCheckboxes = $('.delete-file-check').toArray();
-        console.log(deleteCheckboxes);
+        deleteCheckboxes.forEach(checkBox => {
+            const fileId = $(checkBox).data("file-id");
+            if ($(checkBox)[0].checked){
+                console.log(`About to delete file with ID=${fileId}`);
+                this.incidentService.deleteFile(this.incident, fileId).subscribe(data => {
+                    console.log("deleted file");
+                    this.updateFilesAfterDelete();
+                });
+            }
+        });
+        
+        this.rebuildForm();
     }
 
 }

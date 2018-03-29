@@ -4,13 +4,13 @@
             <thead class="thead-light">
                 <tr>
                     <th>File</th>
-                    <th>Delete?</th>
+                    <th align="center">Delete?</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let file of existingFiles">
-                    <td>{{file.file_name}}</td>
-                    <td align="center"><input class="delete-file-check" id="deleteCheck{{file.id}}" type="checkbox"></td>
+                    <td><a href="{{file.file}}">{{file.file_name}}</a></td>
+                    <td align="center"><input class="delete-file-check" id="deleteCheck{{file.id}}" type="checkbox" attr.data-file-id="{{file.id}}"></td>
                 </tr>
                 <tr>
                     <td></td>
@@ -32,7 +32,7 @@
                     <button class="btn btn-dark" type="button">Upload</button>
                 </div>
                 <div class="custom-file">
-                    <input id="fileUpload" type="file" class="custom-file-input col" formControlName="files" multiple>
+                    <input id="fileUpload" type="file" (change)="fileChange($event)" class="custom-file-input col" formControlName="files" multiple>
                     <label class="custom-file-label col" for="fileUpload">Choose file</label>
                 </div>
             </div>

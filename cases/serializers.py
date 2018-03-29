@@ -239,4 +239,5 @@ class IncidentFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IncidentFile
-        fields = ("incident", "file", "file_name")
+        fields = ("id", "incident", "file", "file_name")
+        read_only_fields = ("id",)

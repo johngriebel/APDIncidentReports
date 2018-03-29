@@ -139,7 +139,7 @@ export class IncidentService {
         );
     }
 
-    uploadFile(incident, fileList) {
+    uploadFile(incident, fileList): Observable<IncidentFile[]> {
         if(fileList.length > 0) {
             console.log(fileList);
             let formData:FormData = new FormData();
@@ -151,16 +151,15 @@ export class IncidentService {
             headers.append('Content-Type', 'multipart/form-data');
             headers.append('Accept', 'application/json');
             const fullURL = `${this.incidentsUrl}${incident.id}/files/`
-            this.http.post(`${fullURL}`, formData, {headers: headers})
-                .subscribe(
-                    data => console.log(data),
-                    error => console.log(error)
-                );
+            return this.http.post<IncidentFile[]>(`${fullURL}`, formData, {headers: headers}).pipe(
+                tap((files: IncidentFile[]) => this.log("Fetched files")),
+                catchError(this.handleError('getFiles', []))
+            );
         }
     }
 
     deleteFile(incident, fileId) {
-        const fileURL = `${this.incidentsUrl}${incident.id}/files/${fileId}`;
+        const fileURL = `${this.incidentsUrl}${incident.id}/files/${fileId}/`;
         return this.http.delete(fileURL, {headers: this.getHeaders()}).pipe(
             tap(data => console.log("deleted the file")),
             catchError(this.handleError('delete file'))
