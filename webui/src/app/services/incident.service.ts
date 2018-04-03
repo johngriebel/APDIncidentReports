@@ -166,6 +166,15 @@ export class IncidentService {
         );
     }
 
+    searchIncidents(searchParams): Observable<any> {
+        const searchURL = `${this.incidentsUrl}search/`;
+        return this.http.post(searchURL, searchParams, 
+                                {headers: this.getHeaders()}).pipe(
+            tap(incidents => this.log("searched incidents")),
+            catchError(this.handleError('searchIncidents', []))
+        )
+    }
+
     private handleError<T> (operation = 'operation', result?: T) {
         return (error: any): Observable<T> => {
 

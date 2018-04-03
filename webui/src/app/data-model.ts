@@ -183,3 +183,12 @@ export const states = [
     "WI",
     "WY",
 ]
+
+export const eye_colors = [
+    {abbreviation: "BLK", display: "Black"}
+]
+
+export const hair_colors = [
+    {abbreviation: "BLD", display: "Bald"}
+]
+

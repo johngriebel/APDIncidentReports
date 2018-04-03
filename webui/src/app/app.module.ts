@@ -16,6 +16,7 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
 import { VictimComponent } from './components/victim/victim.component';
 import { SuspectComponent } from './components/suspect/suspect.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
+import { SearchComponent } from './components/search/search.component';
 
 
 @NgModule({
@@ -28,6 +29,7 @@ import { FileUploadComponent } from './components/file-upload/file-upload.compon
     VictimComponent,
     SuspectComponent,
     FileUploadComponent,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,

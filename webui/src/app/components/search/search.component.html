@@ -1,0 +1,199 @@
+<h3 *ngIf="!searchResults" class="ml-2">Search for an Incident</h3>
+<h3 *ngIf="searchResults" class="ml-2">Search Results</h3>
+
+<div  class="container">
+    <div class="row">
+        <form *ngIf="searchForm && !searchResults" [formGroup]="searchForm" class="col-sm-12">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Incident Number:</label>
+                <input class="form-control col-sm-10" formControlName="incident_number">
+            </div>
+            <div formGroupName="location">
+                <h4>Location</h4>
+                <div class="form-group row">
+                    <!-- TODO: Get the alignment of these right -->
+                    <label class="col-sm-2 col-form-label">Building:</label>
+                    <input class="form-control col-sm-2" formControlName="street_number">
+                    <label class="col-sm-1 col-form-label">Street:</label>
+                    <input class="form-control col-sm-7" formControlName="route">
+                </div>
+                    <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">City:</label>
+                    <input class="form-control col-sm-4" formControlName="city">
+                    <label class="col-sm-1 col-form-label">State:</label>
+                    <select class="form-control col-sm-2" formControlName="state">
+                        <option *ngFor="let state of states" [value]="state">{{state}}</option>
+                    </select>
+                    <label class="col-sm-1 col-form-label">Zip:</label>
+                    <input class="form-control col-sm-2" formControlName="postal_code">
+                </div>
+            </div>
+            <div formGroupName="min_report_datetime">
+                <h4>Min Report Date & Time</h4>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Date:</label>
+                    <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
+                    <label class="col-sm-2 col-form-label">Time:</label>
+                    <input class="form-control col-sm-4" formControlName="time" type="time">
+                </div>
+            </div>
+            <div formGroupName="max_report_datetime">
+                <h4>Max Report Date & Time</h4>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Date:</label>
+                    <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
+                    <label class="col-sm-2 col-form-label">Time:</label>
+                    <input class="form-control col-sm-4" formControlName="time" type="time">
+                </div>
+            </div>
+            <div formGroupName="reporting_officer">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Reporting Officer:</label>
+                    <select class="form-control col-sm-10" formControlName="id">
+                        <option *ngFor="let officer of availableOfficers" [value]="officer.id">{{officer.officer_number}} - {{officer.user.last_name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div formGroupName="earliest_occurrence_datetime">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Earliest Date:</label>
+                    <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
+                    <label class="col-sm-2 col-form-label">Time:</label>
+                    <input class="form-control col-sm-4" formControlName="time" type="time">
+                </div>
+            </div>
+            <div formGroupName="latest_occurrence_datetime">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Latest Date:</label>
+                    <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
+                    <label class="col-sm-2 col-form-label">Time:</label>
+                    <input class="form-control col-sm-4" formControlName="time" type="time">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Beat:</label>
+                <input class="form-control col-sm-10" formControlName="beat" type="number">
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Shift:</label>
+                <select class="form-control col-sm-10" formControlName="shift">
+                    <option value="D">Day</option>
+                    <option value="E">Evening</option>
+                    <option value="N">Night</option>
+                </select>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Offenses:</label>
+                <select class="custom-select form-control col-sm-10" multiple formControlName="offenses">
+                    <!-- TODO: Display all possible offenses, with only the ones relevant to this report being selected-->
+                    <option *ngFor="let offense of availableOffenses" [value]="offense.id">{{offense.ucr_name_classification}} - {{offense.ucr_subclass_description}} - {{offense.ucr_code}}</option>
+                </select>
+            </div>
+            <!--div formGroupName="victim">
+                <h4>Victim Criteria</h4>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">First Name:</label>
+                    <input class="form-control col-sm-4" formControlName="first_name">
+                    <label class="col-sm-2 col-form-label">Last Name:</label>
+                    <input class="form-control col-sm-4" formControlName="last_name">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Juvenile:</label>
+                    <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Min Date of Birth:</label>
+                    <input class="form-control col-sm-10" formControlName="min_date_of_birth" type="date">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Max Date of Birth:</label>
+                    <input class="form-control col-sm-10" formControlName="max_date_of_birth" type="date">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Sex:</label>
+                    <select class="form-control col-sm-4" formControlName="sex">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                    <label class="col-sm-2 col-form-label">Race:</label>
+                    <select class="form-control col-sm-4" formControlName="race">
+                        <option value="ASIAN">Asian</option>
+                        <option value="BLACK">Black African American</option>
+                        <option value="NATIVE">Native American</option>
+                        <option value="HAWAIIAN/PACIFIC_ISLANADER">Native Hawaiian/Pacific Islander</option>
+                        <option value="WHITE">White</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Min Height:</label>
+                    <input class="form-control col-sm-1 mr-1" id="heightFeet{{i}}" type="number" attr.data-count="{{i}}"  [value]="getFeet(victim)" (change)="updateHeight(victim)">
+                    <div class="input-group-append mr-3">
+                        <span class="input-group-text" id="heightFeetAddOn">Feet</span>
+                    </div>
+                    <input class="form-control col-sm-1 mr-1" id="heightInches{{i}}" attr.data-count="{{i}}" [value]="getInches(victim)" type="number" (change)="updateHeight(victim, $event)">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="heightInchesAddOn">Inches</span>
+                    </div>
+                    <label class="col-sm-2 col-form-label">Max Height:</label>
+                    <input class="form-control col-sm-1 mr-1" id="heightFeet{{i}}" type="number" attr.data-count="{{i}}"  [value]="getFeet(victim)" (change)="updateHeight(victim)">
+                    <div class="input-group-append mr-3">
+                        <span class="input-group-text" id="heightFeetAddOn">Feet</span>
+                    </div>
+                    <input class="form-control col-sm-1 mr-1" id="heightInches{{i}}" attr.data-count="{{i}}" [value]="getInches(victim)" type="number" (change)="updateHeight(victim, $event)">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="heightInchesAddOn">Inches</span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label ml-auto">Weight:</label>
+                    <input class="form-control col-sm-4" formControlName="min_weight" type="number">
+                    <label class="col-sm-2 col-form-label ml-auto">Weight:</label>
+                    <input class="form-control col-sm-4" formControlName="max_weight" type="number">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Build:</label>
+                    <input class="form-control col-sm-4" formControlName="build">
+                    <label class="col-sm-2 col-form-label">Tattos:</label>
+                    <input class="form-control col-sm-4" formControlName="tattoos">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Scars:</label>
+                    <input class="form-control col-sm-4" formControlName="scars">
+                    <label class="col-sm-2 col-form-label">Hairstyle:</label>
+                    <input class="form-control col-sm-4" formControlName="hairstyle">
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Eye Color</label>
+                    <select class="form-control col-sm-4" formControlName="eye_color">
+                        <option *ngFor="let eyeColor of eyeColors" [value]="eyeColor.abbreviation">{{eyeColor.display}}</option>
+                    </select>
+                    <label class="col-sm-2 col-form-label">Hair Color</label>
+                    <select class="form-control col-sm-4" formControlName="hair_color">
+                        <option *ngFor="let hairColor of hairColors" [value]="hairColor.abbreviation">{{hairColor.display}}</option>
+                    </select>
+                </div>
+            </div-->
+            <div class="row justify-content-between mb-2">
+                    <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Search</button>
+                </div>
+        </form>
+        <!-- TODO: Make this table a component that accepts an array of incidents in the constructor -->
+        <table *ngIf="searchResults" class="incidents table">
+                <thead>
+                    <tr>
+                        <th>Incident Number</th>
+                        <th>Report Datetime</th>
+                        <th>Reporting Officer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let incident of searchResults">
+                        <td><a routerLink="/incidents/{{incident.id}}">{{incident.incident_number}}</a></td>
+                        <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
+                        <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
+</div>

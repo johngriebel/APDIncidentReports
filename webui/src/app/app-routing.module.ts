@@ -4,6 +4,7 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
 import { IncidentsComponent } from './components/incidents/incidents.component';
 import { IncidentDetailComponent } from './components/incident-detail/incident-detail.component';
 import { VictimComponent } from './components/victim/victim.component';
+import { SearchComponent } from './components/search/search.component';
 
 const routes: Routes = [
     {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
@@ -11,7 +12,8 @@ const routes: Routes = [
     {path: 'incidents', component: IncidentsComponent},
     {path: 'incidents/:id', component: IncidentDetailComponent},
     {path: 'incidents/:id/victims', component: VictimComponent},
-    {path: 'create-incident', component: IncidentDetailComponent}
+    {path: 'create-incident', component: IncidentDetailComponent},
+    {path: 'search', component: SearchComponent}
 ];
 
 
