@@ -35,7 +35,10 @@ def cleanse_value(key: str, data: dict):
             logger.info(f"Converted value was not timezone aware. Making it so.")
             value = timezone.make_aware(value)
     elif key == "offenses":
-        value = data.getlist(key)
+        if hasattr(data, "getlist"):
+            value = data.getlist(key)
+        else:
+            value = data.get(key)
     else:
         value = data[key]
     return value
