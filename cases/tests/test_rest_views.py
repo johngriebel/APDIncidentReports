@@ -279,8 +279,9 @@ class SearchTestCase(JWTAuthAPIBaseTestCase):
                                     tzinfo=tzinfo)
 
         url = reverse("search")
-        data = {'report_datetime_min': divider_datetime.strftime("%Y-%m-%d")}
-        response = self.client.post(url, data=data)
+        data = {'report_datetime_min': {'date': divider_datetime.strftime("%Y-%m-%d"),
+                                        'time': divider_datetime.strftime("%H:%M")}}
+        response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], second_incident.id)
@@ -316,11 +317,13 @@ class SearchTestCase(JWTAuthAPIBaseTestCase):
                         latest_occurrence_datetime=third_date + timedelta(days=1))
 
         url = reverse("search")
-        data = {'earliest_occurrence_datetime': (second_date -
-                                                 timedelta(days=7)).strftime("%Y-%m-%d"),
-                'latest_occurrence_datetime': (second_date +
-                                               timedelta(days=7)).strftime("%Y-%m-%d")}
-        response = self.client.post(url, data=data)
+        early = (second_date - timedelta(days=7))
+        late = (second_date + timedelta(days=7))
+        data = {'earliest_occurrence_datetime': {'date': early.strftime("%Y-%m-%d"),
+                                                 'time': early.strftime("%H:%M")},
+                'latest_occurrence_datetime': {'date': late.strftime("%Y-%m-%d"),
+                                               'time': late.strftime("%H:%M")}}
+        response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], expected_incident.id)
