@@ -289,7 +289,7 @@ class SearchTestCase(JWTAuthAPIBaseTestCase):
         incident = IncidentFactory()
         reporting_officer = incident.reporting_officer
         url = reverse("search")
-        data = {'reporting_officer': reporting_officer.user.last_name[:4]}
+        data = {'reporting_officer': reporting_officer.id}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data[0]['id'], incident.id)

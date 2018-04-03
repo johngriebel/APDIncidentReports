@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import * as $ from 'jquery';
 import { IncidentService } from '../../services/incident.service';
 import { DateTime, Officer, Offense, Incident,
-         eye_colors, states, hair_colors } from '../../data-model';
+         eye_colors, states, hair_colors, blankSearchCriteria,
+        AddressTwo } from '../../data-model';
 
 @Component({
   selector: 'app-search',
@@ -27,17 +28,56 @@ export class SearchComponent implements OnInit {
                 private incidentService: IncidentService) { }
 
     ngOnInit() {
+        this.incidentService.getAllOfficers().subscribe(officers => {
+            this.availableOfficers = officers;
+        });
         this.incidentService.getAllOffenses().subscribe(offenses => {
             this.availableOffenses = offenses;
             this.createForm();
         });
     }
 
+    private shouldParamBeSent(name, value): boolean {
+        let blankValue = blankSearchCriteria[name];
+
+        if (name === "victim"){
+            return false;
+        }
+        else if (blankValue instanceof Object){
+            return !blankValue.equals(value);
+        }
+        else{
+            return blankSearchCriteria[name] != value;
+        }
+    }
+
+
+    prepareSearchParams(rawParams) {
+        var cleanedParams = {};
+        
+        Object.keys(rawParams).forEach(param => {
+            let value = rawParams[param]
+            if (this.shouldParamBeSent(param, rawParams[param])){
+                if (rawParams[param] instanceof Object){
+                    if (param == "reporting_officer"){
+                        cleanedParams[param] = rawParams[param].id;
+                    }
+                    else{
+                        cleanedParams[param] = rawParams[param];
+                    }
+                }
+                else{
+                    cleanedParams[param] = rawParams[param];
+                }
+            }
+        });
+        return cleanedParams
+    }
+
     onSubmit() {
-        console.log("In the onSubmit method");
-        console.log(this.searchForm.value);
-        this.incidentService.searchIncidents(
-            {incident_number: this.searchForm.value.incident_number}).subscribe(incidents => {
+        const searchParams = this.prepareSearchParams(this.searchForm.value);
+        this.incidentService.searchIncidents(searchParams).subscribe(
+            incidents => {
                 console.log("Found incidents");
                 console.log(incidents);
                 this.searchResults = incidents;
@@ -56,11 +96,7 @@ export class SearchComponent implements OnInit {
             }),
             min_report_datetime: this.formBuilder.group({date: '', time: ''}),
             max_report_datetime: this.formBuilder.group({date: '', time: ''}),
-            reporting_officer: this.formBuilder.group({
-                id: 0,
-                officer_number: 0,
-                user: {}
-            }),
+            reporting_officer: this.formBuilder.group(new Officer()),
             earliest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
             latest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
             beat: 0,

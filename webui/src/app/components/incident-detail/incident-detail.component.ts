@@ -55,10 +55,8 @@ export class IncidentDetailComponent implements OnInit {
         this.dateString = year.toString() + "-" + month.toString().padStart(2, "0") + "-" + day.toString().padStart(2, "0");
         this.timeString = timeString;
         this.showSuccessAlert = false;
-        var now: DateTime = {
-                    date: this.dateString,
-                    time: this.timeString
-                    };
+        var now = new DateTime(this.dateString,
+                               this.timeString);
         this.now = now;
         this.activeTab = "incident";
     }
@@ -126,9 +124,7 @@ export class IncidentDetailComponent implements OnInit {
                     fakeVictims.push({id: 0,
                         first_name: '',
                         last_name: '',
-                        officer_signed: {id: 0,
-                                         officer_number: 0,
-                                         user: {}},
+                        officer_signed: new Officer(),
                         juvenile: false,
                         home_address: {street_number: '',
                                        route: '',
@@ -174,9 +170,7 @@ export class IncidentDetailComponent implements OnInit {
                     fakeSuspects.push({id: 0,
                         first_name: '',
                         last_name: '',
-                        officer_signed: {id: 0,
-                                         officer_number: 0,
-                                         user: {}},
+                        officer_signed: new Officer(),
                         juvenile: false,
                         home_address: {street_number: '',
                                        route: '',

@@ -4,9 +4,18 @@ export class User {
 
 
 export class Officer {
-    id: number;
-    officer_number: number;
-    user: object;
+    constructor(public id: number = 0,
+                public officer_number: number = 0,
+                public user: object = {}){}
+
+    equals(other) {
+        return (other.id === this.id &&
+                other.officer_number === this.officer_number);
+    }
+
+    getValue() {
+        return this.id;
+    }
 }
 
 export class State {
@@ -26,6 +35,26 @@ export class Address {
     state: string;
     postal_code: string;
 
+}
+
+export class AddressTwo {
+    constructor (public street_number: string = "",
+                 public route: string = "",
+                 public city: string = "",
+                 public state: string = "",
+                 public postal_code: string = ""){
+                 }
+    equals(other){
+        return (other.street_number === this.street_number &&
+                other.route === this.route &&
+                other.city === this.city &&
+                other.state === this.state &&
+                other.postal_code === this.postal_code)
+    }
+
+    getValue(){
+        return this;
+    }
 }
 
 export class Incident {
@@ -52,8 +81,19 @@ export class Incident {
 }
 
 export class DateTime {
-    date: string;
-    time: string;
+
+    constructor(public date: string = "",
+                public time: string = ""){}
+
+    equals(other) {
+        console.log("In the custom .equals method");
+        return (other.date == this.date &&
+                other.time == this.time);
+    }
+
+    getValue() {
+        return this;
+    }
 }
 
 // TODO: Can Suspect and Victim be merged?
@@ -120,6 +160,38 @@ export class IncidentFile {
     incident: number;
     file: string;
     file_name: string;
+}
+
+export const blankSearchCriteria = {
+    incident_number: '',
+    location: new AddressTwo(),
+    min_report_datetime: new DateTime(),
+    max_report_datetime: new DateTime(),
+    reporting_officer: new Officer(),
+    earliest_occurrence_datetime: new DateTime(),
+    latest_occurrence_datetime: new DateTime(),
+    beat: 0,
+    shift: '',
+    offenses: null,
+    victim: {
+        first_name: '',
+        last_name: '',
+        //juvenile: false,
+        min_date_of_birth: new DateTime(),
+        max_date_of_birth: new DateTime(),
+        sex: '',
+        race: '',
+        min_height: 0,
+        max_height: 0,
+        min_weight: 0,
+        max_weight: 0,
+        build: '',
+        tattoos: '',
+        scars: '',
+        hairstyle: '',
+        hair_color: '',
+        eye_color: '',
+    }
 }
 
 export const states = [

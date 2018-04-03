@@ -48,7 +48,7 @@ class SearchTestCase(TestCase):
 
     def test_cleanse_filter_key_reporting_officer(self):
         key = "reporting_officer"
-        expected = "reporting_officer__user__last_name__icontains"
+        expected = "reporting_officer__id"
         result = cleanse_filter_key(key)
         self.assertEqual(result, expected)
 

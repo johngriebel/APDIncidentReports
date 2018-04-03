@@ -14,7 +14,7 @@ def cleanse_filter_key(key: str) -> str:
     elif "_max" in key:
         filter_key = key.replace("_max", "__lte")
     elif "officer" in key or key == "supervisor":
-        filter_key = key + "__user__last_name__icontains"
+        filter_key = key + "__id"
     elif "earliest_" in key:
         filter_key = key + "__gte"
     elif "latest" in key:
@@ -55,13 +55,13 @@ def build_reverse_lookups(party_type: str, params: dict) -> Dict:
 def handle_location_filtering(location_data: Dict) -> Dict:
     location_filters = {}
     for key in ["street_number", "route", "postal_code"]:
-        if key in location_data:
+        if key in location_data and location_data[key] != "":
             location_filters[f"location__{key}__icontains"] = location_data[key]
 
-    if "city" in location_data:
+    if "city" in location_data and location_data['city'] != "":
         location_filters[f"location__city__name__icontains"] = location_data['city']
 
-    if "state" in location_data:
+    if "state" in location_data and location_data['state'] != "":
         location_filters[f"location__city__state__abbreviation"] = location_data['state']
 
     return location_filters
