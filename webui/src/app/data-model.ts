@@ -165,8 +165,8 @@ export class IncidentFile {
 export const blankSearchCriteria = {
     incident_number: '',
     location: new AddressTwo(),
-    min_report_datetime: new DateTime(),
-    max_report_datetime: new DateTime(),
+    report_datetime_min: new DateTime(),
+    report_datetime_max: new DateTime(),
     reporting_officer: new Officer(),
     earliest_occurrence_datetime: new DateTime(),
     latest_occurrence_datetime: new DateTime(),

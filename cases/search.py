@@ -71,6 +71,8 @@ def get_search_results(*, params: dict):
     logger.info(f"Search parameters: {params}")
     filter_dict = {}
     for key in params:
+        if "datetime" in key:
+            params[key] = f"{params[key]['date']} {params[key]['time']}"
         if isincident_field(key):
             if key == "location":
                 location_filters = handle_location_filtering(location_data=params[key])
