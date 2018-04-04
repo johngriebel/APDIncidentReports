@@ -29,6 +29,9 @@ def cleanse_filter_key(key: str) -> str:
 
 
 def cleanse_value(key: str, data: dict):
+    print("CHEETAH")
+    print(key)
+    print(data)
     if "date" in key:
         value = convert_date_string_to_object(data[key])
         if not value.tzinfo:
@@ -48,6 +51,10 @@ def build_reverse_lookups(party_type: str, params: dict) -> Dict:
     involved_party_lookups = {'incidentinvolvedparty__party_type': party_type.upper()}
     for key in params:
         if params[key]:
+            print("BADGER")
+            print(key)
+            if "date" in key and params[key]['date']:
+                params[key] = f"{params[key]['date']} {params[key]['time']}"
             cleaned_sub_key = cleanse_filter_key(key)
             filter_key = f"incidentinvolvedparty__{cleaned_sub_key}"
             value = cleanse_value(key, data=params)
@@ -85,6 +92,8 @@ def get_search_results(*, params: dict):
                 if params[key]:
                     filter_dict[filter_key] = cleanse_value(key, params)
         elif "victim" == key or "suspect" == key:
+            print("ARMADILLO")
+            print(params[key])
             reverse_lookups = build_reverse_lookups(key, params[key])
             filter_dict.update(reverse_lookups)
     incidents = Incident.objects.filter(**filter_dict)

@@ -4,7 +4,8 @@ import * as $ from 'jquery';
 import { IncidentService } from '../../services/incident.service';
 import { DateTime, Officer, Offense, Incident,
          eye_colors, states, hair_colors, blankSearchCriteria,
-        AddressTwo } from '../../data-model';
+        AddressTwo, 
+        Victim} from '../../data-model';
 
 @Component({
   selector: 'app-search',
@@ -39,11 +40,9 @@ export class SearchComponent implements OnInit {
 
     private shouldParamBeSent(name, value): boolean {
         let blankValue = blankSearchCriteria[name];
-
-        if (name === "victim"){
-            return false;
-        }
-        else if (blankValue instanceof Object){
+        if (blankValue instanceof Object){
+            console.log(name);
+            console.log(blankValue);
             return !blankValue.equals(value);
         }
         else{
@@ -102,25 +101,7 @@ export class SearchComponent implements OnInit {
             beat: 0,
             shift: '',
             offenses: [],
-            victim: this.formBuilder.group({
-                first_name: '',
-                last_name: '',
-                //juvenile: false,
-                min_date_of_birth: this.formBuilder.group({date: '', time: ''}),
-                max_date_of_birth: this.formBuilder.group({date: '', time: ''}),
-                sex: '',
-                race: '',
-                min_height: 0,
-                max_height: 0,
-                min_weight: 0,
-                max_weight: 0,
-                build: '',
-                tattoos: '',
-                scars: '',
-                hairstyle: '',
-                hair_color: '',
-                eye_color: ''
-            })
+            victim: this.formBuilder.group(new Victim())
         });
     }
 

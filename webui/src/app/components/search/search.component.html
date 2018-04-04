@@ -29,18 +29,16 @@
                 </div>
             </div>
             <div formGroupName="report_datetime_min">
-                <h4>Min Report Date & Time</h4>
                 <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Date:</label>
+                    <label class="col-sm-2 col-form-label">Earliest Rpt Date:</label>
                     <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                     <label class="col-sm-2 col-form-label">Time:</label>
                     <input class="form-control col-sm-4" formControlName="time" type="time">
                 </div>
             </div>
             <div formGroupName="report_datetime_max">
-                <h4>Max Report Date & Time</h4>
                 <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Date:</label>
+                    <label class="col-sm-2 col-form-label">Latest Rpt Date:</label>
                     <input class="form-control col-sm-4" formControlName="date" type="date" placeholder="{{dateString}}">
                     <label class="col-sm-2 col-form-label">Time:</label>
                     <input class="form-control col-sm-4" formControlName="time" type="time">
@@ -89,7 +87,7 @@
                     <option *ngFor="let offense of availableOffenses" [value]="offense.id">{{offense.ucr_name_classification}} - {{offense.ucr_subclass_description}} - {{offense.ucr_code}}</option>
                 </select>
             </div>
-            <!--div formGroupName="victim">
+            <div formGroupName="victim">
                 <h4>Victim Criteria</h4>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">First Name:</label>
@@ -97,7 +95,7 @@
                     <label class="col-sm-2 col-form-label">Last Name:</label>
                     <input class="form-control col-sm-4" formControlName="last_name">
                 </div>
-                <div class="form-group row">
+                <!--div class="form-group row">
                     <label class="col-sm-2 col-form-label">Juvenile:</label>
                     <input type="checkbox" class="form-control col-sm-4" formControlName="juvenile">
                 </div>
@@ -172,8 +170,8 @@
                     <select class="form-control col-sm-4" formControlName="hair_color">
                         <option *ngFor="let hairColor of hairColors" [value]="hairColor.abbreviation">{{hairColor.display}}</option>
                     </select>
-                </div>
-            </div-->
+                </div-->
+            </div>
             <div class="row justify-content-between mb-2">
                     <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Search</button>
                 </div>

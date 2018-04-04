@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as $ from 'jquery';
 import { Incident, Victim, Officer, Address, DateTime,
-         states } from '../../data-model';
+         states, 
+         AddressTwo} from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
 
 @Component({
@@ -34,11 +35,7 @@ export class VictimComponent implements OnInit, OnChanges {
             last_name: '',
             officer_signed: new Officer(),
             juvenile: false,
-            home_address: {street_number: '',
-                           route: '',
-                           city: '',
-                           state: '',
-                           postal_code: ''},
+            home_address: new AddressTwo(),
             date_of_birth: new DateTime(),
             sex: '',
             race: '',
@@ -49,11 +46,7 @@ export class VictimComponent implements OnInit, OnChanges {
             drivers_license: '',
             drivers_license_state: '',
             employer: '',
-            employer_address: {street_number: '',
-                               route: '',
-                               city: '',
-                               state: '',
-                               postal_code: ''},
+            employer_address: new AddressTwo(),
             build: '',
             tattoos: '',
             scars: '',

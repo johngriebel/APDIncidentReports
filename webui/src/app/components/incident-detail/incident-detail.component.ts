@@ -121,35 +121,7 @@ export class IncidentDetailComponent implements OnInit {
                 if (victims.length === 0){
                     console.log("length  was 0");
                     var fakeVictims = new Array<Victim>();
-                    fakeVictims.push({id: 0,
-                        first_name: '',
-                        last_name: '',
-                        officer_signed: new Officer(),
-                        juvenile: false,
-                        home_address: {street_number: '',
-                                       route: '',
-                                       city: '',
-                                       state: '',
-                                       postal_code: ''},
-                        date_of_birth: new DateTime(),
-                        sex: '',
-                        race: '',
-                        height: 0,
-                        weight: 0,
-                        hair_color: '',
-                        eye_color: '',
-                        drivers_license: '',
-                        drivers_license_state: '',
-                        employer: '',
-                        employer_address: {street_number: '',
-                                           route: '',
-                                           city: '',
-                                           state: '',
-                                           postal_code: ''},
-                        build: '',
-                        tattoos: '',
-                        scars: '',
-                        hairstyle: ''});
+                    fakeVictims.push(new Victim());
                     console.log("fake victims");
                     console.log(fakeVictims);
                     this.incidentVictims = fakeVictims;
