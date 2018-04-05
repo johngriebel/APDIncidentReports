@@ -29,12 +29,13 @@ def cleanse_filter_key(key: str) -> str:
 
 
 def cleanse_value(key: str, data: dict):
-    print("CHEETAH")
-    print(key)
-    print(data)
     if "date" in key:
-        value = convert_date_string_to_object(data[key])
-        if not value.tzinfo:
+        if isinstance(data[key], dict):
+            date_str = f"{data[key]['date']} {data[key]['time']}"
+        else:
+            date_str = data[key]
+        value = convert_date_string_to_object(date_str)
+        if value and (not value.tzinfo):
             logger.info(f"Converted value was not timezone aware. Making it so.")
             value = timezone.make_aware(value)
     elif key == "offenses":
@@ -42,6 +43,8 @@ def cleanse_value(key: str, data: dict):
             value = data.getlist(key)
         else:
             value = data.get(key)
+    elif key == "officer_signed":
+        value = data[key]['id'] or None
     else:
         value = data[key]
     return value
@@ -50,29 +53,32 @@ def cleanse_value(key: str, data: dict):
 def build_reverse_lookups(party_type: str, params: dict) -> Dict:
     involved_party_lookups = {'incidentinvolvedparty__party_type': party_type.upper()}
     for key in params:
+        if "address" in key:
+            location_filters = handle_location_filtering(location_data=params[key],
+                                                         filter_prefix=key)
+            if location_filters:
+                involved_party_lookups.update(location_filters)
+            continue
         if params[key]:
-            print("BADGER")
-            print(key)
-            if "date" in key and params[key]['date']:
-                params[key] = f"{params[key]['date']} {params[key]['time']}"
             cleaned_sub_key = cleanse_filter_key(key)
             filter_key = f"incidentinvolvedparty__{cleaned_sub_key}"
             value = cleanse_value(key, data=params)
-            involved_party_lookups[filter_key] = value
+            if value:
+                involved_party_lookups[filter_key] = value
     return involved_party_lookups
 
 
-def handle_location_filtering(location_data: Dict) -> Dict:
+def handle_location_filtering(location_data: Dict, filter_prefix: str="location") -> Dict:
     location_filters = {}
     for key in ["street_number", "route", "postal_code"]:
         if key in location_data and location_data[key] != "":
-            location_filters[f"location__{key}__icontains"] = location_data[key]
+            location_filters[f"{filter_prefix}__{key}__icontains"] = location_data[key]
 
     if "city" in location_data and location_data['city'] != "":
-        location_filters[f"location__city__name__icontains"] = location_data['city']
+        location_filters[f"{filter_prefix}__city__name__icontains"] = location_data['city']
 
     if "state" in location_data and location_data['state'] != "":
-        location_filters[f"location__city__state__abbreviation"] = location_data['state']
+        location_filters[f"{filter_prefix}__city__state__abbreviation"] = location_data['state']
 
     return location_filters
 
@@ -92,10 +98,9 @@ def get_search_results(*, params: dict):
                 if params[key]:
                     filter_dict[filter_key] = cleanse_value(key, params)
         elif "victim" == key or "suspect" == key:
-            print("ARMADILLO")
-            print(params[key])
             reverse_lookups = build_reverse_lookups(key, params[key])
             filter_dict.update(reverse_lookups)
+    logger.debug(f"Filter dict: {filter_dict}")
     incidents = Incident.objects.filter(**filter_dict)
     logger.info(f"Results: {incidents}")
     return incidents

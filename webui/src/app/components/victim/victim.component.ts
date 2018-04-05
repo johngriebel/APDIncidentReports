@@ -30,27 +30,7 @@ export class VictimComponent implements OnInit, OnChanges {
     }
 
     private createEmptyVictim() {
-        return {id: 0,
-            first_name: '',
-            last_name: '',
-            officer_signed: new Officer(),
-            juvenile: false,
-            home_address: new AddressTwo(),
-            date_of_birth: new DateTime(),
-            sex: '',
-            race: '',
-            height: 0,
-            weight: 0,
-            hair_color: '',
-            eye_color: '',
-            drivers_license: '',
-            drivers_license_state: '',
-            employer: '',
-            employer_address: new AddressTwo(),
-            build: '',
-            tattoos: '',
-            scars: '',
-            hairstyle: ''};
+        return new Victim();
     }
 
     ngOnInit() {
@@ -76,7 +56,7 @@ export class VictimComponent implements OnInit, OnChanges {
             home_address: this.formBuilder.group(victim.home_address || 
                                                 { street_number: '',
                                                   route: '',
-                                                  locality: '',
+                                                  city: '',
                                                   postal_code: '',
                                                   state: ''}),
             juvenile: victim.juvenile,

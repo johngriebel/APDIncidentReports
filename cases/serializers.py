@@ -83,7 +83,6 @@ class DateTimeSerializer(serializers.Field):
         if isinstance(data, datetime):
             return data
         internal = convert_date_string_to_object(f"{data['date']} {data['time']}")
-        logger.debug(f"INTERNAL VALUE: {type(internal)}")
         return internal
 
 
