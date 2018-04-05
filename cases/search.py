@@ -23,6 +23,8 @@ def cleanse_filter_key(key: str) -> str:
         filter_key = key.replace("location_", "location__") + "__icontains"
     elif key == "offenses":
         filter_key = key + "__id__in"
+    elif key == "date_of_birth":
+        filter_key = key
     else:
         filter_key = key + "__icontains"
     return filter_key
@@ -57,7 +59,7 @@ def build_reverse_lookups(party_type: str, params: dict) -> Dict:
             location_filters = handle_location_filtering(location_data=params[key],
                                                          filter_prefix=key)
             if location_filters:
-                involved_party_lookups.update(location_filters)
+                involved_party_lookups.update(location)
             continue
         if params[key]:
             cleaned_sub_key = cleanse_filter_key(key)

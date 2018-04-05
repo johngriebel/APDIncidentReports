@@ -41,8 +41,6 @@ export class SearchComponent implements OnInit {
     private shouldParamBeSent(name, value): boolean {
         let blankValue = blankSearchCriteria[name];
         if (blankValue instanceof Object){
-            console.log(name);
-            console.log(blankValue);
             return !blankValue.equals(value);
         }
         else{
@@ -52,10 +50,11 @@ export class SearchComponent implements OnInit {
 
 
     prepareSearchParams(rawParams) {
+        
         var cleanedParams = {};
         
         Object.keys(rawParams).forEach(param => {
-            let value = rawParams[param]
+            let value = rawParams[param];
             if (this.shouldParamBeSent(param, rawParams[param])){
                 if (rawParams[param] instanceof Object){
                     if (param == "reporting_officer"){
@@ -74,6 +73,8 @@ export class SearchComponent implements OnInit {
     }
 
     onSubmit() {
+        console.log("submit button clicked");
+        console.log(this.searchForm.value);
         const searchParams = this.prepareSearchParams(this.searchForm.value);
         this.incidentService.searchIncidents(searchParams).subscribe(
             incidents => {
@@ -95,6 +96,8 @@ export class SearchComponent implements OnInit {
             }),
             report_datetime_min: this.formBuilder.group({date: '', time: ''}),
             report_datetime_max: this.formBuilder.group({date: '', time: ''}),
+            height_feet: 0,
+            height_inches: 0,
             reporting_officer: this.formBuilder.group(new Officer()),
             earliest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
             latest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
@@ -105,36 +108,21 @@ export class SearchComponent implements OnInit {
         });
     }
 
-    getFeet(victim): number {
-        var height = 0;
-        if (victim.value !== undefined) {
-            height = victim.value.height;
+    updateVictimHeight(event){
+        let currentHeight = this.searchForm.value.victim.height;
+        let currentFeet = Math.floor(currentHeight / 12);
+        let currentInches = currentHeight % 12;
+        let eventValue = parseInt(event.target.value);
+
+        var newHeight = 0;
+
+        if (event.target.id == "heightFeet"){
+            newHeight = (eventValue * 12) + currentInches;
         }
         else {
-            height = victim.height
+            newHeight = currentHeight + eventValue;
         }
-        return Math.floor(height / 12);
-    }
-
-    getInches(victim): number {
-        console.log("in get Inches");
-        var height = 0;
-        if (victim.value !== undefined) {
-            height = victim.value.height;
-        }
-        else {
-            height = victim.height;
-        }
-        return height % 12;
-    }
-
-    updateHeight(victim, event) {
-        const count = $(event.target).data("count");
-        var feet = parseInt($(`#heightFeet${count}`)[0].value);
-        var inches = parseInt($(`#heightInches${count}`)[0].value);
-        const newHeight = (feet * 12) + inches;
-        victim.value.height = newHeight;
-
+        this.searchForm.value.victim.height = newHeight;
     }
 
 }

@@ -157,6 +157,7 @@ export class Victim {
                 other.race === this.race &&
                 other.height === this.height &&
                 other.weight === this.weight &&
+                other.eye_color === this.eye_color &&
                 other.hair_color === this.hair_color &&
                 other.drivers_license === this.drivers_license &&
                 other.drivers_license_state === this.drivers_license_state &&
@@ -198,6 +199,8 @@ export const blankSearchCriteria = {
     beat: 0,
     shift: '',
     offenses: null,
+    height_feet: 0,
+    height_inches: 0,
     victim: new Victim()
 }
 
@@ -264,10 +267,33 @@ export const states = [
 ]
 
 export const eye_colors = [
-    {abbreviation: "BLK", display: "Black"}
+    {abbreviation: "BLK", display: "Black"},
+    {abbreviation: "BRO", display: "Brown"},
+    {abbreviation: "GRN", display: "Green"},
+    {abbreviation: "MAR", display: "Maroon"},
+    {abbreviation: "PNK", display: "Pink"},
+    {abbreviation: "BLU", display: "Blue"},
+    {abbreviation: "GRY", display: "Gray"},
+    {abbreviation: "HAZ", display: "Hazel"},
+    {abbreviation: "MUL", display: "Multi"},
+    {abbreviation: "XXX", display: "Unknown"},
 ]
 
 export const hair_colors = [
-    {abbreviation: "BLD", display: "Bald"}
+    {abbreviation: "BLD", display: "Bald"},
+    {abbreviation: "BLK", display: "Black"},
+    {abbreviation: "BLN", display: "Blonde"},
+    {abbreviation: "BRO", display: "Brown"},
+    {abbreviation: "GRN", display: "Green"},
+    {abbreviation: "MAR", display: "Maroon"},
+    {abbreviation: "ONG", display: "Orange"},
+    {abbreviation: "PNK", display: "Pink"},
+    {abbreviation: "PLE", display: "Purple"},
+    {abbreviation: "RED", display: "Red"},
+    {abbreviation: "SDY", display: "Sandy"},
+    {abbreviation: "BLU", display: "Blue"},
+    {abbreviation: "GRY", display: "Gray"},    
+    {abbreviation: "WHI", display: "White"},
+    {abbreviation: "XXX", display: "Unknown"},
 ]
 
