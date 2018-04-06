@@ -161,7 +161,7 @@ export class SuspectComponent implements OnInit, OnChanges {
     }
 
     addSuspect() {
-        this.suspects.push(this.createEmptySuspect());
+        this.suspects.push(new Suspect());
         console.log(this.suspectsArray);
         this.rebuildForm();
     }
