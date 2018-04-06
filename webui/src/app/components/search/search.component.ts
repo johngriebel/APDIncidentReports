@@ -127,4 +127,21 @@ export class SearchComponent implements OnInit {
         this.searchForm.value.victim.height = newHeight;
     }
 
+    updateSuspectHeight(event){
+        let currentHeight = this.searchForm.value.suspect.height;
+        let currentFeet = Math.floor(currentHeight / 12);
+        let currentInches = currentHeight % 12;
+        let eventValue = parseInt(event.target.value);
+
+        var newHeight = 0;
+
+        if (event.target.id == "heightFeet"){
+            newHeight = (eventValue * 12) + currentInches;
+        }
+        else {
+            newHeight = currentHeight + eventValue;
+        }
+        this.searchForm.value.suspect.height = newHeight;
+    }
+
 }
