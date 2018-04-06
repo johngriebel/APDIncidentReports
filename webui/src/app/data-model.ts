@@ -98,27 +98,53 @@ export class DateTime {
 
 // TODO: Can Suspect and Victim be merged?
 export class Suspect {
-    id: number;
-    first_name: string;
-    last_name: string;
-    officer_signed: Officer;
-    juvenile: boolean;
-    home_address: Address;
-    date_of_birth: DateTime;
-    sex: string;
-    race: string;
-    height: number;
-    weight: number;
-    hair_color: string;
-    eye_color: string;
-    drivers_license: string;
-    drivers_license_state: string;
-    employer: string;
-    employer_address: Address;
-    build: string;
-    tattoos: string;
-    scars: string;
-    hairstyle: string;
+    constructor(
+        public id: number = 0,
+        public first_name: string = "",
+        public last_name: string = "",
+        public officer_signed: Officer = new Officer(),
+        public juvenile: boolean = false,
+        public home_address: AddressTwo = new AddressTwo(),
+        public date_of_birth: DateTime = new DateTime(),
+        public sex: string = "",
+        public race: string = "",
+        public height: number = 0,
+        public weight: number = 0,
+        public hair_color: string = "",
+        public eye_color: string = "",
+        public drivers_license: string = "",
+        public drivers_license_state: string = "",
+        public employer: string = "",
+        public employer_address: AddressTwo = new AddressTwo(),
+        public build: string = "",
+        public tattoos: string = "",
+        public scars: string = "",
+        public hairstyle: string = ""){}
+    
+        equals(other){
+            return (other.id === this.id &&
+                    other.first_name === this.first_name &&
+                    other.last_name === this.last_name &&
+                    this.officer_signed.equals(other.officer_signed) &&
+                    other.juvenile === this.juvenile &&
+                    this.home_address.equals(other.home_address) &&
+                    this.date_of_birth.equals(other.date_of_birth) &&
+                    other.sex === this.sex &&
+                    other.race === this.race &&
+                    other.height === this.height &&
+                    other.weight === this.weight &&
+                    other.eye_color === this.eye_color &&
+                    other.hair_color === this.hair_color &&
+                    other.drivers_license === this.drivers_license &&
+                    other.drivers_license_state === this.drivers_license_state &&
+                    other.employer === this.employer &&
+                    this.employer_address.equals(other.employer_address) &&
+                    other.build === this.build &&
+                    other.tattoos === this.build &&
+                    other.scars === this.scars &&
+                    other.hairstyle === this.hairstyle
+                )
+        }
 }
 
 export class Victim {
@@ -201,7 +227,8 @@ export const blankSearchCriteria = {
     offenses: null,
     height_feet: 0,
     height_inches: 0,
-    victim: new Victim()
+    victim: new Victim(),
+    suspect: new Suspect()
 }
 
 export const states = [

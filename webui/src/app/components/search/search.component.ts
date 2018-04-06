@@ -5,7 +5,8 @@ import { IncidentService } from '../../services/incident.service';
 import { DateTime, Officer, Offense, Incident,
          eye_colors, states, hair_colors, blankSearchCriteria,
         AddressTwo, 
-        Victim} from '../../data-model';
+        Victim,
+        Suspect} from '../../data-model';
 
 @Component({
   selector: 'app-search',
@@ -104,7 +105,8 @@ export class SearchComponent implements OnInit {
             beat: 0,
             shift: '',
             offenses: [],
-            victim: this.formBuilder.group(new Victim())
+            victim: this.formBuilder.group(new Victim()),
+            suspect: this.formBuilder.group(new Suspect())
         });
     }
 
