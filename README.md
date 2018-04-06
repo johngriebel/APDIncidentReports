@@ -11,7 +11,7 @@ This is very much a living document. Don't hesitate to ask questions.
 
 ### Features
 All of these are to be documented as they are completed
-- [x] Authentication
+- [ ] Authentication
     - Basic Authentication is done. No password reset or any thing like that
 - [x] Define Database Schema
 - [x] Create reports
@@ -64,9 +64,8 @@ All of these are to be documented as they are completed
 - [ ] Cosmetics
     - [X] Nice Nav Bar
     - Correct Color Scheme
-    - [ ] Better Height Input
+    - [x] Better Height Input
     - [ ] Better selector field for the various officer fields
-    - [ ] Errors are being displayed when they shouldn't be (Doesn't seem to affect functionality)
 - [x] Unit Testing
 - [x] Code cleanup/refactor
 - [x] Logging
