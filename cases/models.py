@@ -123,6 +123,7 @@ class Offense(models.Model):
     ucr_rank = models.IntegerField(null=True)
     code_group = models.CharField(max_length=4, null=True)
     ucr_alpha = models.CharField(max_length=10)
+    log_code = models.CharField(max_length=10, null=True)
 
     def __str__(self):
         return f"{self.ucr_name_classification}:{self.ucr_subclass_description} - {self.ucr_code}"

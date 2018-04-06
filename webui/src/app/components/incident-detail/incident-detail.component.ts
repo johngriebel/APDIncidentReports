@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 import { Incident, Address, DateTime, Officer,
          Victim, Suspect, Offense, states, IncidentFile } from '../../data-model';
 import { IncidentService } from '../../services/incident.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 
@@ -40,7 +40,8 @@ export class IncidentDetailComponent implements OnInit {
     constructor(private formBuilder: FormBuilder,
                 private route: ActivatedRoute,
                 private incidentService: IncidentService,
-                private ngLocation: Location
+                private ngLocation: Location,
+                private router: Router
             ) {
     
         var today = new Date();
@@ -300,7 +301,10 @@ export class IncidentDetailComponent implements OnInit {
          else {
              this.incidentService.addIncident(this.incident).subscribe(incident => {
                  console.log(incident);
+                 this.incident = incident;
                  this.showSuccessAlert = true;
+                 const url = `/incidents/${this.incident.id}`;
+                 this.router.navigateByUrl(url);
              });
          }
          this.rebuildForm();
@@ -313,10 +317,16 @@ export class IncidentDetailComponent implements OnInit {
      }
 
      goToVictims() {
+        if (this.incidentVictims.length == 0){
+            this.incidentVictims.push(new Victim());
+        }
         this.activeTab = "victims";
      }
 
      goToSuspects() {
+         if (this.incidentSuspects.length == 0){
+             this.incidentSuspects.push(new Suspect());
+         }
         this.activeTab = "suspects";
      }
 

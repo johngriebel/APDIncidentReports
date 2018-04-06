@@ -159,6 +159,10 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
     serializer_class = IncidentFileSerializer
     parser_classes = (MultiPartParser,)
 
+    def get_queryset(self):
+        incident_files = IncidentFile.objects.filter(incident__pk=self.kwargs.get('incidents_pk'))
+        return incident_files
+
     def create(self, request, *args, **kwargs):
         incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
         created_files = []
