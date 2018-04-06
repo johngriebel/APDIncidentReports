@@ -74,13 +74,9 @@ export class SearchComponent implements OnInit {
     }
 
     onSubmit() {
-        console.log("submit button clicked");
-        console.log(this.searchForm.value);
         const searchParams = this.prepareSearchParams(this.searchForm.value);
         this.incidentService.searchIncidents(searchParams).subscribe(
             incidents => {
-                console.log("Found incidents");
-                console.log(incidents);
                 this.searchResults = incidents;
             });
     }
@@ -95,13 +91,13 @@ export class SearchComponent implements OnInit {
                 postal_code: '',
                 state: '',
             }),
-            report_datetime_min: this.formBuilder.group({date: '', time: ''}),
-            report_datetime_max: this.formBuilder.group({date: '', time: ''}),
+            report_datetime_min: this.formBuilder.group(new DateTime()),
+            report_datetime_max: this.formBuilder.group(new DateTime()),
             height_feet: 0,
             height_inches: 0,
             reporting_officer: this.formBuilder.group(new Officer()),
-            earliest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
-            latest_occurrence_datetime: this.formBuilder.group({date: '', time: ''}),
+            earliest_occurrence_datetime: this.formBuilder.group(new DateTime()),
+            latest_occurrence_datetime: this.formBuilder.group(new DateTime()),
             beat: 0,
             shift: '',
             offenses: [],
@@ -142,6 +138,13 @@ export class SearchComponent implements OnInit {
             newHeight = currentHeight + eventValue;
         }
         this.searchForm.value.suspect.height = newHeight;
+    }
+
+    newSearch(reset:boolean){
+        this.searchResults = null;
+        if (reset){
+            this.createForm();
+        }
     }
 
 }

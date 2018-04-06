@@ -2,8 +2,8 @@
 <h3 *ngIf="searchResults" class="ml-2">Search Results</h3>
 
 <div  class="container">
-    <div class="row">
-        <form *ngIf="searchForm && !searchResults" [formGroup]="searchForm" class="col-sm-12">
+    <div *ngIf="searchForm && !searchResults" class="row">
+        <form [formGroup]="searchForm" class="col-sm-12">
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">Incident Number:</label>
                 <input class="form-control col-sm-10" formControlName="incident_number">
@@ -267,22 +267,32 @@
                     <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Search</button>
                 </div>
         </form>
+    </div>
+    <div *ngIf="searchResults" class="row">
         <!-- TODO: Make this table a component that accepts an array of incidents in the constructor -->
-        <table *ngIf="searchResults" class="incidents table">
-                <thead>
-                    <tr>
-                        <th>Incident Number</th>
-                        <th>Report Datetime</th>
-                        <th>Reporting Officer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let incident of searchResults">
-                        <td><a routerLink="/incidents/{{incident.id}}">{{incident.incident_number}}</a></td>
-                        <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
-                        <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <table class="incidents table">
+            <thead>
+                <tr>
+                    <th>Incident Number</th>
+                    <th>Report Datetime</th>
+                    <th>Reporting Officer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let incident of searchResults">
+                    <td><a routerLink="/incidents/{{incident.id}}">{{incident.incident_number}}</a></td>
+                    <td>{{incident.report_datetime.date}} {{incident.report_datetime.time}} </td>
+                    <td>{{incident.reporting_officer.user.last_name}} - {{incident.reporting_officer.officer_number}}</td>
+                </tr>
+            </tbody>
+    </table>
+    </div>
+    <div *ngIf="searchResults" class="row justify-content-between">
+        <div class="col-sm-3 mr-auto">
+            <button type="button" class="btn btn-dark" (click)="newSearch(false)">Modify Search</button>
+        </div>
+        <div class="col-sm-3 text-right">
+            <button type="button" class="btn btn-dark" (click)="newSearch(true)">New Search</button>
+        </div>
     </div>
 </div>

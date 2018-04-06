@@ -86,7 +86,6 @@ export class DateTime {
                 public time: string = ""){}
 
     equals(other) {
-        console.log("In the custom .equals method");
         return (other.date == this.date &&
                 other.time == this.time);
     }
