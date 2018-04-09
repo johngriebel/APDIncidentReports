@@ -44,6 +44,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all().order_by("-report_datetime")
     serializer_class = IncidentSerializer
 
+    def list(self, request, *args, **kwargs):
+        logger.debug(f"request.user: {request.user}")
+        return super(IncidentViewSet, self).list(request, args, kwargs)
+
     def create(self, request, *args, **kwargs):
         logger.debug(f"Request.data: {request.data}")
         dirty_data = {key: value for key, value in request.data.items()}

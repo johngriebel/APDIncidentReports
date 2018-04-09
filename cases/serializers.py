@@ -240,3 +240,12 @@ class IncidentFileSerializer(serializers.ModelSerializer):
         model = IncidentFile
         fields = ("id", "incident", "file", "file_name")
         read_only_fields = ("id",)
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    officer = user.officer_set.first()
+    officer_data = OfficerSerializer(officer).data
+    return {
+        'token': token,
+        'officer': officer_data
+    }

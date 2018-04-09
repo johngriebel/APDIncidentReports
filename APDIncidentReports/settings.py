@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import datetime
 import dj_database_url
+from datetime import timedelta
 from pathlib import Path
 from APDIncidentReports import BASE_DIR
 from .apd_logging import APD_LOGGING
@@ -138,3 +139,20 @@ LOGGING = APD_LOGGING
 MEDIA_ROOT = Path(BASE_DIR, "case_file_uploads")
 MEDIA_URL = "/uploads/"
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
+JWT_AUTH = {
+    'JWT_AUTH_HEADER_PREFIX': "Bearer",
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_RESPONSE_PAYLOAD_HANDLER': "cases.serializers.jwt_response_payload_handler",
+    'JWT_EXPIRATION_DELTA': timedelta(days=30)
+}
