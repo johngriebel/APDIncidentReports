@@ -44,6 +44,7 @@ export class FileUploadComponent implements OnInit, OnChanges {
 
     fileChange(event) {
         console.log("Uploading files.");
+        console.log(event);
         let fileList: FileList = $(event.target)[0].files;
         this.incidentService.uploadFile(this.incident, fileList).subscribe(files => {
             files.forEach(file => {

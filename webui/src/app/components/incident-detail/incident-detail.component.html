@@ -20,8 +20,8 @@
         <li class="nav-item" (click)="goToFiles()">
             <a class="nav-link" [ngClass]="{'active': activeTab === 'files'}" href="javascript:void(0)">Files</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{printURL}}">Print</a>
+        <li class="nav-item" (click)="print()">
+            <a class="nav-link" href="javascript:void(0);">Print</a>
         </li>
     </ul>
     

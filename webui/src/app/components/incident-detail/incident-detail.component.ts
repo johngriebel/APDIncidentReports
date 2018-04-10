@@ -311,9 +311,11 @@ export class IncidentDetailComponent implements OnInit {
      }
 
      print(){
-        console.log("Print button clicked");
-        const printURL = `${this.baseURL}/incidents/print/${this.incident.id}/`
-        window.location.href = printURL;
+        this.incidentService.printIncident(this.incident).
+                subscribe(result => {
+                    const fileURL = URL.createObjectURL(result);
+                    window.location.href = fileURL;
+                });
      }
 
      goToVictims() {

@@ -7,6 +7,7 @@ import { Incident, Victim, Suspect,
          Offense, Officer, IncidentFile } from '../data-model';
 import { environment } from '../../environments/environment';
 import { RequestOptions } from '@angular/http';
+import { Router } from '@angular/router';
 
 
 @Injectable()
@@ -15,7 +16,8 @@ export class IncidentService {
     private offensesUrl = `${environment.baseURL}/offenses/`
     private officersUrl = `${environment.baseURL}/officers/`
     
-    constructor(private http: HttpClient) { 
+    constructor(private http: HttpClient,
+                private router: Router) { 
                 
             }
 
@@ -122,9 +124,12 @@ export class IncidentService {
         );
     }
 
-    printIncident(incident: Incident): Observable<Incident> {
+    printIncident(incident: Incident) {
+        let accessToken = localStorage.getItem('token');
+        let headers = new HttpHeaders({'Authorization': `Bearer ${accessToken}`})
         const printURL = `${this.incidentsUrl}print/${incident.id}/`;
-        return this.http.get<Incident>(printURL, {headers: this.getHeaders()});
+        return this.http.get(printURL, {headers: headers, 
+                                        responseType: 'blob'});
     }
 
     getFiles(incident): Observable<IncidentFile[]> {
@@ -137,15 +142,16 @@ export class IncidentService {
 
     uploadFile(incident, fileList): Observable<IncidentFile[]> {
         if(fileList.length > 0) {
-            console.log(fileList);
-            let formData:FormData = new FormData();
+            
+            let accessToken = localStorage.getItem('token');
+            let headers = new HttpHeaders({'Accept': "application/json",
+                                           'Authorization': `Bearer ${accessToken}`});
+
+            let formData = new FormData();
             for (var i = 0; i < fileList.length; i++){
-                formData.append('uploadFile', fileList[i], fileList[i].name);
-            }
-            let headers = new HttpHeaders();
-            /** No need to include Content-Type in Angular 4 */
-            headers.append('Content-Type', 'multipart/form-data');
-            headers.append('Accept', 'application/json');
+                const file = fileList[i];
+                formData.append('files', file);
+            };
             const fullURL = `${this.incidentsUrl}${incident.id}/files/`
             return this.http.post<IncidentFile[]>(`${fullURL}`, formData, {headers: headers}).pipe(
                 tap((files: IncidentFile[]) => this.log("Fetched files")),

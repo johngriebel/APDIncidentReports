@@ -1,3 +1,20 @@
+<div class="row mb-3">
+    <div *ngIf="fileUploadForm" class="col">
+        <form [formGroup]="fileUploadForm">
+            <div class="row">
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input id="fileUpload" type="file" (change)="fileChange($event)" class="custom-file-input col" formControlName="files" multiple>
+                        <label class="custom-file-label col" for="fileUpload">Choose file</label>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="fileUploadForm && files" class="row justify-content-end mt-1">
+                <button type="button" class="btn btn-dark">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="row">
     <div *ngIf="existingFiles" class="col">
         <table class="table">
@@ -14,29 +31,13 @@
                 </tr>
                 <tr>
                     <td></td>
-                    <td align="center"><button class="btn btn-danger" type="button" (click)="deleteFiles()">
-                                            Delete
-                                        </button>
+                    <td align="center">
+                        <button class="btn btn-danger" type="button" (click)="deleteFiles()">
+                            Delete
+                        </button>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
-
-<div class="row">
-    <div *ngIf="fileUploadForm" class="col">
-        <form [formGroup]="fileUploadForm">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <button class="btn btn-dark" type="button">Upload</button>
-                </div>
-                <div class="custom-file">
-                    <input id="fileUpload" type="file" (change)="fileChange($event)" class="custom-file-input col" formControlName="files" multiple>
-                    <label class="custom-file-label col" for="fileUpload">Choose file</label>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-<!-- (change)="fileChange($event)" -->

@@ -2,10 +2,9 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
 
@@ -161,7 +160,7 @@ class SuspectViewSet(viewsets.ModelViewSet):
 class IncidentFileViewSet(viewsets.ModelViewSet):
     queryset = IncidentFile.objects.all()
     serializer_class = IncidentFileSerializer
-    parser_classes = (MultiPartParser,)
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
         incident_files = IncidentFile.objects.filter(incident__pk=self.kwargs.get('incidents_pk'))
@@ -170,8 +169,7 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
         created_files = []
-        logger.debug(f"request.data: {request.data.getlist('uploadFile')}")
-        for upload in request.data.getlist('uploadFile'):
+        for upload in request.data.getlist('files'):
             logger.debug(f"type(upload): {type(upload)}")
             # content_file = ContentFile(upload)
             incident_file = IncidentFile(incident=incident,

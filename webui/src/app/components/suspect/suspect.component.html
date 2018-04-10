@@ -1,4 +1,4 @@
-<div class="col-sm-12" *ngIf="suspectForm">
+<div class="row" *ngIf="suspectForm">
     <form [formGroup]="suspectForm">
         <div formArrayName="suspectsArray">
             <div *ngFor="let suspect of suspectsArray.controls; let i=index" [formGroupName]="i">
@@ -119,12 +119,22 @@
             </div>
         </div>
     </form>
-    <div class="row justify-content-between mb-2">
-        <button type="button" class="btn btn-danger ml-2">Cancel</button>
-        <button (click)="addSuspect()" type="button" class="btn btn-dark ml-2">Add a Suspect</button>
-        <button type="button" (click)="onSubmit()" class="btn btn-success ml-auto">Save</button>
+</div>
+<div class="row justify-content-between mt-2 mb-2">
+    <div class="col-sm-1 align-self-start" style="padding-left: 0;">
+        <button type="button" class="btn btn-danger">Cancel</button>
+    </div>
+    <div class="col-sm-3 align-self-center">
+        <div class="row justify-content-center">
+            <button (click)="addSuspect()" type="button" class="btn btn-dark">Add another Suspect</button>
+        </div>
+    </div>
+    <div class="col-sm-1" style="padding-right: 0;">
+        <div class="row justify-content-end">
+            <button type="button" (click)="onSubmit()" class="btn btn-success">Save</button>
+        </div>
     </div>
 </div>
-<div class="col-sm-12" *ngIf="!suspectForm">
+<div class="row" *ngIf="!suspectForm">
     <p>Loading</p>
 </div>

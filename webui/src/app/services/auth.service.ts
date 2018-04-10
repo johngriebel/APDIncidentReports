@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 export class AuthService {
 
     private baseURL = `${environment.baseURL}/auth/`
+    isLoggedIn = false;
 
     constructor(private http: HttpClient,
                 public router: Router) { }
@@ -31,6 +32,7 @@ export class AuthService {
         const helper = new JwtHelperService();
         const decodedToken = helper.decodeToken(authResult.token);
         localStorage.setItem('tokenExpiry', decodedToken.exp);
+        this.isLoggedIn = true;
         console.log("Successfully set up session");
     }
 
@@ -42,7 +44,7 @@ export class AuthService {
 
     }
 
-    get isLoggedIn(): boolean {
+    private checkLoggedIn(): boolean {
         var token = localStorage.getItem('token');
         var tokenExpiry = parseInt(localStorage.getItem('tokenExpiry'));
         const now = Date.now();
