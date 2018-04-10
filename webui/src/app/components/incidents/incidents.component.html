@@ -1,7 +1,7 @@
 <div class="container">
-    <div class="col-sm-12">
-        <h3>APD Incidents</h3>
-        <table *ngIf="incidents" class="incidents table">
+    <h3>APD Incidents</h3>
+    <div class="row">
+        <table *ngIf="incidents" class="incidents table col-sm-12">
             <thead>
                 <tr>
                     <th>Incident Number</th>
@@ -17,6 +17,8 @@
                 </tr>
             </tbody>
         </table>
-        <a routerLink="/create-incident"><button type="button" class="btn btn-success" (click)="newIncident()">Create New Incident</button></a>
+    </div>
+    <div class="row justify-content-end">
+        <a routerLink="/create-incident"><button type="button" class="btn btn-success mb-2" (click)="newIncident()">Create New Incident</button></a>
     </div>
 </div>

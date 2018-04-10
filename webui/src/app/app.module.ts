@@ -17,6 +17,7 @@ import { VictimComponent } from './components/victim/victim.component';
 import { SuspectComponent } from './components/suspect/suspect.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
 import { SearchComponent } from './components/search/search.component';
+import { AuthService } from './services/auth.service';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { SearchComponent } from './components/search/search.component';
   ],
   providers: [IncidentService, 
               MessageService, 
-              OfficerService],
+              OfficerService,
+              AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
