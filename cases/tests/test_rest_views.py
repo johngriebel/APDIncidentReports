@@ -220,7 +220,7 @@ class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
 
     def test_create_single_file_upload(self):
         upload_file = generate_random_file_content(suffix="foo.txt")
-        data = {'uploadFile': [upload_file]}
+        data = {'files': [upload_file]}
         url = reverse("file-list", kwargs={'incidents_pk':
                                                self.incident.pk})
         response = self.client.post(url, data=data,
