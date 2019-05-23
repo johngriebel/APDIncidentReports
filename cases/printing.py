@@ -13,11 +13,14 @@ PAGE_WIDTH = defaultPageSize[0]
 PAGE_HEIGHT = defaultPageSize[1]
 PAGE_CENTER_X = PAGE_WIDTH / 2.0
 
+COLUMN_X_POSITION_MAP = {
+    1: 100,
+    2: 200,
+    3: 300,
+    4: 400
+}
+
 LEFT_ALIGN_X = 25
-COLUMN_ONE_X = 100
-COLUMN_TWO_X = 200
-COLUMN_THREE_X = 300
-COLUMN_FOUR_X = 400
 TOP_ALIGN_Y = 800
 
 MAX_TEXT_LINE_WIDTH = 90
@@ -31,7 +34,7 @@ COLOR_RGB_VALUES = {'red': (255, 0, 0),
 # Note: there is some hard coded stuff in here to make the printing example for one specific report
 # look nice. It needs to be actually fixed.
 class IncidentReportPDFGenerator:
-    def __init__(self, response: HttpResponse, incident_id: int):
+    def __init__(self, response: HttpResponse, incident_id: int) -> None:
         self.response = response
         self.incident = Incident.objects.get(id=incident_id)
         self.pdf = Canvas(response)
@@ -44,14 +47,9 @@ class IncidentReportPDFGenerator:
         blue_val = blue / 256
         self.pdf.setFillColorRGB(red_val, green_val, blue_val)
 
-    def _draw_label(self, label: str, data: str=None, row: int=None,
-                    column: int=0, centered=False, color: str="blue") -> None:
-        """
-        Draws a standard (i.e. evenly spaced rows) label on the PDF
-        :param row_number: The row, one indexed, that the label should be drawn on.
-        :param label: The text the label should disply.
-        :return: None
-        """
+    def _draw_label(self, label: str, data: str = None, row: int = None,
+                    column: int = 0, centered=False, color: str = "blue") -> None:
+
         draw_func = self.pdf.drawString
         if row is None:
             row = self.row_number
@@ -59,26 +57,21 @@ class IncidentReportPDFGenerator:
 
         # Can this line fit on the current page?
         y_position = TOP_ALIGN_Y - ((row - 1) * 12)
-        print((y_position, MIN_Y_POSITION))
         if y_position < MIN_Y_POSITION:
             self._add_new_page()
             row = self.row_number
             y_position = TOP_ALIGN_Y - ((row - 1) * 12)
 
+        if column not in COLUMN_X_POSITION_MAP:
+            x_position = LEFT_ALIGN_X
+        else:
+            x_position = COLUMN_X_POSITION_MAP[column]
+
         if centered:
             x_position = PAGE_CENTER_X
             draw_func = self.pdf.drawCentredString
 
-        elif column == 1:
-            x_position = COLUMN_ONE_X
-        elif column == 2:
-            x_position = COLUMN_TWO_X
-        elif column == 3:
-            x_position = COLUMN_THREE_X
-        elif column == 4:
-            x_position = COLUMN_FOUR_X
-        else:
-            x_position = LEFT_ALIGN_X
+        # Why tf is this done this way?
 
         red, green, blue = COLOR_RGB_VALUES.get(color, (0, 0, 0,))
         self._set_font_color_rgb(red, green, blue)
@@ -94,12 +87,11 @@ class IncidentReportPDFGenerator:
 
         self._set_font_color_rgb(0, 0, 0)
 
-
     @property
-    def current_y_position(self):
+    def current_y_position(self) -> int:
         return TOP_ALIGN_Y - ((self.row_number - 1) * 12)
 
-    def _draw_page_header(self):
+    def _draw_page_header(self) -> None:
         self.pdf.setFont("Courier", 10)
         self._draw_label("Printed By:",
                          color="blue")
@@ -119,7 +111,8 @@ class IncidentReportPDFGenerator:
                          color="blue")
         self.pdf.drawString(525, TOP_ALIGN_Y, f"PAGE: {self.page_number}")
 
-    def _draw_labels(self):
+    def _draw_labels(self) -> None:
+        # TODO: This method is huge
         self._draw_page_header()
         self.row_number += 1
         self._draw_label("------------ INCIDENT INFORMATION ------------",
@@ -172,6 +165,7 @@ class IncidentReportPDFGenerator:
         self._draw_label("------------ OFFENSES ------------",
                          centered=True,
                          color="red")
+
         for offense in self.incident.offenses.all():
             self._draw_offense(offense=offense)
             self.row_number += 1
@@ -212,7 +206,7 @@ class IncidentReportPDFGenerator:
 
         self._draw_signature_lines()
 
-    def _draw_offense(self, offense: Offense):
+    def _draw_offense(self, offense: Offense) -> None:
         self._draw_label(label="Offense:",
                          data=f"{offense.ucr_name_classification} - "
                               f"{offense.ucr_subclass_description}")
@@ -225,7 +219,7 @@ class IncidentReportPDFGenerator:
                          row=self.row_number,
                          column=3)
 
-    def _draw_party(self, count: int, party: IncidentInvolvedParty):
+    def _draw_party(self, count: int, party: IncidentInvolvedParty) -> None:
         self._draw_label(label=f"{party.party_type.title()} #{count}",
                          color="red")
         if party.party_type == SUSPECT:
@@ -281,8 +275,8 @@ class IncidentReportPDFGenerator:
                          data=str(party.employer_address) or '')
 
     def _wrap_and_write_lines(self, lines: list,
-                              x_position: int=LEFT_ALIGN_X,
-                              y_position: int=None):
+                              x_position: int = LEFT_ALIGN_X,
+                              y_position: int = None) -> None:
         if y_position is None:
             y_position = self.current_y_position
 
@@ -291,13 +285,13 @@ class IncidentReportPDFGenerator:
         text.textLines(wrapped_statement)
         self.pdf.drawText(text)
 
-    def _add_new_page(self):
+    def _add_new_page(self) -> None:
         self.pdf.showPage()
         self.page_number += 1
         self.row_number = 1
         self._draw_page_header()
 
-    def _draw_narrative(self):
+    def _draw_narrative(self) -> None:
         self._draw_label(label="Incident Narrative",
                          centered=True,
                          color="red")
@@ -323,7 +317,7 @@ class IncidentReportPDFGenerator:
             self._wrap_and_write_lines(lines)
             self.row_number += len(lines)
 
-    def _draw_signature_lines(self):
+    def _draw_signature_lines(self) -> None:
         self._add_new_page()
         self.row_number += 2
         reviewed_str = (f"OFFENSE REPORT REVIEWED BY {self.incident.reviewed_by_officer} "

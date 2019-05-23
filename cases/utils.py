@@ -1,19 +1,21 @@
 import re
 import logging
 import pytz
-from typing import Union, Dict, Any
+
+from typing import Optional, Dict, Any
 from datetime import datetime
 from django.conf import settings
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
+
 from cases.models import (Officer, Address,
                           City, State)
-date_format = re.compile("\d{4}-\d{2}-\d{2}")
+
+date_format = re.compile(r"\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
 
 
-def convert_date_string_to_object(date_string: str) -> Union[datetime, None]:
+def convert_date_string_to_object(date_string: str) -> Optional[datetime, None]:
     date_parts = None
     if date_string.strip():
         parts = date_string.split()
@@ -110,6 +112,5 @@ def handle_incident_foreign_keys_for_creation(*, validated_data):
     for field in validated_data.keys():
         if "officer" in field or "supervisor" in field:
             validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
-    # validated_data['location'] = parse_and_create_address(address_data=validated_data['location'])
 
     return validated_data
