@@ -15,7 +15,7 @@ date_format = re.compile(r"\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
 
 
-def convert_date_string_to_object(date_string: str) -> Optional[datetime, None]:
+def convert_date_string_to_object(date_string: str) -> Optional[datetime]:
     date_parts = None
     if date_string.strip():
         parts = date_string.split()
