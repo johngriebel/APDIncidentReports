@@ -1,16 +1,28 @@
 import os
+
+from datetime import datetime
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from djmoney.models.fields import MoneyField
-from .constants import (STATE_CHOICES, SHIFT_CHOICES,
-                        PARTY_TYPE_CHOICES, SEX_CHOICES,
-                        RACE_CHOICES, HAIR_COLOR_CHOICES,
-                        EYE_COLOR_CHOICES)
+
+from cases.constants import (STATE_CHOICES, SHIFT_CHOICES,
+                             PARTY_TYPE_CHOICES, SEX_CHOICES,
+                             RACE_CHOICES, HAIR_COLOR_CHOICES,
+                             EYE_COLOR_CHOICES)
 User = get_user_model()
 
 
-class State(models.Model):
+class APDIncidentBaseModel(models.Model):
+    created_timestamp = models.DateTimeField(auto_now_add=True)
+    updated_timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+# TODO: State, city, and address probably don't belong in the cases app,
+# But don't really deserve an entire app, do  they?
+class State(APDIncidentBaseModel):
     """
     'State' in this context represents the typical continental American idea of a 'state',
     as applied to any top level geographical distinction of the given country.
@@ -27,7 +39,7 @@ class State(models.Model):
         db_table = "abbreviation"
 
 
-class City(models.Model):
+class City(APDIncidentBaseModel):
     name = models.CharField(max_length=150)
     state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
 
@@ -38,7 +50,7 @@ class City(models.Model):
         db_table = "city"
 
 
-class Address(models.Model):
+class Address(APDIncidentBaseModel):
     street_number = models.CharField(max_length=25, null=True, blank=True)
     route = models.CharField(max_length=255, null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.DO_NOTHING)
@@ -51,7 +63,7 @@ class Address(models.Model):
         db_table = "address"
 
 
-class Officer(models.Model):
+class Officer(APDIncidentBaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     officer_number = models.IntegerField(unique=True)
     supervisor = models.ForeignKey("Officer", null=True, on_delete=models.CASCADE, blank=True)
@@ -63,10 +75,10 @@ class Officer(models.Model):
         db_table = "officer"
 
 
-class Incident(models.Model):
+class Incident(APDIncidentBaseModel):
     # Should incident number be auto-generated?
     incident_number = models.CharField(max_length=35, unique=True)
-    report_datetime = models.DateTimeField()
+    report_datetime = models.DateTimeField(default=datetime.now)
     reporting_officer = models.ForeignKey(Officer,
                                           on_delete=models.CASCADE,
                                           related_name="reported_incidents")
@@ -89,12 +101,8 @@ class Incident(models.Model):
     location = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
     beat = models.IntegerField()
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES)
-    damaged_amount = MoneyField(max_digits=12, decimal_places=2,
-                                default_currency="USD", default=0.0,
-                                null=True, blank=True)
-    stolen_amount = MoneyField(max_digits=12, decimal_places=2,
-                               default_currency="USD", default=0.0,
-                               null=True, blank=True)
+    damaged_amount = models.PositiveIntegerField(null=True)
+    stolen_amount = models.PositiveIntegerField(null=True)
 
     offenses = models.ManyToManyField("Offense")
     narrative = models.TextField(null=True)
@@ -115,7 +123,7 @@ class Incident(models.Model):
         db_table = "incident"
 
 
-class Offense(models.Model):
+class Offense(APDIncidentBaseModel):
     ucr_name_classification = models.CharField(max_length=100, default="")
     ucr_subclass_description = models.CharField(max_length=255, default="")
     gcic_code = models.CharField(max_length=8, null=True)
@@ -132,7 +140,7 @@ class Offense(models.Model):
         db_table = "offense"
 
 
-class IncidentInvolvedParty(models.Model):
+class IncidentInvolvedParty(APDIncidentBaseModel):
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE)
@@ -173,7 +181,7 @@ def determine_file_upload_path(instance, filename):
     return f"{instance.incident.incident_number}/{filename}"
 
 
-class IncidentFile(models.Model):
+class IncidentFile(APDIncidentBaseModel):
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE)
     file = models.FileField(upload_to=determine_file_upload_path)
 

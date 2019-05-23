@@ -9,12 +9,14 @@ from faker import Faker
 from cases.models import Incident, Officer
 from cases.tests.factories import (IncidentFactory,
                                    OfficerFactory,
-                                   AddressFactory)
+                                   OffenseFactory)
 from cases.constants import (SHIFT_CHOICES,
                              MALE, FEMALE, RACE_CHOICES,
                              HAIR_COLOR_CHOICES,
                              EYE_COLOR_CHOICES,
                              STATE_CHOICES)
+
+
 logger = logging.getLogger('cases')
 User = get_user_model()
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -60,9 +62,8 @@ class IncidentDataFaker:
                   if choice[0]]
         return random.choice(shifts)
 
-    def generate_currency(self, prefix: str) -> Dict:
-        return {f'{prefix}_amount': random.randint(0, 1000000) / 100,
-                f'{prefix}_amount_currency': "USD"}
+    def generate_currency(self) -> int:
+        return random.randint(0, 100000000)
 
     def generate_narrative(self) -> str:
         return self.fake.paragraph()
@@ -105,6 +106,32 @@ class IncidentDataFaker:
             party_data['employer_address'] = employer_address
 
         return party_data
+
+    def generate_entire_incident_data(self) -> Dict:
+        """
+        Combines all the various other generation methods defined on the class
+        to generate a complete dict defining an Incident object.
+        :return: Python dict containing randomized incident data
+        """
+        supervisor = OfficerFactory()
+        reporting_officer = OfficerFactory(supervisor=supervisor)
+        data = {'incident_number': self.fake.pyint(),
+                'report_datetime': self.generate_date_time_dict(),
+                'reporting_officer': reporting_officer.id,
+                'investigating_officer': reporting_officer.id,
+                'officer_making_report': reporting_officer.id,
+                'reviewed_by_officer': supervisor.id,
+                'supervisor': supervisor.id,
+                'earliest_occurrence_datetime': self.generate_date_time_dict(),
+                'latest_occurrence_datetime': self.generate_date_time_dict(),
+                'location': self.generate_address(),
+                'beat': self.generate_beat(),
+                'shift': self.generate_shift(),
+                'stolen_amount': self.generate_currency(),
+                'damaged_amount': self.generate_currency(),
+                'offenses': [OffenseFactory().id, OffenseFactory().id],
+                'narrative': self.generate_narrative()}
+        return data
 
 
 def generate_random_file_content(suffix: str,

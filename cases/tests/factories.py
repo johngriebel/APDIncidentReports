@@ -96,8 +96,8 @@ class IncidentFactory(factory.DjangoModelFactory):
     location = factory.SubFactory(AddressFactory)
     beat = factory.Faker("random_int")
     shift = "E"
-    damaged_amount = None
-    stolen_amount = None
+    damaged_amount = factory.Faker("pyint")
+    stolen_amount = factory.Faker("pyint")
     narrative = factory.Faker("paragraph")
 
 
