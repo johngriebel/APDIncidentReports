@@ -18,7 +18,8 @@ from cases.serializers import (OfficerSerializer,
                                OffenseSerializer,
                                IncidentSerializer,
                                IncidentInvolvedPartySerializer,
-                               IncidentFileSerializer)
+                               IncidentFileSerializer,
+                               UserSerializer)
 from cases.utils import (create_incident_involved_party,
                          convert_date_string_to_object)
 from cases.constants import VICTIM, SUSPECT
@@ -27,6 +28,11 @@ from cases.printing import IncidentReportPDFGenerator
 logger = logging.getLogger('cases')
 ContextFile = namedtuple("ContextFile", ["url", "display_name"])
 User = get_user_model()
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class OfficerViewSet(viewsets.ModelViewSet):

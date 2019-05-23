@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  title: APD Incident Reporting API
+  description: A modernization of APD's existing reporting system.
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8000/api
+
+paths:
+  /users/{id}:
+    get:
+      summary: Fetch auser by ID.
+      response:
+        '200':
+          description: A JSON representation of a User object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        username:
+          type: string
