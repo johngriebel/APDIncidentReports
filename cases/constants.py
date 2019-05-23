@@ -1,3 +1,6 @@
+from reportlab.rl_config import defaultPageSize
+
+
 EMPTY_CHOICE = ("", "-------")
 
 STATES = {
@@ -150,3 +153,25 @@ HAIR_COLOR_CHOICES = [(BALD, "Bald"),
                       (WHITE, "White"),
                       (EYE_UNKNOWN, "Unknown"),
                       EMPTY_CHOICE]
+
+
+PAGE_WIDTH = defaultPageSize[0]
+PAGE_HEIGHT = defaultPageSize[1]
+PAGE_CENTER_X = PAGE_WIDTH / 2.0
+
+COLUMN_X_POSITION_MAP = {
+    1: 100,
+    2: 200,
+    3: 300,
+    4: 400
+}
+
+LEFT_ALIGN_X = 25
+TOP_ALIGN_Y = 800
+
+MAX_TEXT_LINE_WIDTH = 90
+# i.e. the lowest point on a page that we want a line of text to be drawn
+MIN_Y_POSITION = PAGE_HEIGHT - TOP_ALIGN_Y
+COLOR_RGB_VALUES = {'red': (255, 0, 0),
+                    'blue': (0, 38, 150),
+                    'black': (0, 0, 0)}
