@@ -1,5 +1,5 @@
 -r base.txt
-grip==4.4.0
-coverage==4.4.2
-django-extensions==2.0.0
-factory_boy==2.10.0
+grip==4.5.2
+coverage==4.5.3
+django-extensions==2.1.7
+factory_boy==2.12.0
