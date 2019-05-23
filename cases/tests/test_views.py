@@ -36,34 +36,9 @@ class IncidentsTestCase(JWTAuthAPIBaseTestCase):
 
     def test_create_incident(self):
         url = reverse("incident-list")
-        report_dt = self.faker.generate_date_time_dict()
-        supervisor = OfficerFactory()
-        reporting_officer = OfficerFactory(supervisor=supervisor)
+        data = self.faker.generate_entire_incident_data()
 
-        earliest_dt = self.faker.generate_date_time_dict()
-        latest_dt = self.faker.generate_date_time_dict()
-        location = self.faker.generate_address()
-        offenses = [OffenseFactory().id,
-                    OffenseFactory().id]
-
-        data = {'incident_number': "FOO123",
-                'report_datetime': report_dt,
-                'reporting_officer': reporting_officer.id,
-                'investigating_officer': reporting_officer.id,
-                'officer_making_report': reporting_officer.id,
-                'reviewed_by_officer': supervisor.id,
-                'supervisor': supervisor.id,
-                'earliest_occurrence_datetime': earliest_dt,
-                'latest_occurrence_datetime': latest_dt,
-                'location': location,
-                'beat': self.faker.generate_beat(),
-                'shift': self.faker.generate_shift(),
-                'stolen_amount': self.faker.generate_currency(),
-                'damaged_amount': self.faker.generate_currency(),
-                'offenses': offenses,
-                'narrative': self.faker.generate_narrative()}
         response = self.client.post(url, data=data, format="json")
-        logger.debug(f'response.data: {response.data}')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_partial_update_incident(self):
@@ -89,8 +64,8 @@ class IncidentsTestCase(JWTAuthAPIBaseTestCase):
         incident.offenses.add(offense)
         url = reverse("incident-detail", kwargs={'pk': incident.id})
         data = {'stolen_amount': 125.00}
-        reponse = self.client.put(url, data=data)
-        self.assertEqual(reponse.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        response = self.client.put(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete_incident(self):
         location = AddressFactory()

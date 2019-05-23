@@ -1,4 +1,5 @@
 import logging
+
 from collections import namedtuple
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -8,20 +9,20 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
 
-from .models import (Officer,
-                     Offense,
-                     Incident,
-                     IncidentInvolvedParty,
-                     IncidentFile)
-from .serializers import (OfficerSerializer,
-                          OffenseSerializer,
-                          IncidentSerializer,
-                          IncidentInvolvedPartySerializer,
-                          IncidentFileSerializer)
-from .utils import (create_incident_involved_party,
-                    convert_date_string_to_object)
-from .constants import VICTIM, SUSPECT
-from .printing import IncidentReportPDFGenerator
+from cases.models import (Officer,
+                          Offense,
+                          Incident,
+                          IncidentInvolvedParty,
+                          IncidentFile)
+from cases.serializers import (OfficerSerializer,
+                               OffenseSerializer,
+                               IncidentSerializer,
+                               IncidentInvolvedPartySerializer,
+                               IncidentFileSerializer)
+from cases.utils import (create_incident_involved_party,
+                         convert_date_string_to_object)
+from cases.constants import VICTIM, SUSPECT
+from cases.printing import IncidentReportPDFGenerator
 
 logger = logging.getLogger('cases')
 ContextFile = namedtuple("ContextFile", ["url", "display_name"])
@@ -43,13 +44,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
     serializer_class = IncidentSerializer
 
     def list(self, request, *args, **kwargs):
-        logger.debug(f"request.user: {request.user}")
         return super(IncidentViewSet, self).list(request, args, kwargs)
 
     def create(self, request, *args, **kwargs):
-        logger.debug(f"Request.data: {request.data}")
         dirty_data = {key: value for key, value in request.data.items()}
-        logger.debug(f"Dirty data: {dirty_data}")
+
         for field in dirty_data:
             if "datetime" in field:
                 dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
@@ -57,8 +56,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
         if "id" in dirty_data:
             dirty_data.pop("id")
-        logger.debug(f"After cleaning: {dirty_data['location']}")
+
         serializer = self.get_serializer(data=dirty_data)
+
         if serializer.is_valid():
             incident = serializer.create(validated_data=serializer.validated_data)
             resp_status = status.HTTP_201_CREATED
@@ -73,7 +73,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         incident = Incident.objects.get(id=kwargs['pk'])
-        logger.debug(f"Request.data: {request.data}")
+
         dirty_data = {key: value for key, value in request.data.items()}
         for field in dirty_data:
             if "datetime" in field:
@@ -92,6 +92,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             dirty_data['offenses'] = [offenses['id']]
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
+
         if serializer.is_valid():
             serializer.update(instance=incident, validated_data=serializer.validated_data)
             resp_status = status.HTTP_200_OK
@@ -168,7 +169,6 @@ class IncidentFileViewSet(viewsets.ModelViewSet):
         incident = Incident.objects.get(pk=kwargs.get('incidents_pk'))
         created_files = []
         for upload in request.data.getlist('files'):
-            logger.debug(f"type(upload): {type(upload)}")
             incident_file = IncidentFile(incident=incident,
                                          file=upload)
             incident_file.save()
@@ -184,7 +184,8 @@ def print_report(request, *args, **kwargs):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename="somefilename.pdf"'
 
-    pdf_generator = IncidentReportPDFGenerator(response, kwargs.get('incident_id'))
+    # TODO: Figure out how or why file name was being extracted from the response
+    pdf_generator = IncidentReportPDFGenerator('doo', kwargs.get('incident_id'))
     pdf_generator.generate()
     return response
 
