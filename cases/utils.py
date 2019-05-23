@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from django.conf import settings
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from cases.models import (Officer, Address,
@@ -16,6 +17,11 @@ logger = logging.getLogger('cases')
 
 
 def convert_date_string_to_object(date_string: str) -> Optional[datetime]:
+    """
+    Do our best to parse a string which (in theory) represents a date, and convert it to a python object.
+    :param date_string: The string to convert
+    :return: Python datetime object.
+    """
     date_parts = None
     if date_string.strip():
         parts = date_string.split()
@@ -65,7 +71,7 @@ def isincidentparty_field(field_name: str) -> bool:
     return "suspect" in field_name or "victim" in field_name
 
 
-def create_incident_involved_party(request, serializer_class,
+def create_incident_involved_party(request: Request, serializer_class,
                                    kwargs: Dict[str, Any]) -> Response:
     dirty_data = {key: value for key, value in request.data.items()}
     logger.debug(f"Incident Involved Party Dirty Data: {dirty_data}")
@@ -88,7 +94,7 @@ def create_incident_involved_party(request, serializer_class,
                     data=resp_data)
 
 
-def parse_and_create_address(*, address_data: Dict[str, str]) -> Address:
+def parse_and_create_address(address_data: Dict[str, str]) -> Address:
     # TODO: Validation
     abbr = address_data.pop("state")
     address_data.pop("country", None)
@@ -108,7 +114,7 @@ def parse_and_create_address(*, address_data: Dict[str, str]) -> Address:
     return address
 
 
-def handle_incident_foreign_keys_for_creation(*, validated_data):
+def handle_incident_foreign_keys_for_creation(validated_data):
     for field in validated_data.keys():
         if "officer" in field or "supervisor" in field:
             validated_data[field] = Officer.objects.get(officer_number=validated_data[field])
