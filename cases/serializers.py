@@ -65,6 +65,7 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# WTF is this about?
 class DateTimeSerializer(serializers.Field):
 
     def to_representation(self, value):
@@ -110,8 +111,8 @@ class OfficerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Officer
-        fields = ("id", "officer_number", "supervisor", "user")
-        read_only_fields = ("id",)
+        fields = ("id", "created_timestamp", "updated_timestamp", "officer_number", "supervisor", "user")
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp",)
 
     def create(self, validated_data):
         logger.debug(validated_data)
@@ -140,9 +141,11 @@ class OffenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offense
         fields = "__all__"
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp")
 
 
 class IncidentSerializer(serializers.ModelSerializer):
+    # Is there a reason I specified all these explicitly?
     offenses = OffenseSerializer(many=True)
     reporting_officer = OfficerSerializer()
     reviewed_by_officer = OfficerSerializer()
@@ -192,6 +195,7 @@ class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incident
         fields = "__all__"
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp",)
 
 
 class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
@@ -216,7 +220,7 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
     class Meta:
         model = IncidentInvolvedParty
         exclude = ("display_sequence",)
-        read_only_fields = ("id", "incident", "party_type")
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp", "incident", "party_type")
 
 
 class IncidentFileSerializer(serializers.ModelSerializer):
@@ -233,8 +237,8 @@ class IncidentFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IncidentFile
-        fields = ("id", "incident", "file", "file_name")
-        read_only_fields = ("id",)
+        fields = ("id", "created_timestamp", "updated_timestamp", "incident", "file", "file_name")
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp",)
 
 
 def jwt_response_payload_handler(token, user=None):

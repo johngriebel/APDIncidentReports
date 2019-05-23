@@ -60,9 +60,8 @@ class IncidentDataFaker:
                   if choice[0]]
         return random.choice(shifts)
 
-    def generate_currency(self, prefix: str) -> Dict:
-        return {f'{prefix}_amount': random.randint(0, 1000000) / 100,
-                f'{prefix}_amount_currency': "USD"}
+    def generate_currency(self) -> int:
+        return random.randint(0, 100000000)
 
     def generate_narrative(self) -> str:
         return self.fake.paragraph()

@@ -58,11 +58,12 @@ class IncidentsTestCase(JWTAuthAPIBaseTestCase):
                 'location': location,
                 'beat': self.faker.generate_beat(),
                 'shift': self.faker.generate_shift(),
-                **self.faker.generate_currency(prefix="damaged"),
-                **self.faker.generate_currency(prefix="stolen"),
+                'stolen_amount': self.faker.generate_currency(),
+                'damaged_amount': self.faker.generate_currency(),
                 'offenses': offenses,
                 'narrative': self.faker.generate_narrative()}
         response = self.client.post(url, data=data, format="json")
+        logger.debug(f'response.data: {response.data}')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_partial_update_incident(self):
