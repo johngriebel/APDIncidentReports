@@ -21,11 +21,48 @@ paths:
 
 components:
   schemas:
+    State:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        name:
+          type: string
+        abbreviation:
+          type: string
+    City:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        name:
+          type: string
+        state:
+          type: integer
+    Address:
+      type: object
+      properties:
+        city:
+          type: string
+        state:
+          type: string
     User:
       type: object
       properties:
         id:
           type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
         first_name:
           type: string
         last_name:
@@ -33,4 +70,193 @@ components:
         email:
           type: string
         username:
+          type: string
+    DateTime:
+      type: object
+      properties:
+        date:
+          type: string
+        time:
+          type: string
+    Officer:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        user:
+          type: integer
+        officer_number:
+          type: string
+        supervisor:
+          type: integer
+    Offense:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        ucr_name_classification:
+          type: string
+        ucr_subclass_description:
+          type: string
+        gcic_code:
+          type: string
+        ucr_code:
+          type: string
+        ucr_rank:
+          type: integer
+        code_group:
+          type: string
+        ucr_alpha:
+          type: string
+        log_code:
+          type: string
+    Incident:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        offenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offense'
+        reporting_officer:
+          $ref: '#/components/schemas/Officer'
+        reviewed_by_officer:
+          $ref: '#/components/schemas/Officer'
+        investigating_officer:
+          $ref: '#/components/schemas/Officer'
+        officer_making_report:
+          $ref: '#/components/schemas/Officer'
+        supervisor:
+          $ref: '#/components/schemas/Officer'
+        location:
+          $ref: '#/components/schemas/Address'
+        report_datetime:
+          $ref: '#/components/schemas/DateTime'
+        approved_datetime:
+          $ref: '#/components/schemas/DateTime'
+        reviewed_datetime:
+          $ref: '#/components/schemas/DateTime'
+        earliest_occurrence_datetime:
+          $ref: '#/components/schemas/DateTime'
+        latest_occurrence_datetime:
+          $ref: '#/components/schemas/DateTime'
+    IncidentInvolvedParty:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        incident:
+          $ref: '#/components/schemas/Incident'
+        officer_signed:
+          $ref: '#/components/schemas/Officer'
+        party_type:
+          type: string
+          enum:
+            - VICTIM
+            - SUSPECT
+        juvenile:
+          type: boolean
+        home_address:
+          $ref: '#/components/schemas/Address'
+        date_of_birth:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        race:
+          type: string
+          enum:
+            - ASIAN
+            - BLACK
+            - HISPANIC
+            - NATIVE_AMERICAN
+            - HAWAIIAN/PACIFIC_ISLANDER
+            - WHITE
+            - OTHER
+        height:
+          description: The value stored represents height in inches.
+          type: integer
+        weight:
+          type: integer
+        hair_color:
+          type: string
+          enum:
+            - BLD
+            - BLK
+            - BLN
+            - BLU
+            - BRO
+            - GRY
+            - GRN
+            - ONG
+            - PNK
+            - PLE
+            - RED
+            - SDY
+            - WHI
+            - XXX
+        eye_color:
+          type: string
+          enum:
+            - BLK
+            - BRO
+            - GRN
+            - MAR
+            - PNK
+            - BLU
+            - GRY
+            - HAZ
+            - MUL
+            - XXX
+        drivers_license:
+          type: string
+        drivers_license_state:
+          type: string
+        employer:
+          type: string
+        employer_address:
+          $ref: '#/components/schemas/Address'
+        build:
+          type: string
+        tattoos:
+          type: string
+        scars:
+          type: string
+        hairstyle:
+          type: string
+    IncidentFile:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        incident:
+          $ref: '#/components/schemas/Incident'
+        file_name:
           type: string
