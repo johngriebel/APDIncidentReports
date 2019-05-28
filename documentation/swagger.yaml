@@ -146,7 +146,7 @@ paths:
         '400':
           description: Bad request.
         '404':
-          decription: An officer with the specified ID could not be found.
+          description: An officer with the specified ID could not be found.
     delete:
       summary: Delete the Officer object. Note that all database objects are soft deleted.
       responses:
@@ -501,6 +501,13 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/IncidentFile'
+      responses:
+        '201':
+          description: File was successfully uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentFile'
   /incidents/print/{incident_id}/:
     parameters:
       - name: incident_id
