@@ -1,0 +1,771 @@
+openapi: 3.0.0
+info:
+  title: APD Incident Reporting API
+  description: A modernization of APD's existing reporting system.
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8000/api
+
+paths:
+  /users/:
+    get:
+      summary: Fetches a list of all active users.
+      responses:
+        '200':
+          description: A JSON array containing User objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request.
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the User to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetch auser by ID.
+      responses:
+        '200':
+          description: A JSON representation of a User object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      summary: Partially update the User object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: The update was a success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request.
+    delete:
+      summary: Delete the User object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The user was successfully deleted.
+  /officers/:
+    get:
+      summary: Fetches a list of active officers.
+      responses:
+        '200':
+          description: A JSON array containing Officer objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Officer'
+    post:
+      summary: Create an Officer object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Officer'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Officer'
+        '400':
+          description: Bad request.
+  /officers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Officer to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetch an officer by ID.
+      responses:
+        '200':
+          description: A JSON representation of the Officer object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Officer'
+        '404':
+          description: An Officer with the specified ID could not be found.
+    patch:
+      summary: Partially update the Officer object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Officer'
+      responses:
+        '200':
+          description: The update was a success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Officer'
+        '400':
+          description: Bad request.
+        '404':
+          description: An officer with the specified ID could not be found.
+    delete:
+      summary: Delete the Officer object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The user was successfully deleted.
+  /offenses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Offense to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetch an Offense by ID.
+      responses:
+        '200':
+          description: A JSON representation of the Offense object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offense'
+        '404':
+          description: An Offense with the specified ID could not be found.
+  /offenses/:
+    get:
+      summary: Fetches a list of offenses.
+      responses:
+        '200':
+          description: A JSON array containing Offense objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offense'
+  /incidents/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetch an Incident by ID.
+      responses:
+        '200':
+          description: A JSON representation of the Incident object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+    patch:
+      summary: Partially update the Incident object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Incident'
+      responses:
+        '200':
+          description: The update was a success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          description: Bad request.
+    delete:
+      summary: Delete the Incident object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The incident was successfully deleted.
+  /incidents/:
+    get:
+      summary: Fetches a list of all incidents.
+      responses:
+        '200':
+          description: A JSON array containing Incident objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incident'
+    post:
+      summary: Create an incident.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Incident'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          description: Bad request.
+  /incidents/{incident_id}/victims/{victim_id}/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: victim_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetches the IncidentInvolvedParty object specified by `victim_id`.
+      responses:
+        '200':
+          description: A JSON representation of the IncidentInvolvedParty object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentInvolvedParty'
+        '404':
+          description: Such an IncidentInvolvedParty object could not be found.
+    patch:
+      summary: Partially update the IncidentInvolvedParty object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentInvolvedParty'
+      responses:
+        '200':
+          description: The update was a success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentInvolvedParty'
+        '400':
+          description: Bad request.
+    delete:
+      summary: Delete the IncidentInvolvedParty object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The object was successfully deleted.
+  /incidents/{incident_id}/victims/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetches a list of all victims associated with the given incident.
+      responses:
+        '200':
+          description: A JSON array containing IncidentInvolvedParty objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncidentInvolvedParty'
+        '400':
+          description: Such an Incident could not be found.
+    post:
+      summary: Create an IncidentInvolvedParty object with `party_type = VICTIM`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentInvolvedParty'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          description: Bad request.
+  /incidents/{incident_id}/victims/{suspect_id}/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: suspect_id
+        in: path
+        required: true
+        description: ID of the IncidentInvolvedParty to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetches the IncidentInvolvedParty object specified by `suspect_id`.
+      responses:
+        '200':
+          description: A JSON representation of the IncidentInvolvedParty object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentInvolvedParty'
+        '404':
+          description: Such an IncidentInvolvedParty object could not be found.
+    patch:
+      summary: Partially update the IncidentInvolvedParty object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentInvolvedParty'
+      responses:
+        '200':
+          description: The update was a success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentInvolvedParty'
+        '400':
+          description: Bad request.
+    delete:
+      summary: Delete the IncidentInvolvedParty object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The object was successfully deleted.
+  /incidents/{incident_id}/suspects/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetches a list of all suspects associated with the given incident.
+      responses:
+        '200':
+          description: A JSON array containing IncidentInvolvedParty objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncidentInvolvedParty'
+        '404':
+          description: Such an Incident could not be found.
+    post:
+      summary: Create an IncidentInvolvedParty object with `party_type = SUSPECT`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentInvolvedParty'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          description: Bad request.
+  /incidents/{incident_id}/files/{file_id}:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: file_id
+        in: path
+        required: true
+        description: ID of the IncidentFile to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetches the IncidentFile object specified by `file_id`.
+      responses:
+        '200':
+          description: A JSON representation of the IncidentInvolvedParty object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentFile'
+        '404':
+          description: Such an IncidentFile object could not be found.
+    delete:
+      summary: Delete the IncidentFile object. Note that all database objects are soft deleted.
+      responses:
+        204:
+          description: The object was successfully deleted.
+  /incidents/{incident_id}/files/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be fetched.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Fetch a list of all IncidentFile objects associated with the given Incident.
+      responses:
+        '200':
+          description: A JSON array containing IncidentFile objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncidentFile'
+        '404':
+          description: Such an Incident could not be found.
+    post:
+      summary: Upload an IncidentFile.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IncidentFile'
+      responses:
+        '201':
+          description: File was successfully uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentFile'
+  /incidents/print/{incident_id}/:
+    parameters:
+      - name: incident_id
+        in: path
+        required: true
+        description: ID of the Incident to be printed.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      summary: Returns the incident report in PDF format.
+      responses:
+        '200':
+          description: A PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas:
+    State:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        name:
+          type: string
+        abbreviation:
+          type: string
+    City:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        name:
+          type: string
+        state:
+          type: integer
+    Address:
+      type: object
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        username:
+          type: string
+    DateTime:
+      type: object
+      properties:
+        date:
+          type: string
+        time:
+          type: string
+    Officer:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        user:
+          type: integer
+        officer_number:
+          type: string
+        supervisor:
+          type: integer
+    Offense:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        ucr_name_classification:
+          type: string
+        ucr_subclass_description:
+          type: string
+        gcic_code:
+          type: string
+        ucr_code:
+          type: string
+        ucr_rank:
+          type: integer
+        code_group:
+          type: string
+        ucr_alpha:
+          type: string
+        log_code:
+          type: string
+    Incident:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        offenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offense'
+        reporting_officer:
+          $ref: '#/components/schemas/Officer'
+        reviewed_by_officer:
+          $ref: '#/components/schemas/Officer'
+        investigating_officer:
+          $ref: '#/components/schemas/Officer'
+        officer_making_report:
+          $ref: '#/components/schemas/Officer'
+        supervisor:
+          $ref: '#/components/schemas/Officer'
+        location:
+          $ref: '#/components/schemas/Address'
+        report_datetime:
+          $ref: '#/components/schemas/DateTime'
+        approved_datetime:
+          $ref: '#/components/schemas/DateTime'
+        reviewed_datetime:
+          $ref: '#/components/schemas/DateTime'
+        earliest_occurrence_datetime:
+          $ref: '#/components/schemas/DateTime'
+        latest_occurrence_datetime:
+          $ref: '#/components/schemas/DateTime'
+    IncidentInvolvedParty:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        incident:
+          $ref: '#/components/schemas/Incident'
+        officer_signed:
+          $ref: '#/components/schemas/Officer'
+        party_type:
+          type: string
+          enum:
+            - VICTIM
+            - SUSPECT
+        juvenile:
+          type: boolean
+        home_address:
+          $ref: '#/components/schemas/Address'
+        date_of_birth:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        race:
+          type: string
+          enum:
+            - ASIAN
+            - BLACK
+            - HISPANIC
+            - NATIVE_AMERICAN
+            - HAWAIIAN/PACIFIC_ISLANDER
+            - WHITE
+            - OTHER
+        height:
+          description: The value stored represents height in inches.
+          type: integer
+        weight:
+          type: integer
+        hair_color:
+          type: string
+          enum:
+            - BLD
+            - BLK
+            - BLN
+            - BLU
+            - BRO
+            - GRY
+            - GRN
+            - ONG
+            - PNK
+            - PLE
+            - RED
+            - SDY
+            - WHI
+            - XXX
+        eye_color:
+          type: string
+          enum:
+            - BLK
+            - BRO
+            - GRN
+            - MAR
+            - PNK
+            - BLU
+            - GRY
+            - HAZ
+            - MUL
+            - XXX
+        drivers_license:
+          type: string
+        drivers_license_state:
+          type: string
+        employer:
+          type: string
+        employer_address:
+          $ref: '#/components/schemas/Address'
+        build:
+          type: string
+        tattoos:
+          type: string
+        scars:
+          type: string
+        hairstyle:
+          type: string
+    IncidentFile:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_timestamp:
+          type: string
+        updated_timestamp:
+          type: string
+        incident:
+          $ref: '#/components/schemas/Incident'
+        file_name:
+          type: string

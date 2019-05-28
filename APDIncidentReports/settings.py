@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'corsheaders',
 
-    'djmoney',
-
     'cases'
 ]
 
