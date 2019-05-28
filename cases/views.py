@@ -40,7 +40,7 @@ class OfficerViewSet(viewsets.ModelViewSet):
     serializer_class = OfficerSerializer
 
 
-class OffenseViewSet(viewsets.ModelViewSet):
+class OffenseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Offense.objects.all()
     serializer_class = OffenseSerializer
 
