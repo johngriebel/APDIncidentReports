@@ -76,7 +76,8 @@ class IncidentReportPDFGenerator:
         Given a column number (as defined in cases/constants.py), determine the integer
         value corresponding to the appropriate X coordinate on the canvas.
         :param column: Integer specifying the desired column.
-        :param centered: If true, any value for `column` will be overriden, and PAGE_CENTER_X will be used.
+        :param centered: If true, any value for `column` will be overriden,
+                         and PAGE_CENTER_X will be used.
         :return: The X position that the canvas should move itself to.
         """
         if column not in COLUMN_X_POSITION_MAP:
@@ -133,7 +134,9 @@ class IncidentReportPDFGenerator:
         return TOP_ALIGN_Y - ((self.row_number - 1) * self.default_font_size)
 
     def _draw_page_header(self) -> None:
-        """Draws header information that will be the same for every page of a given incident report."""
+        """Draws header information that will be the same for every page of a
+           given incident report.
+        """
         self.pdf.setFont("Courier", 10)
         self._draw_label("Printed By:",
                          color="blue")
@@ -151,7 +154,9 @@ class IncidentReportPDFGenerator:
         self.pdf.drawString(525, TOP_ALIGN_Y, f"PAGE: {self.page_number}")
 
     def _draw_incident_information(self) -> None:
-        """Draws the general incident information such as time of occurrence, location, and so on."""
+        """Draws the general incident information such as time of occurrence,
+           location, and so on.
+        """
         self._draw_label("------------ INCIDENT INFORMATION ------------",
                          centered=True,
                          color="red")
@@ -213,7 +218,9 @@ class IncidentReportPDFGenerator:
         self.row_number += 2
 
     def _draw_attachments(self) -> None:
-        """Draws a list of attachments, e.g. photos or audio files, associated with the incident."""
+        """Draws a list of attachments, e.g. photos or audio files,
+           associated with the incident.
+        """
         self._draw_label("------------ ATTACHMENTS ------------",
                          centered=True,
                          color="red")
@@ -221,7 +228,8 @@ class IncidentReportPDFGenerator:
 
     def _draw_victims(self, victims) -> None:
         """
-        Draws IncidentInvoledParty information for all parties reporting to be a victim of the incident.
+        Draws IncidentInvoledParty information for all parties reporting to be a victim of
+        the incident.
         :param victims: A QuerySet of IncidentInvolvedParty objects where party_type = VICTIM.
         :return: None
         """
@@ -368,7 +376,8 @@ class IncidentReportPDFGenerator:
         """
         Performs the necessary string manipulation in order to
         properly draw a multi-line string on the canvas.
-        :param lines: A list of strings where each element in the list corresponds to a line to be drawn.
+        :param lines: A list of strings where each element in the list corresponds
+                      to a line to be drawn.
         :param x_position: X coordinate at which the block of text should begin.
         :param y_position: Y coordinate at which the block of text should begin.
         :return: None

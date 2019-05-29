@@ -29,6 +29,7 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 def _get_db_vals_for_choice_list(choices: List[Tuple]) -> List[str]:
     return [c[0] for c in choices]
 
+
 def generate_jwt_for_tests(user: User):
     payload = jwt_payload_handler(user)
     return jwt_encode_handler(payload)
@@ -90,8 +91,10 @@ class IncidentDataFaker:
                       'race': random.choice(_get_db_vals_for_choice_list(choices=RACE_CHOICES)),
                       'height': random.randint(24, 90),
                       'weight': random.randint(2, 400),
-                      'hair_color': random.choice(_get_db_vals_for_choice_list(choices=HAIR_COLOR_CHOICES)),
-                      'eye_color': random.choice(_get_db_vals_for_choice_list(choices=EYE_COLOR_CHOICES)),
+                      'hair_color': random.choice(_get_db_vals_for_choice_list(choices=
+                                                                               HAIR_COLOR_CHOICES)),
+                      'eye_color': random.choice(_get_db_vals_for_choice_list(choices=
+                                                                              EYE_COLOR_CHOICES)),
                       'build': self.fake.text(max_nb_chars=25),
                       'tattoos': self.fake.text(max_nb_chars=30),
                       'scars': self._maybe(to_return=self.fake.text(max_nb_chars=30)),

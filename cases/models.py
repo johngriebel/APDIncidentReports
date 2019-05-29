@@ -203,4 +203,3 @@ class IncidentFile(APDIncidentBaseModel):
 
         gigabytes = megabytes / 1024
         return f"{gigabytes} GB"
-

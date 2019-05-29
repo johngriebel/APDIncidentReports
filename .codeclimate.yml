@@ -5,6 +5,7 @@ exclude_patterns:
   - "documentation/"
   - "legal/"
   - "requirements/"
+  - "**/migrations/"
 plugins:
   pep8:
     enabled: true

@@ -140,7 +140,8 @@ class OfficerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Officer
-        fields = ("id", "created_timestamp", "updated_timestamp", "officer_number", "supervisor", "user")
+        fields = ("id", "created_timestamp", "updated_timestamp",
+                  "officer_number", "supervisor", "user")
         read_only_fields = ("id", "created_timestamp", "updated_timestamp",)
 
     def create(self, validated_data: Dict) -> Officer:
@@ -247,7 +248,8 @@ class IncidentSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("An Incident with that incident "
                                                   "number already exists")
             if value != self.instance.incident_number:
-                raise serializers.ValidationError("An Incident with that incident number already exists")
+                raise serializers.ValidationError("An Incident with that incident "
+                                                  "number already exists")
         return value
 
     class Meta:
@@ -270,13 +272,15 @@ class IncidentInvolvedPartySerializer(serializers.ModelSerializer):
         :param party_type: A string whose value is either VICTIM or SUSPECT
         :return: The IncidentInvolvedParty object.
         """
-        self.instance = IncidentInvolvedParty.objects.create(**validated_data, party_type=party_type)
+        self.instance = IncidentInvolvedParty.objects.create(**validated_data,
+                                                             party_type=party_type)
         return self.instance
 
     class Meta:
         model = IncidentInvolvedParty
         exclude = ("display_sequence",)
-        read_only_fields = ("id", "created_timestamp", "updated_timestamp", "incident", "party_type")
+        read_only_fields = ("id", "created_timestamp", "updated_timestamp",
+                            "incident", "party_type")
 
 
 class IncidentFileSerializer(serializers.ModelSerializer):

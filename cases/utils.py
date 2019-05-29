@@ -48,7 +48,8 @@ def _parse_time_portion(raw_time_str: str) -> Tuple[int, int]:
 
 def convert_date_string_to_object(date_string: str) -> datetime:
     """
-    Do our best to parse a string which (in theory) represents a date, and convert it to a python object.
+    Do our best to parse a string which (in theory) represents a date,
+    and convert it to a python object.
     :param date_string: The string to convert
     :return: Python datetime object.
     """
@@ -91,7 +92,8 @@ def create_incident_involved_party(request: Request, serializer_class,
         resp_status = status.HTTP_400_BAD_REQUEST
         resp_data = serializer.errors
     else:
-        serializer.create(validated_data=serializer.validated_data, party_type=kwargs.get('party_type'))
+        serializer.create(validated_data=serializer.validated_data,
+                          party_type=kwargs.get('party_type'))
         resp_status = status.HTTP_201_CREATED
         resp_data = serializer.data
 
