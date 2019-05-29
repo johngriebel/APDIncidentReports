@@ -1,0 +1,12 @@
+version: "2"
+exclude_patterns:
+  - "venv/"
+  - "logs/"
+  - "documentation/"
+  - "legal/"
+  - "requirements/"
+plugins:
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
