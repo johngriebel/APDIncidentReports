@@ -55,14 +55,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         dirty_data = {key: value for key, value in request.data.items()}
+        dirty_data.pop('id', None)
 
-        for field in dirty_data:
-            if "datetime" in field:
-                dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
-                                                                  f"{dirty_data[field]['time']}")
-
-        if "id" in dirty_data:
-            dirty_data.pop("id")
+        for key, value in dirty_data.items():
+            dirty_data[key] = self._clean_dirty_field(field_key=key,
+                                                      dirty_value=value)
 
         serializer = self.get_serializer(data=dirty_data)
 

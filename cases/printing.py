@@ -1,4 +1,6 @@
 import math
+
+from typing import Optional
 from django.utils import timezone
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -88,7 +90,7 @@ class IncidentReportPDFGenerator:
 
         return x_position
 
-    def _draw_label(self, label: str, data: str = None, row: int = None,
+    def _draw_label(self, label: str, data: Optional[str] = None, row: int = None,
                     column: int = 0, centered: bool = False, color: str = "blue") -> None:
         """
         Draws a label and possibly associated data on the canvas.
@@ -114,13 +116,14 @@ class IncidentReportPDFGenerator:
         self._set_font_color_rgb(red, green, blue)
         self.draw_func(x_position, y_position, label)
 
-        if data is not None:
-            label_width = stringWidth(label,
-                                      fontName="Courier",
-                                      fontSize=10)
-            data_x_pos = x_position + label_width
-            self._reset_font_color()
-            self.pdf.drawString(data_x_pos, y_position, f" {data}")
+        # Quickish way to ensure data is empty string as opposed to None
+        data = data or ''
+        label_width = stringWidth(label,
+                                  fontName="Courier",
+                                  fontSize=10)
+        data_x_pos = x_position + label_width
+        self._reset_font_color()
+        self.pdf.drawString(data_x_pos, y_position, f" {data}")
 
         self._reset_font_color()
 
@@ -299,34 +302,40 @@ class IncidentReportPDFGenerator:
         :return: None
         """
         self._draw_label(label=f"{party.party_type.title()} #{count}",
+                         data=None,
                          color="red")
+
         if party.party_type == SUSPECT:
             self._draw_label("Date and Time Last Updated:")
+
         self._draw_label("Name:",
                          data=party.name)
         self._draw_label(label="Juvenile?",
                          data=str(party.juvenile))
         self._draw_label(label="Home Address:",
-                         data=str(party.home_address) or '')
+                         data=str(party.home_address))
         self._draw_label(label="SSN:",
                          data=party.social_security_number)
+
         this_row = self.row_number - 1
+
         self._draw_label(label="DOB:",
-                         data=party.date_of_birth or '',
+                         data=str(party.date_of_birth),
                          row=this_row,
                          column=2)
         self._draw_label(label="Sex:",
-                         data=party.sex or '',
+                         data=party.sex,
                          row=this_row,
                          column=3)
         self._draw_label(label="Race:",
-                         data=party.race or '',
+                         data=party.race,
                          row=this_row,
                          column=4)
         self._draw_label(label="Hgt:",
                          data=str(party.height))
 
         this_row = self.row_number - 1
+
         self._draw_label(label="Wgt:",
                          data=str(party.weight),
                          row=this_row,
@@ -339,18 +348,19 @@ class IncidentReportPDFGenerator:
                          data=party.eye_color,
                          row=this_row,
                          column=4)
-
         self._draw_label(label="Driver's License:",
                          data=party.drivers_license)
+
         this_row = self.row_number - 1
+
         self._draw_label(label="State:",
-                         data=party.drivers_license_state or '',
+                         data=party.drivers_license_state,
                          row=this_row,
                          column=3)
         self._draw_label("Employer:",
                          data=party.employer)
         self._draw_label("Emp Address:",
-                         data=str(party.employer_address) or '')
+                         data=str(party.employer_address))
 
     def _wrap_and_write_lines(self, lines: list,
                               x_position: int = LEFT_ALIGN_X,
