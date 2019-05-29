@@ -87,7 +87,8 @@ class VictimTestCase(JWTAuthAPIBaseTestCase):
     def test_create_victim(self):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=VICTIM,
-                                                  incident=incident)
+                                                  incident=incident,
+                                                  officer_signed=OfficerFactory())
         url = reverse("victim-list", kwargs={'incidents_pk': str(incident.pk)})
         response = self.client.post(url, data=data,
                                     format="json")
@@ -137,7 +138,8 @@ class SuspectTestCase(JWTAuthAPIBaseTestCase):
     def test_create_suspect(self):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=SUSPECT,
-                                                  incident=incident)
+                                                  incident=incident,
+                                                  officer_signed=OfficerFactory())
         url = reverse("suspect-list", kwargs={'incidents_pk': str(incident.pk)})
         response = self.client.post(url, data=data,
                                     format="json")
