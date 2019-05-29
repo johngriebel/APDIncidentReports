@@ -2,7 +2,7 @@ import re
 import logging
 import pytz
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 from datetime import datetime
 from django.conf import settings
 from rest_framework import status
@@ -16,50 +16,55 @@ date_format = re.compile(r"\d{4}-\d{2}-\d{2}")
 logger = logging.getLogger('cases')
 
 
-def convert_date_string_to_object(date_string: str) -> Optional[datetime]:
+def _parse_date_portion(raw_date_str: str) -> Tuple[int, int, int]:
+    if "-" in raw_date_str:
+        date_parts = raw_date_str.split("-")
+        year = int(date_parts[0])
+        month = int(date_parts[1])
+        day = int(date_parts[2])
+    elif "/" in raw_date_str:
+        date_parts = raw_date_str.split("/")
+        year = int(date_parts[2])
+        month = int(date_parts[0])
+        day = int(date_parts[1])
+    else:
+        logger.error(f'Attempted to parse the raw date string {raw_date_str}, but no valid '
+                     f'delimiter was found.')
+        raise ValueError(f"{raw_date_str} does not contain a valid delimiter.")
+
+    return year, month, day
+
+
+def _parse_time_portion(raw_time_str: str) -> Tuple[int, int]:
+    hours = 0
+    minutes = 0
+    if ':' in raw_time_str:
+        time_parts = raw_time_str.split(':')
+        hours = int(time_parts[0])
+        minutes = int(time_parts[1])
+
+    return hours, minutes
+
+
+def convert_date_string_to_object(date_string: str) -> datetime:
     """
     Do our best to parse a string which (in theory) represents a date, and convert it to a python object.
     :param date_string: The string to convert
     :return: Python datetime object.
     """
-    date_parts = None
+
     if date_string.strip():
         parts = date_string.split()
-        date_portion = parts[0]
-        if len(parts) > 1:
-            time_portion = date_string.split()[-1]
-        else:
-            time_portion = None
-        if time_portion:
-            time_parts = time_portion.split(":")
-            hours = int(time_parts[0])
-            minutes = int(time_parts[1])
-        else:
-            hours = 0
-            minutes = 0
-        if "-" in date_portion:
-            date_parts = date_portion.split("-")
-            year = int(date_parts[0])
-            month = int(date_parts[1])
-            day = int(date_parts[2])
-        elif "/" in date_string:
-            date_parts = date_portion.split("/")
-            year = int(date_parts[2])
-            month = int(date_parts[0])
-            day = int(date_parts[1])
+        year, month, day = _parse_date_portion(raw_date_str=parts[0])
+        hours, minutes = _parse_time_portion(raw_time_str=parts[-1])
 
-        if date_parts is not None and len(date_parts) == 3:
-            date_object = datetime(year=year,
-                                   month=month,
-                                   day=day,
-                                   hour=hours,
-                                   minute=minutes,
-                                   tzinfo=pytz.timezone(settings.TIME_ZONE))
-            return date_object
-        else:
-            raise ValueError(f"Incorrectly formatted date string: {date_string}")
-    else:
-        return None
+        date_object = datetime(year=year,
+                               month=month,
+                               day=day,
+                               hour=hours,
+                               minute=minutes,
+                               tzinfo=pytz.timezone(settings.TIME_ZONE))
+        return date_object
 
 
 def isincident_field(field_name: str) -> bool:
