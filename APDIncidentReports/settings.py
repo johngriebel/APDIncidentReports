@@ -81,8 +81,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'APDIncidentReports.wsgi.application'
 
 DATABASES = {'default': dj_database_url.config(conn_max_age=600,
-                                               default="postgres://postgres:postgres@localhost:5432/apd")
-             }
+                                               default=os.getenv('DATABASE_URL'))}
 
 
 # Password validation
