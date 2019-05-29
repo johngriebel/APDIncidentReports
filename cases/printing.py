@@ -1,4 +1,6 @@
 import math
+
+from typing import Optional
 from django.utils import timezone
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -74,7 +76,8 @@ class IncidentReportPDFGenerator:
         Given a column number (as defined in cases/constants.py), determine the integer
         value corresponding to the appropriate X coordinate on the canvas.
         :param column: Integer specifying the desired column.
-        :param centered: If true, any value for `column` will be overriden, and PAGE_CENTER_X will be used.
+        :param centered: If true, any value for `column` will be overriden,
+                         and PAGE_CENTER_X will be used.
         :return: The X position that the canvas should move itself to.
         """
         if column not in COLUMN_X_POSITION_MAP:
@@ -88,7 +91,7 @@ class IncidentReportPDFGenerator:
 
         return x_position
 
-    def _draw_label(self, label: str, data: str = None, row: int = None,
+    def _draw_label(self, label: str, data: Optional[str] = None, row: int = None,
                     column: int = 0, centered: bool = False, color: str = "blue") -> None:
         """
         Draws a label and possibly associated data on the canvas.
@@ -114,13 +117,14 @@ class IncidentReportPDFGenerator:
         self._set_font_color_rgb(red, green, blue)
         self.draw_func(x_position, y_position, label)
 
-        if data is not None:
-            label_width = stringWidth(label,
-                                      fontName="Courier",
-                                      fontSize=10)
-            data_x_pos = x_position + label_width
-            self._reset_font_color()
-            self.pdf.drawString(data_x_pos, y_position, f" {data}")
+        # Quickish way to ensure data is empty string as opposed to None
+        data = data or ''
+        label_width = stringWidth(label,
+                                  fontName="Courier",
+                                  fontSize=10)
+        data_x_pos = x_position + label_width
+        self._reset_font_color()
+        self.pdf.drawString(data_x_pos, y_position, f" {data}")
 
         self._reset_font_color()
 
@@ -130,7 +134,9 @@ class IncidentReportPDFGenerator:
         return TOP_ALIGN_Y - ((self.row_number - 1) * self.default_font_size)
 
     def _draw_page_header(self) -> None:
-        """Draws header information that will be the same for every page of a given incident report."""
+        """Draws header information that will be the same for every page of a
+           given incident report.
+        """
         self.pdf.setFont("Courier", 10)
         self._draw_label("Printed By:",
                          color="blue")
@@ -148,7 +154,9 @@ class IncidentReportPDFGenerator:
         self.pdf.drawString(525, TOP_ALIGN_Y, f"PAGE: {self.page_number}")
 
     def _draw_incident_information(self) -> None:
-        """Draws the general incident information such as time of occurrence, location, and so on."""
+        """Draws the general incident information such as time of occurrence,
+           location, and so on.
+        """
         self._draw_label("------------ INCIDENT INFORMATION ------------",
                          centered=True,
                          color="red")
@@ -210,7 +218,9 @@ class IncidentReportPDFGenerator:
         self.row_number += 2
 
     def _draw_attachments(self) -> None:
-        """Draws a list of attachments, e.g. photos or audio files, associated with the incident."""
+        """Draws a list of attachments, e.g. photos or audio files,
+           associated with the incident.
+        """
         self._draw_label("------------ ATTACHMENTS ------------",
                          centered=True,
                          color="red")
@@ -218,7 +228,8 @@ class IncidentReportPDFGenerator:
 
     def _draw_victims(self, victims) -> None:
         """
-        Draws IncidentInvoledParty information for all parties reporting to be a victim of the incident.
+        Draws IncidentInvoledParty information for all parties reporting to be a victim of
+        the incident.
         :param victims: A QuerySet of IncidentInvolvedParty objects where party_type = VICTIM.
         :return: None
         """
@@ -299,34 +310,40 @@ class IncidentReportPDFGenerator:
         :return: None
         """
         self._draw_label(label=f"{party.party_type.title()} #{count}",
+                         data=None,
                          color="red")
+
         if party.party_type == SUSPECT:
             self._draw_label("Date and Time Last Updated:")
+
         self._draw_label("Name:",
                          data=party.name)
         self._draw_label(label="Juvenile?",
                          data=str(party.juvenile))
         self._draw_label(label="Home Address:",
-                         data=str(party.home_address) or '')
+                         data=str(party.home_address))
         self._draw_label(label="SSN:",
                          data=party.social_security_number)
+
         this_row = self.row_number - 1
+
         self._draw_label(label="DOB:",
-                         data=party.date_of_birth or '',
+                         data=str(party.date_of_birth),
                          row=this_row,
                          column=2)
         self._draw_label(label="Sex:",
-                         data=party.sex or '',
+                         data=party.sex,
                          row=this_row,
                          column=3)
         self._draw_label(label="Race:",
-                         data=party.race or '',
+                         data=party.race,
                          row=this_row,
                          column=4)
         self._draw_label(label="Hgt:",
                          data=str(party.height))
 
         this_row = self.row_number - 1
+
         self._draw_label(label="Wgt:",
                          data=str(party.weight),
                          row=this_row,
@@ -339,18 +356,19 @@ class IncidentReportPDFGenerator:
                          data=party.eye_color,
                          row=this_row,
                          column=4)
-
         self._draw_label(label="Driver's License:",
                          data=party.drivers_license)
+
         this_row = self.row_number - 1
+
         self._draw_label(label="State:",
-                         data=party.drivers_license_state or '',
+                         data=party.drivers_license_state,
                          row=this_row,
                          column=3)
         self._draw_label("Employer:",
                          data=party.employer)
         self._draw_label("Emp Address:",
-                         data=str(party.employer_address) or '')
+                         data=str(party.employer_address))
 
     def _wrap_and_write_lines(self, lines: list,
                               x_position: int = LEFT_ALIGN_X,
@@ -358,7 +376,8 @@ class IncidentReportPDFGenerator:
         """
         Performs the necessary string manipulation in order to
         properly draw a multi-line string on the canvas.
-        :param lines: A list of strings where each element in the list corresponds to a line to be drawn.
+        :param lines: A list of strings where each element in the list corresponds
+                      to a line to be drawn.
         :param x_position: X coordinate at which the block of text should begin.
         :param y_position: Y coordinate at which the block of text should begin.
         :return: None

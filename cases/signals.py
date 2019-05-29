@@ -7,7 +7,8 @@ logger = logging.getLogger('cases')
 
 
 def delete_incident_file_from_disk(sender, **kwargs):
-    """When an IncidentFile object is deleted from the database, we must ensure that it is deleted from disk as well."""
+    """When an IncidentFile object is deleted from the database, we must ensure that it is
+       deleted from disk as well."""
     if sender == IncidentFile:
         instance = kwargs.get('instance')
         logger.info(f"About to delete theIncidentFile {instance} from disk")

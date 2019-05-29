@@ -1,5 +1,6 @@
 import logging
 
+from typing import Any
 from collections import namedtuple
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -54,14 +55,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         dirty_data = {key: value for key, value in request.data.items()}
+        dirty_data.pop('id', None)
 
-        for field in dirty_data:
-            if "datetime" in field:
-                dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
-                                                                  f"{dirty_data[field]['time']}")
-
-        if "id" in dirty_data:
-            dirty_data.pop("id")
+        for key, value in dirty_data.items():
+            dirty_data[key] = self._clean_dirty_field(field_key=key,
+                                                      dirty_value=value)
 
         serializer = self.get_serializer(data=dirty_data)
 
@@ -77,25 +75,21 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(status=resp_status,
                         data=resp_data)
 
+    def _clean_dirty_field(self, field_key: str, dirty_value: Any) -> Any:
+        if 'datetime' in field_key:
+            return convert_date_string_to_object(dirty_value['date'] + " " + dirty_value['time'])
+        elif '_amount' in field_key:
+            return dirty_value or 0
+        else:
+            return dirty_value
+
     def partial_update(self, request, *args, **kwargs):
         incident = Incident.objects.get(id=kwargs['pk'])
 
         dirty_data = {key: value for key, value in request.data.items()}
-        for field in dirty_data:
-            if "datetime" in field:
-                logger.debug(f"dirty_data[{field}]: {dirty_data[field]}")
-                dirty_data[field] = convert_date_string_to_object(f"{dirty_data[field]['date']} "
-                                                                  f"{dirty_data[field]['time']}")
-
-        if "damaged_amount" in dirty_data and dirty_data['damaged_amount'] is None:
-            dirty_data['damaged_amount'] = 0
-
-        if "stolen_amount" in dirty_data and dirty_data['stolen_amount'] is None:
-            dirty_data['stolen_amount'] = 0
-
-        if "offenses" in dirty_data and isinstance(dirty_data['offenses'], dict):
-            offenses = dirty_data.pop("offenses")
-            dirty_data['offenses'] = [offenses['id']]
+        for key, value in dirty_data.items():
+            dirty_data[key] = self._clean_dirty_field(field_key=key,
+                                                      dirty_value=value)
 
         serializer = self.get_serializer(incident, data=dirty_data, partial=True)
 

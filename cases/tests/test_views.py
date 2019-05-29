@@ -87,7 +87,8 @@ class VictimTestCase(JWTAuthAPIBaseTestCase):
     def test_create_victim(self):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=VICTIM,
-                                                  incident=incident)
+                                                  incident=incident,
+                                                  officer_signed=OfficerFactory())
         url = reverse("victim-list", kwargs={'incidents_pk': str(incident.pk)})
         response = self.client.post(url, data=data,
                                     format="json")
@@ -137,7 +138,8 @@ class SuspectTestCase(JWTAuthAPIBaseTestCase):
     def test_create_suspect(self):
         incident = IncidentFactory()
         data = self.faker.generate_involved_party(party_type=SUSPECT,
-                                                  incident=incident)
+                                                  incident=incident,
+                                                  officer_signed=OfficerFactory())
         url = reverse("suspect-list", kwargs={'incidents_pk': str(incident.pk)})
         response = self.client.post(url, data=data,
                                     format="json")
@@ -195,8 +197,7 @@ class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
     def test_create_single_file_upload(self):
         upload_file = generate_random_file_content(suffix="foo.txt")
         data = {'files': [upload_file]}
-        url = reverse("file-list", kwargs={'incidents_pk':
-                                               self.incident.pk})
+        url = reverse("file-list", kwargs={'incidents_pk': self.incident.pk})
         response = self.client.post(url, data=data,
                                     format="multipart")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -212,7 +213,7 @@ class IncidentFileTestCase(JWTAuthAPIBaseTestCase):
         inc_file.save()
         file_path = inc_file.file.path
         url = reverse("file-detail", kwargs={'incidents_pk': self.incident.pk,
-                                                     'pk': inc_file.pk})
+                                             'pk': inc_file.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         inc_files = IncidentFile.objects.filter(incident=self.incident)
