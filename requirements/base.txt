@@ -1,4 +1,4 @@
-django==2.2.1
+django==2.2.21
 django-money==0.14.4
 psycopg2-binary==2.8.2
 reportlab==3.5.21
